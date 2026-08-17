@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070D1B">
+<title>DOMINEI — o mapa do seu cérebro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Archivo+Black&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --ink:#070D1B; --card:#0E1830; --card2:#111D3A; --line:rgba(148,168,214,.14);
+  --text:#F3F0E8; --dim:#93A0B8; --faint:#5A6478;
+  --verde:#2FE08D; --verde-dim:rgba(47,224,141,.14);
+  --amarelo:#F2B33D; --vermelho:#ED5A5A; --nd:#39435C;
+  --radius:18px;
+}
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; }
+body {
+  font-family:'Atkinson Hyperlegible', sans-serif;
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(47,224,141,.07), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(58,86,166,.12), transparent 55%),
+    var(--ink);
+  color:var(--text);
+  min-height:100dvh;
+  display:flex; flex-direction:column;
+}
+.brand { font-family:'Archivo Black', sans-serif; letter-spacing:.06em; }
+.brand i { font-style:normal; color:var(--verde); }
+h1,h2,h3,.disp { font-family:'Archivo', sans-serif; font-variation-settings:'wdth' 75, 'wght' 800; }
+
+header { padding:16px 20px 0; display:flex; align-items:center; justify-content:space-between; }
+header .brand { font-size:17px; }
+header .sair { background:none; border:none; color:var(--dim); font-size:12px; cursor:pointer; font-family:inherit; }
+
+main { flex:1; width:100%; max-width:520px; margin:0 auto; padding:16px 20px 40px; }
+.view { display:none; animation:enter .45s cubic-bezier(.2,.9,.3,1) both; }
+.view.on { display:block; }
+@keyframes enter { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+
+button { font-family:inherit; cursor:pointer; border:none; }
+.btn {
+  width:100%; padding:16px; border-radius:var(--radius);
+  font-size:16px; font-weight:700; color:#06130C;
+  background:var(--verde);
+  box-shadow:0 8px 30px rgba(47,224,141,.25);
+  transition:transform .12s ease, box-shadow .2s;
+}
+.btn:active { transform:scale(.98); }
+.btn.ghost { background:transparent; color:var(--dim); box-shadow:none; border:1px dashed var(--line); }
+.btn[disabled] { opacity:.5; pointer-events:none; }
+
+.card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:20px; }
+
+/* ---------- AUTH / HOME ---------- */
+.hero { padding:8vh 0 24px; }
+.hero .brand { font-size:44px; line-height:1; }
+.hero p.lead { color:var(--dim); font-size:17px; margin:14px 0 4px; max-width:34ch; }
+.hero p.lead b { color:var(--text); }
+input, select {
+  width:100%; padding:14px; border-radius:14px; border:1px solid var(--line);
+  background:var(--card); color:var(--text); font-size:15px; font-family:inherit; margin-bottom:10px;
+}
+label { display:block; font-size:12px; color:var(--dim); margin:0 0 5px 2px; letter-spacing:.04em; }
+.msg { min-height:20px; font-size:13px; color:var(--vermelho); margin-top:8px; }
+.alt { text-align:center; margin-top:14px; font-size:13px; color:var(--dim); }
+.alt a { color:var(--verde); text-decoration:none; }
+
+/* ---------- FASE 0 ---------- */
+.f0 h2 { font-size:22px; margin-bottom:6px; }
+.f0 .sub { color:var(--dim); font-size:14px; margin-bottom:18px; }
+.disc { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; margin-bottom:10px; }
+.disc .nome { font-weight:700; font-size:15px; margin-bottom:10px; }
+.chips { display:flex; gap:8px; }
+.chip {
+  flex:1; padding:9px 4px; border-radius:12px; font-size:12.5px; font-weight:700;
+  background:var(--card2); color:var(--dim); border:1px solid var(--line);
+  transition:all .15s;
+}
+.chip.on { background:var(--verde-dim); color:var(--verde); border-color:var(--verde); }
+
+/* ---------- TESTE ---------- */
+.topbar { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.prog { flex:1; }
+.prog .lbl { font-size:11px; letter-spacing:.14em; color:var(--dim); margin-bottom:6px; }
+.prog .lbl b { color:var(--verde); }
+.dots { display:flex; flex-wrap:wrap; gap:3px; }
+.dot { width:6px; height:6px; border-radius:2px; background:var(--card2); transition:background .4s; }
+.dot.fill { background:#3A5AA6; }
+
+.qcard {
+  background:var(--card); border:1px solid var(--line); border-radius:22px;
+  padding:26px 22px; min-height:200px; display:flex; flex-direction:column; justify-content:center;
+  animation:enter .35s both;
+}
+.qcard .tipo { font-size:11px; letter-spacing:.18em; color:var(--dim); margin-bottom:14px; }
+.qcard .enun { font-size:19px; line-height:1.55; }
+.alts { margin-top:16px; display:flex; flex-direction:column; gap:8px; }
+.altbtn { text-align:left; padding:13px 15px; border-radius:14px; background:var(--card2); color:var(--text); border:1px solid var(--line); font-size:15px; }
+.altbtn.on { border-color:var(--verde); background:var(--verde-dim); }
+
+.answers { display:flex; gap:10px; margin-top:18px; }
+.answers .abtn {
+  flex:1; padding:20px 0; border-radius:var(--radius); font-size:17px; font-weight:800; letter-spacing:.08em;
+  border:1.5px solid var(--line); background:var(--card); color:var(--text);
+  transition:all .15s;
+}
+.abtn.on { border-color:var(--verde); background:var(--verde-dim); color:var(--verde); }
+.nuncavi { margin-top:12px; width:100%; background:none; border:none; color:var(--dim); font-size:14px; padding:10px; }
+.nuncavi u { text-decoration-style:dotted; text-underline-offset:4px; }
+.nuncavi small { display:block; color:var(--faint, #5A6478); font-size:11.5px; margin-top:3px; }
+
+.confbox { margin-top:16px; display:none; animation:enter .25s both; }
+.confbox.on { display:block; }
+.confbox .lbl { font-size:12px; color:var(--dim); text-align:center; margin-bottom:9px; letter-spacing:.06em; }
+.confs { display:flex; gap:8px; }
+.confs button { flex:1; padding:13px 4px; border-radius:14px; font-size:13.5px; font-weight:700; background:var(--card2); color:var(--text); border:1px solid var(--line); }
+.confs button:active { border-color:var(--verde); }
+
+/* ---------- PRÉ-REVELAÇÃO ---------- */
+.pre { text-align:center; padding:10vh 0; }
+.pre .pulse {
+  width:120px; height:120px; margin:0 auto 26px; border-radius:50%;
+  background:radial-gradient(circle, rgba(47,224,141,.25), transparent 65%);
+  display:flex; align-items:center; justify-content:center;
+  animation:pulse 1.8s ease-in-out infinite;
+}
+.pre .pulse span { font-size:44px; }
+@keyframes pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.12); } }
+.pre h2 { font-size:26px; margin-bottom:8px; }
+.pre p { color:var(--dim); margin-bottom:28px; }
+
+/* ---------- REVELAÇÃO ---------- */
+.rv .head { margin-bottom:18px; }
+.rv .head h2 { font-size:24px; }
+.rv .head p { color:var(--dim); font-size:13.5px; margin-top:4px; }
+.stats { display:flex; gap:10px; margin-bottom:16px; }
+.stat { flex:1; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px; text-align:center; }
+.stat .v { font-family:'Archivo', sans-serif; font-variation-settings:'wdth' 75,'wght' 800; font-size:22px; color:var(--verde); }
+.stat .k { font-size:10.5px; color:var(--dim); letter-spacing:.08em; margin-top:2px; }
+
+.insight { border-radius:var(--radius); padding:15px 16px; margin-bottom:10px; font-size:14px; line-height:1.5; border:1px solid var(--line); background:var(--card); animation:enter .5s both; }
+.insight b { display:block; font-size:11px; letter-spacing:.14em; margin-bottom:5px; }
+.insight.risco b { color:var(--vermelho); }
+.insight.forte b { color:var(--verde); }
+.insight.ilusao b { color:var(--amarelo); }
+.insight.acao { background:var(--verde-dim); border-color:rgba(47,224,141,.4); }
+.insight.acao b { color:var(--verde); }
+
+.dsec { margin:20px 0 6px; }
+.dsec h3 { font-size:15px; letter-spacing:.03em; margin-bottom:10px; display:flex; justify-content:space-between; align-items:baseline; }
+.dsec h3 small { color:var(--dim); font-weight:400; font-size:11.5px; }
+.trow { display:flex; align-items:center; gap:10px; margin-bottom:7px; opacity:0; animation:enter .4s both; animation-delay:var(--d, 0ms); }
+.trow .tn { flex:1; font-size:13px; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.trow .bar { flex:1.1; height:9px; border-radius:6px; background:var(--card2); overflow:hidden; }
+.trow .bar i { display:block; height:100%; width:0; border-radius:6px; transition:width 1s cubic-bezier(.2,.8,.2,1); }
+.trow.v-verde .bar i { background:var(--verde); }
+.trow.v-amarelo .bar i { background:var(--amarelo); }
+.trow.v-vermelho .bar i { background:var(--vermelho); }
+.trow.v-nd .bar i { background:var(--nd); width:100% !important; opacity:.45; }
+.trow.v-nd .tn { color:var(--dim); }
+.legend { display:flex; gap:14px; margin:14px 0 4px; font-size:11px; color:var(--dim); flex-wrap:wrap; }
+.legend span::before { content:''; display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; vertical-align:-1px; }
+.legend .lg-v::before { background:var(--verde); } .legend .lg-a::before { background:var(--amarelo); }
+.legend .lg-r::before { background:var(--vermelho); } .legend .lg-n::before { background:var(--nd); }
+
+.sharebar { position:sticky; bottom:0; padding:14px 0 8px; background:linear-gradient(transparent, var(--ink) 40%); }
+.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--card2); border:1px solid var(--line); color:var(--text); padding:11px 18px; border-radius:14px; font-size:13px; display:none; z-index:60; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">DOMINE<i>I</i></div>
+  <button class="sair" id="btnSair" style="display:none">sair</button>
+</header>
+
+<main>
+  <!-- AUTH -->
+  <section class="view" id="vAuth">
+    <div class="hero">
+      <div class="brand" style="font-size:40px">DOMINE<i>I</i></div>
+      <p class="lead">Descubra <b>o mapa do seu cérebro</b> para o concurso — o que você já domina, o que só acha que sabe, e por onde começar.</p>
+      <p class="lead" style="font-size:13px">≈ 15 minutos · grátis</p>
+    </div>
+    <div class="card">
+      <label>E-mail</label><input id="email" type="email" autocomplete="username" placeholder="voce@email.com">
+      <label>Senha</label><input id="senha" type="password" autocomplete="current-password" placeholder="••••••••">
+      <button class="btn" id="btnEntrar">Entrar</button>
+      <div class="msg" id="authMsg"></div>
+      <div class="alt">Primeira vez aqui? <a href="#" id="lnkModo">Criar minha conta</a></div>
+    </div>
+  </section>
+
+  <!-- HOME -->
+  <section class="view" id="vHome">
+    <div class="hero" style="padding-top:4vh">
+      <h2 style="font-size:26px">Qual é o seu alvo?</h2>
+      <p class="lead" style="font-size:14px">Escolha o concurso — o teste se adapta a você em tempo real.</p>
+    </div>
+    <label>Concurso</label>
+    <select id="selEdital"></select>
+    <button class="btn" id="btnComecar" style="margin-top:8px">Descobrir meu mapa</button>
+    <div class="msg" id="homeMsg"></div>
+  </section>
+
+  <!-- FASE 0 -->
+  <section class="view f0" id="vFase0">
+    <h2>Antes de começar…</h2>
+    <p class="sub">Como você se sente em cada disciplina? Sinceridade pinta seu mapa mais rápido — a gente confere depois. 😉</p>
+    <div id="listaDisc"></div>
+    <button class="btn" id="btnIniciarTeste" style="margin-top:10px">Começar o teste</button>
+  </section>
+
+  <!-- TESTE -->
+  <section class="view" id="vTeste">
+    <div class="topbar">
+      <div class="prog">
+        <div class="lbl">MAPA <b id="pgPct">0%</b> COBERTO</div>
+        <div class="dots" id="pgDots"></div>
+      </div>
+    </div>
+    <div class="qcard" id="qcard">
+      <div class="tipo" id="qTipo">JULGUE O ITEM</div>
+      <div class="enun" id="qEnun"></div>
+      <div class="alts" id="qAlts" style="display:none"></div>
+    </div>
+    <div class="answers" id="ansCE">
+      <button class="abtn" data-r="certo">CERTO</button>
+      <button class="abtn" data-r="errado">ERRADO</button>
+    </div>
+    <button class="nuncavi" id="btnNuncaVi"><u>Nunca vi isso</u><small>sem penalidade — pinta o mapa mais rápido</small></button>
+    <div class="confbox" id="confbox">
+      <div class="lbl">QUÃO CONFIANTE VOCÊ ESTÁ?</div>
+      <div class="confs">
+        <button data-c="chutei">🎲 Chutei</button>
+        <button data-c="acho_que_sei">🤔 Acho que sei</button>
+        <button data-c="certeza">💪 Certeza</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRÉ-REVELAÇÃO -->
+  <section class="view pre" id="vPre">
+    <div class="pulse"><span>🧠</span></div>
+    <h2>Seu mapa está pronto.</h2>
+    <p id="preSub">Analisamos suas respostas contra o edital inteiro.</p>
+    <button class="btn" id="btnRevelar">REVELAR MEU MAPA</button>
+  </section>
+
+  <!-- REVELAÇÃO -->
+  <section class="view rv" id="vReveal">
+    <div class="head">
+      <h2 class="disp">O mapa do seu cérebro</h2>
+      <p id="rvSub"></p>
+    </div>
+    <div class="stats" id="rvStats"></div>
+    <div id="rvInsights"></div>
+    <div class="legend">
+      <span class="lg-v">domínio</span><span class="lg-a">no caminho</span>
+      <span class="lg-r">risco</span><span class="lg-n">ainda não medido</span>
+    </div>
+    <div id="rvMapa"></div>
+    <div class="sharebar"><button class="btn" id="btnShare">Compartilhar meu mapa</button></div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
+const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
+const sb = supabase.createClient(SB_URL, SB_KEY);
+const $ = (id) => document.getElementById(id);
+
+let modoCadastro = false;
+let editais = [], editalAtual = null, estrutura = [];
+let sessao = null, itemAtual = null, respostaEscolhida = null, t0 = null;
+let totalTopicos = 0, reveal = null, declaracoes = {};
+
+function show(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+  $(id).classList.add('on');
+  window.scrollTo(0, 0);
+}
+function toast(t) { const e = $('toast'); e.textContent = t; e.style.display = 'block'; setTimeout(() => e.style.display = 'none', 2800); }
+const esc = (s) => (s ?? '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// ---------- auth ----------
+async function boot() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { show('vAuth'); return; }
+  $('btnSair').style.display = 'block';
+  await carregarEditais();
+  show('vHome');
+}
+$('lnkModo').onclick = (e) => { e.preventDefault(); modoCadastro = !modoCadastro;
+  $('btnEntrar').textContent = modoCadastro ? 'Criar conta' : 'Entrar';
+  $('lnkModo').textContent = modoCadastro ? 'Já tenho conta' : 'Criar minha conta'; };
+$('btnEntrar').onclick = async () => {
+  $('authMsg').textContent = '';
+  const email = $('email').value.trim(), password = $('senha').value;
+  const { error } = modoCadastro
+    ? await sb.auth.signUp({ email, password })
+    : await sb.auth.signInWithPassword({ email, password });
+  if (error) { $('authMsg').textContent = error.message; return; }
+  if (modoCadastro) { $('authMsg').textContent = 'Conta criada! Confirme pelo e-mail e entre.'; modoCadastro = false; return; }
+  boot();
+};
+$('btnSair').onclick = async () => { await sb.auth.signOut(); location.reload(); };
+
+// ---------- home ----------
+async function carregarEditais() {
+  const { data } = await sb.from('editais').select('id, concurso, cargo').eq('status', 'publicado').range(0, 49);
+  editais = data || [];
+  $('selEdital').innerHTML = editais.map(e => `<option value="${e.id}">${esc(e.concurso)} — ${esc(e.cargo)}</option>`).join('')
+    || '<option value="">(nenhum edital disponível ainda)</option>';
+}
+$('btnComecar').onclick = async () => {
+  editalAtual = editais.find(e => e.id === $('selEdital').value);
+  if (!editalAtual) { $('homeMsg').textContent = 'Nenhum edital disponível.'; return; }
+  const { data: est, error } = await sb.rpc('fn_edital_estrutura', { p_edital: editalAtual.id });
+  if (error) { $('homeMsg').textContent = error.message; return; }
+  estrutura = est || [];
+  totalTopicos = estrutura.reduce((s, d) => s + d.assuntos.reduce((s2, a) => s2 + a.topicos.length, 0), 0);
+  // sessão ativa? retoma direto, sem fase 0
+  const { data: ativas } = await sb.from('diag_sessoes').select('id').eq('status', 'ativa').eq('edital_id', editalAtual.id).range(0, 0);
+  if (ativas && ativas.length) { await iniciarTeste(); return; }
+  montarFase0();
+  show('vFase0');
+};
+
+// ---------- fase 0 ----------
+function montarFase0() {
+  declaracoes = {};
+  $('listaDisc').innerHTML = estrutura.map((d, i) => `
+    <div class="disc">
+      <div class="nome">${esc(d.disciplina)}</div>
+      <div class="chips" data-i="${i}">
+        <button class="chip" data-n="nunca_vi">nunca vi</button>
+        <button class="chip" data-n="ja_estudei">já estudei</button>
+        <button class="chip" data-n="domino">domino</button>
+      </div>
+    </div>`).join('');
+  document.querySelectorAll('.chips').forEach(box => {
+    box.querySelectorAll('.chip').forEach(ch => ch.onclick = () => {
+      box.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+      ch.classList.add('on');
+      declaracoes[box.dataset.i] = ch.dataset.n;
+    });
+  });
+}
+$('btnIniciarTeste').onclick = async () => {
+  $('btnIniciarTeste').disabled = true;
+  const decl = [];
+  Object.entries(declaracoes).forEach(([i, nivel]) => {
+    estrutura[i].assuntos.forEach(a => a.topicos.forEach(t =>
+      decl.push({ node_id: t.node_id, nivel })));
+  });
+  if (decl.length) {
+    const { error } = await sb.rpc('fn_diag_autoavaliacao', { p_edital: editalAtual.id, p_decl: decl });
+    if (error) { toast(error.message); }
+  }
+  await iniciarTeste();
+  $('btnIniciarTeste').disabled = false;
+};
+
+// ---------- teste ----------
+async function iniciarTeste() {
+  const { data, error } = await sb.rpc('fn_diag_iniciar', { p_edital: editalAtual.id });
+  if (error) { toast(error.message); show('vHome'); return; }
+  sessao = data.sessao;
+  montarDots();
+  tratarResposta(data);
+  show('vTeste');
+}
+function montarDots() {
+  const n = Math.min(totalTopicos || 40, 120);
+  $('pgDots').innerHTML = Array.from({ length: n }, () => '<div class="dot"></div>').join('');
+}
+function setProgresso(p) {
+  $('pgPct').textContent = Math.round((p || 0) * 100) + '%';
+  const dots = document.querySelectorAll('.dot');
+  const fill = Math.round((p || 0) * dots.length);
+  dots.forEach((d, i) => d.classList.toggle('fill', i < fill));
+}
+function tratarResposta(data) {
+  if (data.fim) { reveal = data; $('preSub').textContent = `${data.respostas} itens analisados contra o edital inteiro.`; show('vPre'); return; }
+  setProgresso(parseFloat(data.progresso));
+  renderItem(data.item);
+}
+function renderItem(item) {
+  itemAtual = item; respostaEscolhida = null; t0 = Date.now();
+  $('confbox').classList.remove('on');
+  document.querySelectorAll('.abtn').forEach(b => b.classList.remove('on'));
+  const card = $('qcard');
+  card.style.animation = 'none'; void card.offsetWidth; card.style.animation = '';
+  $('qEnun').textContent = item.enunciado;
+  const me = item.tipo === 'multipla_escolha';
+  $('qTipo').textContent = me ? 'MARQUE A ALTERNATIVA' : 'JULGUE O ITEM';
+  $('ansCE').style.display = me ? 'none' : 'flex';
+  $('qAlts').style.display = me ? 'flex' : 'none';
+  if (me) {
+    const alts = item.alternativas || [];
+    $('qAlts').innerHTML = alts.map((a, i) => {
+      const letra = String.fromCharCode(97 + i);
+      return `<button class="altbtn" data-r="${letra}"><b>${letra.toUpperCase()})</b> ${esc(typeof a === 'string' ? a : a.texto)}</button>`;
+    }).join('');
+    $('qAlts').querySelectorAll('.altbtn').forEach(b => b.onclick = () => escolher(b));
+  }
+}
+document.querySelectorAll('#ansCE .abtn').forEach(b => b.onclick = () => escolher(b));
+function escolher(btn) {
+  document.querySelectorAll('.abtn, .altbtn').forEach(x => x.classList.remove('on'));
+  btn.classList.add('on');
+  respostaEscolhida = btn.dataset.r;
+  $('confbox').classList.add('on');
+  $('confbox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+document.querySelectorAll('.confs button').forEach(b => b.onclick = () => enviar(respostaEscolhida, b.dataset.c));
+$('btnNuncaVi').onclick = () => enviar('nunca_vi', null);
+
+let enviando = false;
+async function enviar(resposta, confianca) {
+  if (!resposta || enviando) return;
+  enviando = true;
+  const { data, error } = await sb.rpc('fn_diag_responder', {
+    p_sessao: sessao, p_item: itemAtual.id, p_resposta: resposta,
+    p_confianca: confianca, p_tempo_ms: Date.now() - t0
+  });
+  enviando = false;
+  if (error) { toast(error.message); return; }
+  tratarResposta(data);
+}
+
+// ---------- revelação ----------
+$('btnRevelar').onclick = () => { renderReveal(); show('vReveal'); };
+
+function corDe(n) {
+  if (n.incerteza >= 85) return 'nd';
+  if (n.forca >= 70) return 'verde';
+  if (n.forca >= 40) return 'amarelo';
+  return 'vermelho';
+}
+function renderReveal() {
+  const mapa = reveal.mapa || [];
+  const porNode = {}; mapa.forEach(n => porNode[n.node_id] = n);
+  const medidos = mapa.filter(n => n.incerteza < 85);
+  const verdes = medidos.filter(n => n.forca >= 70).length;
+
+  $('rvSub').textContent = `${editalAtual.concurso} · ${reveal.respostas} itens respondidos`;
+  $('rvStats').innerHTML = `
+    <div class="stat"><div class="v">${Math.round(parseFloat(reveal.progresso) * 100)}%</div><div class="k">DO EDITAL MAPEADO</div></div>
+    <div class="stat"><div class="v">${verdes}</div><div class="k">TÓPICOS DOMINADOS</div></div>
+    <div class="stat"><div class="v">${mapa.length - medidos.length}</div><div class="k">A DESCOBRIR</div></div>`;
+
+  let ins = '';
+  if (reveal.maior_risco) {
+    const r = reveal.maior_risco;
+    ins += `<div class="insight risco"><b>SEU MAIOR RISCO</b>${esc(r.nome)} — peso ${Math.round(r.peso * 100)}% no edital e domínio de apenas ${Math.round(r.forca)}%.</div>`;
+  }
+  if (reveal.ponto_forte) {
+    ins += `<div class="insight forte"><b>SEU PONTO FORTE</b>${esc(reveal.ponto_forte.nome)} — ${Math.round(reveal.ponto_forte.forca)}% de domínio demonstrado. Isso é território conquistado.</div>`;
+  }
+  if (reveal.calibracao_media !== null && reveal.calibracao_media < 0.5) {
+    ins += `<div class="insight ilusao"><b>SINAL DE ILUSÃO DE SABER</b>Você teve certeza em itens que errou. Não é falta de estudo — é revisão do jeito errado. O plano certo corrige isso.</div>`;
+  }
+  if (reveal.primeira_acao) {
+    ins += `<div class="insight acao"><b>SUA PRIMEIRA AÇÃO JÁ ESTÁ DECIDIDA</b>Começar por <b style="display:inline;letter-spacing:0">${esc(reveal.primeira_acao.nome)}</b> — é onde cada hora de estudo vale mais pontos na sua prova.</div>`;
+  }
+  $('rvInsights').innerHTML = ins;
+
+  let html = ''; let idx = 0;
+  estrutura.forEach(d => {
+    const tops = d.assuntos.flatMap(a => a.topicos);
+    html += `<div class="dsec"><h3>${esc(d.disciplina)} <small>${Math.round((d.peso_total || 0) * 100)} pts de peso</small></h3>`;
+    tops.forEach(t => {
+      const n = porNode[t.node_id] || { forca: 0, incerteza: 100 };
+      const cor = corDe(n);
+      const w = cor === 'nd' ? 100 : Math.max(4, Math.round(n.forca));
+      html += `<div class="trow v-${cor}" style="--d:${idx * 45}ms">
+        <div class="tn">${esc(t.nome)}</div>
+        <div class="bar"><i data-w="${w}"></i></div>
+      </div>`;
+      idx++;
+    });
+    html += '</div>';
+  });
+  $('rvMapa').innerHTML = html;
+  requestAnimationFrame(() => setTimeout(() =>
+    document.querySelectorAll('.bar i').forEach(i => i.style.width = i.dataset.w + '%'), 80));
+}
+
+$('btnShare').onclick = async () => {
+  const pct = Math.round(parseFloat(reveal.progresso) * 100);
+  const texto = `Revelei o mapa do meu cérebro para ${editalAtual.concurso} no DOMINEI 🧠 ${pct}% do edital mapeado — e minha primeira ação de estudo já está decidida. dominei.app`;
+  if (navigator.share) { try { await navigator.share({ text: texto }); } catch (e) {} }
+  else { await navigator.clipboard.writeText(texto); toast('Copiado! Cole onde quiser 🚀'); }
+};
+
+boot();
+</script>
+</body>
+</html>

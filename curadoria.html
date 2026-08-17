@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DOMINEI · Curadoria</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root { --navy:#16243D; --blue:#2456A6; --green:#1E7A46; --red:#B03030; --gold:#B8860B;
+          --grey:#5A6472; --light:#EEF2F8; --line:#C9D3E0; --bg:#F7F9FC; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system, Segoe UI, Roboto, Arial, sans-serif; background:var(--bg); color:#222831; }
+  header { background:var(--navy); color:#fff; padding:14px 20px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  header h1 { font-size:18px; font-weight:800; letter-spacing:.5px; }
+  header .tag { background:var(--blue); border-radius:6px; padding:2px 10px; font-size:12px; font-weight:700; }
+  header .spacer { flex:1; }
+  header .who { font-size:12px; opacity:.85; }
+  button { cursor:pointer; border:none; border-radius:8px; padding:8px 14px; font-size:13px; font-weight:700; }
+  .b-ghost { background:transparent; color:#fff; border:1px solid rgba(255,255,255,.4); }
+  .wrap { max-width:980px; margin:0 auto; padding:18px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:14px; }
+  .login { max-width:380px; margin:60px auto; }
+  .login h2 { color:var(--navy); margin-bottom:12px; font-size:20px; }
+  input, select, textarea { width:100%; border:1px solid var(--line); border-radius:8px; padding:9px 10px; font-size:14px; margin-bottom:10px; background:#fff; }
+  textarea { min-height:70px; }
+  label { font-size:12px; font-weight:700; color:var(--grey); display:block; margin-bottom:3px; }
+  .b-primary { background:var(--blue); color:#fff; width:100%; }
+  .msg { font-size:13px; color:var(--red); min-height:18px; margin-top:6px; }
+  .tabs { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+  .tabs button { background:#fff; border:1px solid var(--line); color:var(--grey); }
+  .tabs button.on { background:var(--navy); color:#fff; border-color:var(--navy); }
+  .filters { display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+  .filters select { width:auto; margin:0; }
+  .prop { border-left:5px solid var(--blue); }
+  .prop .top { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px; }
+  .badge { font-size:11px; font-weight:800; padding:2px 9px; border-radius:20px; color:#fff; background:var(--blue); text-transform:uppercase; }
+  .badge.item { background:var(--gold); } .badge.edge { background:var(--green); } .badge.edital_node { background:#7B4FA6; }
+  .conf { font-size:12px; color:var(--grey); font-weight:700; }
+  .conf.baixa { color:var(--red); }
+  .nome { font-size:16px; font-weight:800; color:var(--navy); }
+  .meta { font-size:13px; color:var(--grey); margin:2px 0 8px; }
+  .sins { font-size:12px; color:var(--grey); }
+  .sins span { background:var(--light); border-radius:6px; padding:2px 8px; margin-right:5px; display:inline-block; margin-bottom:4px; }
+  .evid { background:#FBF6E3; border:1px solid #EAD9A0; border-radius:8px; padding:8px 10px; font-size:13px; margin:8px 0; }
+  .acts { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .b-ok { background:var(--green); color:#fff; }
+  .b-edit { background:var(--blue); color:#fff; }
+  .b-merge { background:#7B4FA6; color:#fff; }
+  .b-split { background:var(--gold); color:#fff; }
+  .b-no { background:#fff; color:var(--red); border:1px solid var(--red); }
+  .subform { background:var(--light); border-radius:10px; padding:12px; margin-top:10px; }
+  .row2 { display:flex; gap:10px; } .row2 > * { flex:1; }
+  .empty { text-align:center; color:var(--grey); padding:30px 10px; font-size:14px; }
+  .more { width:100%; background:#fff; border:1px dashed var(--line); color:var(--grey); }
+  .count { font-size:13px; color:var(--grey); margin-bottom:10px; }
+  .toast { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:var(--navy); color:#fff;
+           padding:10px 18px; border-radius:10px; font-size:13px; display:none; z-index:50; }
+  .hint { font-size:12px; color:var(--grey); margin-top:-6px; margin-bottom:8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>DOMINEI</h1><span class="tag">Painel de Curadoria</span>
+  <span class="spacer"></span>
+  <span class="who" id="who"></span>
+  <button class="b-ghost" id="btnSair" style="display:none">Sair</button>
+</header>
+
+<div class="wrap">
+  <!-- LOGIN -->
+  <div class="card login" id="viewLogin" style="display:none">
+    <h2 id="loginTitle">Entrar</h2>
+    <label>E-mail</label><input id="email" type="email" autocomplete="username">
+    <label>Senha</label><input id="senha" type="password" autocomplete="current-password">
+    <button class="b-primary" id="btnEntrar">Entrar</button>
+    <div class="msg" id="loginMsg"></div>
+    <p style="font-size:12px;color:var(--grey);margin-top:8px">
+      Primeira vez? <a href="#" id="lnkModo">Criar conta</a> (o acesso é liberado apenas para e-mails da equipe.)
+    </p>
+  </div>
+
+  <!-- SEM ACESSO -->
+  <div class="card" id="viewNoAccess" style="display:none">
+    <div class="empty">Sua conta foi criada, mas este e-mail não está na lista da equipe.<br>Fale com o Fábio para liberar o acesso.</div>
+  </div>
+
+  <!-- APP -->
+  <div id="viewApp" style="display:none">
+    <div class="tabs">
+      <button id="tabProps" class="on">Propostas <span id="nProps"></span></button>
+      <button id="tabReports">Reports de questão <span id="nReports"></span></button>
+    </div>
+
+    <div id="paneProps">
+      <div class="filters">
+        <select id="fTipo">
+          <option value="">Todos os tipos</option>
+          <option value="node">Tópicos (nós)</option>
+          <option value="edge">Conexões</option>
+          <option value="edital_node">Pesos do edital</option>
+          <option value="item">Questões</option>
+        </select>
+        <select id="fEdital"><option value="">Todos os editais</option></select>
+      </div>
+      <div class="count" id="propCount"></div>
+      <div id="listaProps"></div>
+      <button class="more" id="maisProps" style="display:none">Carregar mais</button>
+    </div>
+
+    <div id="paneReports" style="display:none">
+      <div id="listaReports"></div>
+      <button class="more" id="maisReports" style="display:none">Carregar mais</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
+const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
+const sb = supabase.createClient(SB_URL, SB_KEY);
+const $ = (id) => document.getElementById(id);
+const PAGE = 50;                       // regra da casa: toda lista paginada
+let modoCadastro = false, offProps = 0, offReports = 0, editais = {}, nodeCache = {};
+
+function toast(t, ok=true) {
+  const el = $('toast'); el.textContent = t;
+  el.style.background = ok ? 'var(--green)' : 'var(--red)';
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3200);
+}
+const esc = (s) => (s ?? '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// ---------- sessão ----------
+async function boot() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { show('viewLogin'); return; }
+  $('who').textContent = session.user.email;
+  $('btnSair').style.display = 'inline-block';
+  const { data: staff } = await sb.rpc('fn_is_staff');
+  if (!staff) { show('viewNoAccess'); return; }
+  show('viewApp');
+  await carregarEditais();
+  resetProps(); resetReports(); loadProps(); loadReports();
+}
+function show(id) {
+  ['viewLogin','viewNoAccess','viewApp'].forEach(v => $(v).style.display = v === id ? 'block' : 'none');
+}
+$('lnkModo').onclick = (e) => { e.preventDefault(); modoCadastro = !modoCadastro;
+  $('loginTitle').textContent = modoCadastro ? 'Criar conta' : 'Entrar';
+  $('btnEntrar').textContent = modoCadastro ? 'Criar conta' : 'Entrar';
+  $('lnkModo').textContent = modoCadastro ? 'Já tenho conta' : 'Criar conta'; };
+$('btnEntrar').onclick = async () => {
+  $('loginMsg').textContent = '';
+  const email = $('email').value.trim(), password = $('senha').value;
+  const { error } = modoCadastro
+    ? await sb.auth.signUp({ email, password })
+    : await sb.auth.signInWithPassword({ email, password });
+  if (error) { $('loginMsg').textContent = error.message; return; }
+  if (modoCadastro) { $('loginMsg').textContent = 'Conta criada. Confirme pelo e-mail e entre.'; modoCadastro = false; return; }
+  boot();
+};
+$('btnSair').onclick = async () => { await sb.auth.signOut(); location.reload(); };
+
+// ---------- abas / filtros ----------
+$('tabProps').onclick = () => { $('tabProps').classList.add('on'); $('tabReports').classList.remove('on');
+  $('paneProps').style.display = 'block'; $('paneReports').style.display = 'none'; };
+$('tabReports').onclick = () => { $('tabReports').classList.add('on'); $('tabProps').classList.remove('on');
+  $('paneReports').style.display = 'block'; $('paneProps').style.display = 'none'; };
+$('fTipo').onchange = () => { resetProps(); loadProps(); };
+$('fEdital').onchange = () => { resetProps(); loadProps(); };
+
+async function carregarEditais() {
+  const { data } = await sb.from('editais').select('id, concurso, cargo').order('created_at').range(0, 199);
+  (data || []).forEach(e => { editais[e.id] = `${e.concurso} · ${e.cargo}`;
+    $('fEdital').insertAdjacentHTML('beforeend', `<option value="${e.id}">${esc(e.concurso)} · ${esc(e.cargo)}</option>`); });
+}
+
+// ---------- propostas ----------
+function resetProps() { offProps = 0; $('listaProps').innerHTML = ''; }
+async function loadProps() {
+  let q = sb.from('curadoria_propostas')
+    .select('*', { count: 'exact' })
+    .eq('status', 'pendente')
+    .order('confianca_ia', { ascending: true, nullsFirst: false })
+    .range(offProps, offProps + PAGE - 1);
+  if ($('fTipo').value) q = q.eq('tipo', $('fTipo').value);
+  if ($('fEdital').value) q = q.eq('edital_id', $('fEdital').value);
+  const { data, count, error } = await q;
+  if (error) { toast(error.message, false); return; }
+  $('nProps').textContent = `(${count ?? 0})`;
+  $('propCount').textContent = count ? `${count} proposta(s) pendente(s) — as de menor confiança primeiro` : '';
+  if (!count) $('listaProps').innerHTML = '<div class="card empty">Fila limpa! Nenhuma proposta pendente. 🎉</div>';
+  (data || []).forEach(renderProp);
+  offProps += PAGE;
+  $('maisProps').style.display = (count && offProps < count) ? 'block' : 'none';
+}
+$('maisProps').onclick = loadProps;
+
+function confHtml(c) {
+  if (c == null) return '';
+  const pct = Math.round(c * 100);
+  return `<span class="conf ${pct < 60 ? 'baixa' : ''}">confiança da IA: ${pct}%</span>`;
+}
+function evidHtml(ev) {
+  if (!ev) return '';
+  const txt = typeof ev === 'string' ? ev : (ev.resumo || JSON.stringify(ev));
+  return `<div class="evid">📊 ${esc(txt)}</div>`;
+}
+
+function renderProp(p) {
+  const pl = p.payload || {};
+  let corpo = '';
+  if (p.tipo === 'node') {
+    corpo = `<div class="nome">${esc(pl.nome)}</div>
+      <div class="meta">${esc(pl.nivel || '')}${pl.parent_nome ? ' · dentro de: ' + esc(pl.parent_nome) : ''}</div>
+      ${(pl.sinonimos || []).length ? `<div class="sins">${pl.sinonimos.map(s => `<span>${esc(s)}</span>`).join('')}</div>` : ''}`;
+  } else if (p.tipo === 'edge') {
+    corpo = `<div class="nome">${esc(pl.source_nome || pl.source_id)} ⟷ ${esc(pl.target_nome || pl.target_id)}</div>
+      <div class="meta">conexão: ${esc(pl.tipo_aresta)} · força ${pl.forca ?? 0.5}</div>`;
+  } else if (p.tipo === 'edital_node') {
+    corpo = `<div class="nome">${esc(pl.node_nome || pl.node_id)}</div>
+      <div class="meta">${esc(editais[pl.edital_id] || '')} · peso proposto: <b>${Math.round((pl.peso ?? 0.5) * 100)}%</b>
+      · incerteza: ${Math.round((pl.peso_incerteza ?? 1) * 100)}%${pl.sem_historico ? ' · <b style="color:var(--red)">SEM HISTÓRICO — palavra do professor</b>' : ''}</div>`;
+  } else if (p.tipo === 'item') {
+    corpo = `<div class="meta">${esc(pl.tipo_item || 'certo_errado')} · uso: ${esc(pl.uso || 'geral')} · gabarito: <b>${esc(pl.gabarito)}</b></div>
+      <div style="font-size:14px">${esc(pl.enunciado)}</div>`;
+  }
+  const podeNo = p.tipo === 'node';
+  $('listaProps').insertAdjacentHTML('beforeend', `
+    <div class="card prop" id="prop-${p.id}">
+      <div class="top"><span class="badge ${p.tipo}">${p.tipo === 'node' ? 'tópico' : p.tipo === 'edge' ? 'conexão' : p.tipo === 'edital_node' ? 'peso' : 'questão'}</span>${confHtml(p.confianca_ia)}</div>
+      ${corpo}
+      ${evidHtml(p.evidencia)}
+      <div class="acts">
+        <button class="b-ok" onclick="decidir('${p.id}','aprovada')">✓ Aprovar</button>
+        <button class="b-edit" onclick="abrirEditar('${p.id}')">✎ Editar</button>
+        ${podeNo ? `<button class="b-merge" onclick="abrirFundir('${p.id}')">⇄ Fundir</button>
+                    <button class="b-split" onclick="abrirDividir('${p.id}')">⑃ Dividir</button>` : ''}
+        <button class="b-no" onclick="decidir('${p.id}','rejeitada')">✕ Rejeitar</button>
+      </div>
+      <div class="subform" id="sub-${p.id}" style="display:none"></div>
+    </div>`);
+  nodeCache[p.id] = p;
+}
+
+async function decidir(id, decisao, edicao = null) {
+  const { data, error } = await sb.rpc('fn_decidir_proposta', { p_id: id, p_decisao: decisao, p_edicao: edicao });
+  if (error) { toast(error.message, false); return; }
+  $('prop-' + id)?.remove();
+  toast(decisao === 'rejeitada' ? 'Proposta rejeitada' : 'Decisão aplicada ✓');
+  const n = parseInt(($('nProps').textContent || '(1)').replace(/\D/g, '')) - 1;
+  $('nProps').textContent = `(${Math.max(n, 0)})`;
+}
+
+function abrirEditar(id) {
+  const p = nodeCache[id], pl = p.payload || {}, box = $('sub-' + id);
+  box.style.display = 'block';
+  if (p.tipo === 'node') {
+    box.innerHTML = `<label>Nome do tópico</label><input id="e-nome-${id}" value="${esc(pl.nome)}">
+      <div class="row2"><div><label>Nível</label><select id="e-nivel-${id}">
+        ${['disciplina','assunto','topico'].map(n => `<option ${pl.nivel === n ? 'selected' : ''}>${n}</option>`).join('')}</select></div></div>
+      <label>Sinônimos (separados por vírgula)</label><input id="e-sin-${id}" value="${esc((pl.sinonimos || []).join(', '))}">
+      <button class="b-ok" onclick="salvarEdicaoNode('${id}')">Salvar e aprovar</button>`;
+  } else if (p.tipo === 'edital_node') {
+    box.innerHTML = `<div class="row2">
+      <div><label>Peso final (%) — sua palavra final</label><input id="e-peso-${id}" type="number" min="0" max="100" value="${Math.round((pl.peso ?? .5) * 100)}"></div>
+      </div><button class="b-ok" onclick="salvarEdicaoPeso('${id}')">Salvar e aprovar</button>`;
+  } else if (p.tipo === 'edge') {
+    box.innerHTML = `<label>Força (0–100)</label><input id="e-forca-${id}" type="number" min="0" max="100" value="${Math.round((pl.forca ?? .5) * 100)}">
+      <button class="b-ok" onclick="salvarEdicaoEdge('${id}')">Salvar e aprovar</button>`;
+  } else {
+    box.innerHTML = `<label>Enunciado</label><textarea id="e-enun-${id}">${esc(pl.enunciado)}</textarea>
+      <div class="row2"><div><label>Gabarito</label><input id="e-gab-${id}" value="${esc(pl.gabarito)}"></div>
+      <div><label>Dificuldade (0–100)</label><input id="e-dif-${id}" type="number" min="0" max="100" value="${Math.round((pl.dificuldade ?? .5) * 100)}"></div></div>
+      <label>Explicação</label><textarea id="e-exp-${id}">${esc(pl.explicacao || '')}</textarea>
+      <button class="b-ok" onclick="salvarEdicaoItem('${id}')">Salvar e aprovar</button>`;
+  }
+}
+function salvarEdicaoNode(id) {
+  const pl = { ...nodeCache[id].payload };
+  pl.nome = $(`e-nome-${id}`).value.trim();
+  pl.nivel = $(`e-nivel-${id}`).value;
+  pl.sinonimos = $(`e-sin-${id}`).value.split(',').map(s => s.trim()).filter(Boolean);
+  decidir(id, 'editada', pl);
+}
+function salvarEdicaoPeso(id) {
+  const pl = { ...nodeCache[id].payload };
+  pl.peso_override = Math.min(100, Math.max(0, +$(`e-peso-${id}`).value)) / 100;
+  decidir(id, 'editada', pl);
+}
+function salvarEdicaoEdge(id) {
+  const pl = { ...nodeCache[id].payload };
+  pl.forca = Math.min(100, Math.max(0, +$(`e-forca-${id}`).value)) / 100;
+  decidir(id, 'editada', pl);
+}
+function salvarEdicaoItem(id) {
+  const pl = { ...nodeCache[id].payload };
+  pl.enunciado = $(`e-enun-${id}`).value.trim();
+  pl.gabarito = $(`e-gab-${id}`).value.trim();
+  pl.dificuldade = Math.min(100, Math.max(0, +$(`e-dif-${id}`).value)) / 100;
+  pl.explicacao = $(`e-exp-${id}`).value.trim();
+  decidir(id, 'editada', pl);
+}
+
+function abrirFundir(id) {
+  const box = $('sub-' + id);
+  box.style.display = 'block';
+  box.innerHTML = `<label>Fundir com qual tópico existente? (digite para buscar)</label>
+    <input id="f-busca-${id}" oninput="buscarNode('${id}')" placeholder="ex.: poder de polícia">
+    <div id="f-res-${id}"></div>`;
+}
+async function buscarNode(id) {
+  const termo = $(`f-busca-${id}`).value.trim();
+  if (termo.length < 3) { $(`f-res-${id}`).innerHTML = ''; return; }
+  const { data } = await sb.from('nodes').select('id, nome, nivel').ilike('nome', `%${termo}%`).eq('status', 'aprovado').range(0, 14);
+  $(`f-res-${id}`).innerHTML = (data || []).map(n =>
+    `<button class="b-merge" style="margin:3px" onclick="decidir('${id}','fundida',{fundir_em:'${n.id}'})">${esc(n.nome)} (${n.nivel})</button>`
+  ).join('') || '<div class="hint">nada encontrado</div>';
+}
+
+function abrirDividir(id) {
+  const p = nodeCache[id], pl = p.payload || {}, box = $('sub-' + id);
+  box.style.display = 'block';
+  box.innerHTML = `<div class="hint">Divida "${esc(pl.nome)}" em 2+ tópicos (mesmo nível e pai):</div>
+    <div id="d-rows-${id}"></div>
+    <button class="b-split" onclick="addParte('${id}')">+ parte</button>
+    <button class="b-ok" onclick="salvarDivisao('${id}')">Salvar e aprovar divisão</button>`;
+  addParte(id); addParte(id);
+}
+function addParte(id) {
+  $(`d-rows-${id}`).insertAdjacentHTML('beforeend', `<input class="d-parte-${id}" placeholder="nome da parte">`);
+}
+function salvarDivisao(id) {
+  const p = nodeCache[id], pl = p.payload || {};
+  const partes = [...document.querySelectorAll(`.d-parte-${id}`)].map(i => i.value.trim()).filter(Boolean)
+    .map(nome => ({ nome, nivel: pl.nivel || 'topico', parent_id: pl.parent_id || null, parent_proposta_id: pl.parent_proposta_id || null }));
+  if (partes.length < 2) { toast('Informe pelo menos 2 partes', false); return; }
+  decidir(id, 'dividida', { partes });
+}
+
+// ---------- reports ----------
+function resetReports() { offReports = 0; $('listaReports').innerHTML = ''; }
+async function loadReports() {
+  const { data, count, error } = await sb.from('item_reports')
+    .select('id, motivo, status, created_at, items(enunciado, gabarito)', { count: 'exact' })
+    .in('status', ['aberto', 'triado'])
+    .order('created_at', { ascending: true })
+    .range(offReports, offReports + PAGE - 1);
+  if (error) { toast(error.message, false); return; }
+  $('nReports').textContent = `(${count ?? 0})`;
+  if (!count) $('listaReports').innerHTML = '<div class="card empty">Nenhum report em aberto.</div>';
+  (data || []).forEach(r => {
+    $('listaReports').insertAdjacentHTML('beforeend', `
+      <div class="card" id="rep-${r.id}">
+        <div class="meta">report: <b>${esc(r.motivo)}</b> · ${new Date(r.created_at).toLocaleDateString('pt-BR')}</div>
+        <div style="font-size:14px">${esc(r.items?.enunciado || '(questão removida)')}</div>
+        <div class="meta">gabarito: ${esc(r.items?.gabarito || '-')}</div>
+        <div class="acts">
+          <button class="b-ok" onclick="fecharReport('${r.id}','resolvido')">Resolvido</button>
+          <button class="b-no" onclick="fecharReport('${r.id}','descartado')">Descartar</button>
+        </div>
+      </div>`);
+  });
+  offReports += PAGE;
+  $('maisReports').style.display = (count && offReports < count) ? 'block' : 'none';
+}
+$('maisReports').onclick = loadReports;
+async function fecharReport(id, status) {
+  const { error } = await sb.from('item_reports').update({ status }).eq('id', id);
+  if (error) { toast(error.message, false); return; }
+  $('rep-' + id)?.remove(); toast('Report atualizado ✓');
+}
+
+boot();
+</script>
+</body>
+</html>
