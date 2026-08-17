@@ -149,6 +149,13 @@ body.tabs main { padding-bottom:92px; }
 .fb b { display:block; margin-bottom:4px; font-size:14px; }
 .fb.ok b { color:var(--verde); } .fb.no b { color:var(--vermelho); }
 .fb p { font-size:13.5px; line-height:1.5; }
+.imp-k { font-size:10.5px; color:var(--dim); letter-spacing:.1em; font-weight:800; margin-bottom:10px; }
+.imp-status { display:none; margin-top:12px; font-size:13px; color:var(--amarelo); }
+.imp-status.on { display:block; }
+.imp-badge { font-size:10px; font-weight:800; letter-spacing:.06em; padding:3px 8px; border-radius:99px; white-space:nowrap; }
+.imp-badge.ok { background:var(--verde-dim); color:var(--verde); }
+.imp-badge.run { background:rgba(242,179,61,.12); color:var(--amarelo); }
+.imp-badge.err { background:rgba(237,90,90,.12); color:var(--vermelho); }
 .revrow { display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--line);
   border-radius:14px; padding:13px 14px; margin-bottom:8px; }
 .revrow .rn { flex:1; font-size:14px; }
@@ -376,6 +383,25 @@ body.tabs main { padding-bottom:92px; }
     <div class="hj-sub">O sistema lembra por você — revise antes de esquecer.</div>
     <div id="rvList"></div>
   </section>
+
+  <!-- IMPORTAR (F6) -->
+  <section class="view" id="vImportar">
+    <div class="hj-hello">Importar estudo</div>
+    <div class="hj-sub">Foto de caderno, print de questões ou de desempenho — tudo vira evidência no seu mapa.</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="imp-k">O QUE VOCÊ VAI ENVIAR?</div>
+      <div class="chips" id="impTipos" style="flex-wrap:wrap">
+        <div class="chip on" data-t="caderno_foto">📓 Caderno / resumo</div>
+        <div class="chip" data-t="print_qc">🧾 Print de questões</div>
+        <div class="chip" data-t="print_desempenho">📊 Print de desempenho</div>
+      </div>
+      <button class="btn" id="btnImportar" style="margin-top:14px">Enviar arquivo</button>
+      <input type="file" id="impFile" accept="image/jpeg,image/png,image/webp,image/gif,.pdf" style="display:none">
+      <div class="imp-status" id="impStatus"></div>
+    </div>
+    <div class="imp-k" style="margin:4px 2px 8px">SEUS ENVIOS</div>
+    <div id="impList"></div>
+  </section>
 </main>
 
 <nav class="tabbar" id="tabbar">
@@ -383,6 +409,7 @@ body.tabs main { padding-bottom:92px; }
   <button data-v="vMapa"><span>🗺️</span>MAPA</button>
   <button data-v="vCerebroFull"><span>🧠</span>CÉREBRO</button>
   <button data-v="vRevisoes"><span>🔁</span>REVISÕES</button>
+  <button data-v="vImportar"><span>📥</span>IMPORTAR</button>
 </nav>
 <div class="toast" id="toast"></div>
 
@@ -696,6 +723,7 @@ function irTab(v) {
   if (v === 'vMapa') loadMapa();
   if (v === 'vCerebroFull') loadCerebroFull();
   if (v === 'vRevisoes') loadRevisoes();
+  if (v === 'vImportar') loadImportar();
 }
 document.querySelectorAll('.tabbar button').forEach(b => b.onclick = () => irTab(b.dataset.v));
 $('btnIrHoje').onclick = async () => {
@@ -800,6 +828,78 @@ async function loadRevisoes() {
     : '<div class="card" style="text-align:center;color:var(--dim)">Nenhuma revisão pendente. Memória em dia. ✨</div>';
 }
 $('btnShare2').onclick = () => $('btnShare').onclick();
+
+// ---------- IMPORTAR (F6) ----------
+let impTipo = 'caderno_foto', impEnviando = false;
+document.querySelectorAll('#impTipos .chip').forEach(ch => ch.onclick = () => {
+  document.querySelectorAll('#impTipos .chip').forEach(c => c.classList.remove('on'));
+  ch.classList.add('on'); impTipo = ch.dataset.t;
+});
+$('btnImportar').onclick = () => { if (!impEnviando) $('impFile').click(); };
+$('impFile').onchange = async () => {
+  const f = $('impFile').files[0];
+  if (!f) return;
+  $('impFile').value = '';
+  if (f.size > 20 * 1024 * 1024) { toast('Arquivo acima de 20MB — envie um menor.'); return; }
+  impEnviando = true;
+  $('btnImportar').disabled = true;
+  const st = $('impStatus'); st.classList.add('on');
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const uid = session.user.id;
+    const ext = (f.name.split('.').pop() || 'jpg').toLowerCase();
+    const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+    st.textContent = '⬆️ Enviando arquivo…';
+    const { error: upErr } = await sb.storage.from('materiais-alunos').upload(path, f, { contentType: f.type || undefined });
+    if (upErr) throw upErr;
+
+    const { data: matId, error: criarErr } = await sb.rpc('fn_material_criar', {
+      p_tipo: impTipo, p_edital: editalAtual.id, p_storage_path: path });
+    if (criarErr) throw criarErr;
+
+    st.textContent = '🧠 Analisando com IA e mapeando no seu edital… (pode levar ~1 min)';
+    await loadImportar();
+    const resp = await fetch(`${SB_URL}/functions/v1/processar-material`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}`, 'apikey': SB_KEY },
+      body: JSON.stringify({ material_id: matId }) });
+    const res = await resp.json();
+    if (res.status === 'processado') {
+      toast(`✓ ${res.eventos} evidência(s) registrada(s) em ${res.nodes} tópico(s) 🧠`);
+    } else if (res.status === 'erro') {
+      toast('Não consegui processar: ' + (res.erro || 'erro desconhecido'));
+    } else if (res.error) {
+      toast(res.error);
+    }
+  } catch (e) {
+    toast(e.message || 'Falha no envio.');
+  } finally {
+    impEnviando = false;
+    $('btnImportar').disabled = false;
+    $('impStatus').classList.remove('on');
+    loadImportar();
+  }
+};
+const IMP_TIPO_LABEL = { caderno_foto: '📓 Caderno', resumo: '📓 Resumo', pdf: '📓 PDF',
+  print_qc: '🧾 Questões', print_tec: '🧾 Questões', print_desempenho: '📊 Desempenho', outro: '📎 Material' };
+async function loadImportar() {
+  const { data, error } = await sb.rpc('fn_meus_materiais');
+  if (error) { toast(error.message); return; }
+  $('impList').innerHTML = (data && data.length)
+    ? data.map(m => {
+        const badge = m.status === 'processado' ? '<span class="imp-badge ok">MAPEADO</span>'
+          : m.status === 'erro' ? '<span class="imp-badge err">ERRO</span>'
+          : '<span class="imp-badge run">ANALISANDO…</span>';
+        const det = m.status === 'processado'
+          ? `${m.eventos} evidência(s) · ${m.nodes} tópico(s)`
+          : m.status === 'erro' ? esc(m.erro || 'falha no processamento')
+          : 'a IA está lendo seu material';
+        const dt = new Date(m.criado).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        return `<div class="revrow"><div class="rn">${IMP_TIPO_LABEL[m.tipo] || m.tipo} · ${dt}<span class="rd" style="color:var(--dim)">${det}</span></div>${badge}</div>`;
+      }).join('')
+    : '<div class="card" style="text-align:center;color:var(--dim)">Nada importado ainda. Seu caderno vale evidência — envie a primeira foto. 📓</div>';
+}
 
 $('btnShare').onclick = async () => {
   const pct = Math.round(parseFloat(reveal.progresso) * 100);
