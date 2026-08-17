@@ -121,6 +121,44 @@ label { display:block; font-size:12px; color:var(--dim); margin:0 0 5px 2px; let
 .confs button { flex:1; padding:13px 4px; border-radius:14px; font-size:13.5px; font-weight:700; background:var(--card2); color:var(--text); border:1px solid var(--line); }
 .confs button:active { border-color:var(--verde); }
 
+/* ---------- TABBAR + DIA A DIA (F5) ---------- */
+.tabbar { position:fixed; bottom:0; left:0; right:0; display:none; justify-content:space-around;
+  background:rgba(10,16,32,.96); backdrop-filter:blur(12px); border-top:1px solid var(--line);
+  padding:8px 4px calc(8px + env(safe-area-inset-bottom)); z-index:40; }
+.tabbar.on { display:flex; }
+.tabbar button { background:none; border:none; color:var(--dim); font-size:10.5px; font-weight:700;
+  display:flex; flex-direction:column; align-items:center; gap:3px; letter-spacing:.04em; }
+.tabbar button span { font-size:20px; }
+.tabbar button.on { color:var(--verde); }
+body.tabs main { padding-bottom:92px; }
+.hj-hello { font-size:22px; margin:6px 0 2px; font-family:'Archivo'; font-variation-settings:'wdth' 75,'wght' 800; }
+.hj-sub { color:var(--dim); font-size:13px; margin-bottom:16px; }
+.acaocard { background:linear-gradient(160deg, var(--card2), var(--card));
+  border:1px solid rgba(47,224,141,.35); border-radius:22px; padding:20px; margin-bottom:12px; }
+.acaocard .k { font-size:11px; letter-spacing:.16em; color:var(--verde); margin-bottom:8px; font-weight:800; }
+.acaocard .n { font-size:20px; font-family:'Archivo'; font-variation-settings:'wdth' 75,'wght' 800; }
+.acaocard .m { color:var(--dim); font-size:13.5px; line-height:1.5; margin:8px 0 14px; }
+.minicards { display:flex; gap:10px; margin-bottom:12px; }
+.minicard { flex:1; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px; text-align:center; }
+.minicard .v { font-size:20px; font-weight:800; color:var(--verde); }
+.minicard .k { font-size:10px; color:var(--dim); letter-spacing:.08em; margin-top:2px; }
+.fb { margin-top:16px; border-radius:16px; padding:14px 16px; display:none; animation:enter .3s both; border:1px solid var(--line); }
+.fb.on { display:block; }
+.fb.ok { background:rgba(47,224,141,.1); border-color:rgba(47,224,141,.45); }
+.fb.no { background:rgba(237,90,90,.1); border-color:rgba(237,90,90,.45); }
+.fb b { display:block; margin-bottom:4px; font-size:14px; }
+.fb.ok b { color:var(--verde); } .fb.no b { color:var(--vermelho); }
+.fb p { font-size:13.5px; line-height:1.5; }
+.revrow { display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--line);
+  border-radius:14px; padding:13px 14px; margin-bottom:8px; }
+.revrow .rn { flex:1; font-size:14px; }
+.revrow .rd { font-size:11px; color:var(--amarelo); display:block; margin-top:2px; }
+.revrow button { background:var(--verde-dim); color:var(--verde); border:1px solid var(--verde);
+  border-radius:10px; padding:8px 12px; font-size:12px; font-weight:800; }
+.sess-res { text-align:center; padding:5vh 0; }
+.sess-res .big { font-size:46px; color:var(--verde); font-family:'Archivo'; font-variation-settings:'wdth' 75,'wght' 800; }
+.sess-res p { color:var(--dim); margin:8px 0 22px; }
+
 /* ---------- PRÉ-REVELAÇÃO ---------- */
 .pre { text-align:center; padding:10vh 0; }
 .pre .pulse {
@@ -277,9 +315,75 @@ label { display:block; font-size:12px; color:var(--dim); margin:0 0 5px 2px; let
       <span class="lg-r">risco</span><span class="lg-n">ainda não medido</span>
     </div>
     <div id="rvMapa"></div>
-    <div class="sharebar"><button class="btn" id="btnShare">Compartilhar meu mapa</button></div>
+    <div class="sharebar">
+      <button class="btn" id="btnShare">Compartilhar meu mapa</button>
+      <button class="btn ghost" id="btnIrHoje" style="margin-top:8px">Começar a estudar agora →</button>
+    </div>
+  </section>
+
+  <!-- HOJE (F5) -->
+  <section class="view" id="vHoje">
+    <div class="hj-hello" id="hjHello">Boa noite.</div>
+    <div class="hj-sub" id="hjSub"></div>
+    <div class="minicards" id="hjCards"></div>
+    <div class="acaocard">
+      <div class="k" id="hjAcaoK">SUA PRÓXIMA AÇÃO JÁ ESTÁ DECIDIDA</div>
+      <div class="n" id="hjAcaoN"></div>
+      <div class="m" id="hjAcaoM"></div>
+      <button class="btn" id="btnSessao">Iniciar sessão</button>
+    </div>
+    <div id="hjRevChip"></div>
+  </section>
+
+  <!-- SESSÃO (F5) -->
+  <section class="view" id="vSessao">
+    <div class="prog"><div class="lbl" id="ssTitulo">SESSÃO</div></div>
+    <div class="qcard" style="margin-top:10px">
+      <div class="tipo">JULGUE O ITEM</div>
+      <div class="enun" id="ssEnun"></div>
+    </div>
+    <div class="answers" id="ssAns">
+      <button class="abtn" data-r="certo">CERTO</button>
+      <button class="abtn" data-r="errado">ERRADO</button>
+    </div>
+    <div class="fb" id="ssFb"><b id="ssFbT"></b><p id="ssFbE"></p></div>
+    <button class="btn" id="ssContinuar" style="display:none;margin-top:14px">Continuar</button>
+    <div class="sess-res" id="ssFim" style="display:none"></div>
+  </section>
+
+  <!-- MAPA (F5) -->
+  <section class="view" id="vMapa">
+    <div class="hj-hello">Seu mapa</div>
+    <div class="hj-sub" id="mpSub"></div>
+    <div class="legend">
+      <span class="lg-v">domínio</span><span class="lg-a">no caminho</span>
+      <span class="lg-r">risco</span><span class="lg-n">ainda não medido</span>
+    </div>
+    <div id="mpMapa"></div>
+  </section>
+
+  <!-- CÉREBRO (F5) -->
+  <section class="view" id="vCerebroFull">
+    <div class="hj-hello">Seu cérebro</div>
+    <div class="hj-sub" id="cbSub"></div>
+    <div id="cbFull"></div>
+    <button class="btn" id="btnShare2" style="margin-top:12px">Compartilhar meu cérebro</button>
+  </section>
+
+  <!-- REVISÕES (F5) -->
+  <section class="view" id="vRevisoes">
+    <div class="hj-hello">Revisões</div>
+    <div class="hj-sub">O sistema lembra por você — revise antes de esquecer.</div>
+    <div id="rvList"></div>
   </section>
 </main>
+
+<nav class="tabbar" id="tabbar">
+  <button data-v="vHoje" class="on"><span>⚡</span>HOJE</button>
+  <button data-v="vMapa"><span>🗺️</span>MAPA</button>
+  <button data-v="vCerebroFull"><span>🧠</span>CÉREBRO</button>
+  <button data-v="vRevisoes"><span>🔁</span>REVISÕES</button>
+</nav>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -307,6 +411,16 @@ async function boot() {
   if (!session) { show('vAuth'); return; }
   $('btnSair').style.display = 'block';
   await carregarEditais();
+  const { data: prof } = await sb.from('profiles').select('edital_ativo, nome').eq('id', session.user.id).single();
+  perfil = prof || {};
+  const alvo = editais.find(e => e.id === prof?.edital_ativo);
+  if (alvo) {
+    editalAtual = alvo;
+    const { data: est } = await sb.rpc('fn_edital_estrutura', { p_edital: alvo.id });
+    estrutura = est || [];
+    entrarModoAluno();
+    return;
+  }
   show('vHome');
 }
 $('lnkModo').onclick = (e) => { e.preventDefault(); modoCadastro = !modoCadastro;
@@ -467,7 +581,7 @@ function corMedia(tops) {
   if (!med.length) return 'nd';
   return corDe({ forca: med.reduce((s, t) => s + t.forca, 0) / med.length, incerteza: 0 });
 }
-function renderCerebro(porNode) {
+function renderCerebro(porNode, alvo = 'rvCerebro') {
   const W = 360, C = W / 2;
   const ND = Math.max(estrutura.length, 1);
   const setor = 2 * Math.PI / ND;
@@ -497,7 +611,7 @@ function renderCerebro(porNode) {
       });
     });
   });
-  $('rvCerebro').innerHTML = `
+  $(alvo).innerHTML = `
     <svg viewBox="0 0 ${W} ${W}">
       <defs><filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
         <feGaussianBlur stdDeviation="4" result="b"/>
@@ -508,6 +622,30 @@ function renderCerebro(porNode) {
       ${nodes}
     </svg>
     <div class="cbcap">Seu cérebro para ${esc(editalAtual.concurso)} — ele cresce e acende conforme você domina.</div>`;
+}
+
+function heatmapHtml(porNode) {
+  let html = ''; let idx = 0;
+  estrutura.forEach(d => {
+    const tops = d.assuntos.flatMap(a => a.topicos);
+    html += `<div class="dsec"><h3>${esc(d.disciplina)} <small>${Math.round((d.peso_total || 0) * 100)} pts de peso</small></h3>`;
+    tops.forEach(t => {
+      const n = porNode[t.node_id] || { forca: 0, incerteza: 100 };
+      const cor = corDe(n);
+      const w = cor === 'nd' ? 100 : Math.max(4, Math.round(n.forca));
+      html += `<div class="trow v-${cor}" style="--d:${idx * 45}ms">
+        <div class="tn">${esc(t.nome)}</div>
+        <div class="bar"><i data-w="${w}"></i></div>
+      </div>`;
+      idx++;
+    });
+    html += '</div>';
+  });
+  return html;
+}
+function animarBarras(container) {
+  requestAnimationFrame(() => setTimeout(() =>
+    container.querySelectorAll('.bar i').forEach(i => i.style.width = i.dataset.w + '%'), 80));
 }
 
 function renderReveal() {
@@ -539,26 +677,129 @@ function renderReveal() {
   }
   $('rvInsights').innerHTML = ins;
 
-  let html = ''; let idx = 0;
-  estrutura.forEach(d => {
-    const tops = d.assuntos.flatMap(a => a.topicos);
-    html += `<div class="dsec"><h3>${esc(d.disciplina)} <small>${Math.round((d.peso_total || 0) * 100)} pts de peso</small></h3>`;
-    tops.forEach(t => {
-      const n = porNode[t.node_id] || { forca: 0, incerteza: 100 };
-      const cor = corDe(n);
-      const w = cor === 'nd' ? 100 : Math.max(4, Math.round(n.forca));
-      html += `<div class="trow v-${cor}" style="--d:${idx * 45}ms">
-        <div class="tn">${esc(t.nome)}</div>
-        <div class="bar"><i data-w="${w}"></i></div>
-      </div>`;
-      idx++;
-    });
-    html += '</div>';
-  });
-  $('rvMapa').innerHTML = html;
-  requestAnimationFrame(() => setTimeout(() =>
-    document.querySelectorAll('.bar i').forEach(i => i.style.width = i.dataset.w + '%'), 80));
+  $('rvMapa').innerHTML = heatmapHtml(porNode);
+  animarBarras($('rvMapa'));
 }
+
+// ==================== F5 · DIA A DIA ====================
+let perfil = {}, sessEstudo = null, ssT0 = null, fbAtual = null;
+
+function entrarModoAluno() {
+  document.body.classList.add('tabs');
+  $('tabbar').classList.add('on');
+  irTab('vHoje');
+}
+function irTab(v) {
+  document.querySelectorAll('.tabbar button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  show(v);
+  if (v === 'vHoje') loadHoje();
+  if (v === 'vMapa') loadMapa();
+  if (v === 'vCerebroFull') loadCerebroFull();
+  if (v === 'vRevisoes') loadRevisoes();
+}
+document.querySelectorAll('.tabbar button').forEach(b => b.onclick = () => irTab(b.dataset.v));
+$('btnIrHoje').onclick = async () => {
+  const { data: est } = await sb.rpc('fn_edital_estrutura', { p_edital: editalAtual.id });
+  estrutura = est || estrutura;
+  entrarModoAluno();
+};
+
+async function loadHoje() {
+  const h = new Date().getHours();
+  $('hjHello').textContent = (h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite') + (perfil.nome ? ', ' + perfil.nome.split(' ')[0] : '') + '.';
+  const { data, error } = await sb.rpc('fn_home', { p_edital: editalAtual.id });
+  if (error) { toast(error.message); return; }
+  $('hjSub').textContent = `${editalAtual.concurso} · ${data.streak > 0 ? '🔥 ' + data.streak + ' dia(s) seguidos' : 'comece sua sequência hoje'}`;
+  $('hjCards').innerHTML = `
+    <div class="minicard"><div class="v">${data.dominados}</div><div class="k">DOMINADOS</div></div>
+    <div class="minicard"><div class="v">${data.medidos}/${data.total}</div><div class="k">MAPEADOS</div></div>
+    <div class="minicard"><div class="v">${data.revisoes}</div><div class="k">REVISÕES</div></div>`;
+  const a = data.acao || {};
+  const rotulo = { revisao: 'REVISAR', sondar: 'MEDIR', estudar: 'ESTUDAR', descanso: 'DESCANSAR' }[a.acao] || '';
+  $('hjAcaoK').textContent = 'SUA PRÓXIMA AÇÃO JÁ ESTÁ DECIDIDA — ' + rotulo;
+  $('hjAcaoN').textContent = a.nome || 'Tudo em dia';
+  $('hjAcaoM').textContent = a.motivo || '';
+  $('btnSessao').style.display = a.acao === 'descanso' ? 'none' : 'block';
+  $('hjRevChip').innerHTML = data.revisoes > 0
+    ? `<div class="revrow"><div class="rn">🔁 ${data.revisoes} revisão(ões) esperando<span class="rd">antes que a memória apague</span></div><button onclick="irTab('vRevisoes')">Ver</button></div>` : '';
+}
+
+$('btnSessao').onclick = () => iniciarSessaoEstudo(null, null);
+async function iniciarSessaoEstudo(node, tipo) {
+  const { data, error } = await sb.rpc('fn_sessao_iniciar', { p_edital: editalAtual.id, p_tipo: tipo, p_node: node });
+  if (error) { toast(error.message === 'assinatura_necessaria' ? 'Sua assinatura dá acesso a isto 💚' : error.message); return; }
+  if (data.erro === 'sem_itens') { toast('Ainda não há questões para este tópico.'); return; }
+  if (data.acao === 'descanso') { toast(data.motivo); return; }
+  sessEstudo = data;
+  $('tabbar').classList.remove('on');
+  $('ssFim').style.display = 'none';
+  renderItemSessao(data);
+  show('vSessao');
+}
+function renderItemSessao(data) {
+  fbAtual = null; ssT0 = Date.now();
+  $('ssTitulo').textContent = `${(sessEstudo.tipo || '').toUpperCase()} · ${esc(sessEstudo.nome)} · ${(data.respondidos ?? 0) + 1}/${sessEstudo.total}`;
+  $('ssEnun').textContent = data.item.enunciado;
+  $('ssFb').className = 'fb'; $('ssContinuar').style.display = 'none';
+  $('ssAns').style.display = 'flex';
+  document.querySelectorAll('#ssAns .abtn').forEach(b => b.classList.remove('on'));
+  sessEstudo.itemAtual = data.item;
+}
+document.querySelectorAll('#ssAns .abtn').forEach(b => b.onclick = async () => {
+  if (fbAtual) return;
+  b.classList.add('on');
+  const { data, error } = await sb.rpc('fn_sessao_responder', {
+    p_sessao: sessEstudo.sessao, p_item: sessEstudo.itemAtual.id,
+    p_resposta: b.dataset.r, p_confianca: null, p_tempo_ms: Date.now() - ssT0 });
+  if (error) { toast(error.message); b.classList.remove('on'); return; }
+  fbAtual = data;
+  const ok = data.resultado === 'acerto';
+  $('ssFb').className = 'fb on ' + (ok ? 'ok' : 'no');
+  $('ssFbT').textContent = ok ? '✓ Você acertou' : '✗ Não foi dessa vez — gabarito: ' + data.gabarito.toUpperCase();
+  $('ssFbE').textContent = data.explicacao || '';
+  $('ssContinuar').style.display = 'block';
+});
+$('ssContinuar').onclick = () => {
+  if (!fbAtual) return;
+  if (fbAtual.fim) {
+    $('ssAns').style.display = 'none';
+    $('ssFb').className = 'fb'; $('ssContinuar').style.display = 'none';
+    $('ssFim').style.display = 'block';
+    $('ssFim').innerHTML = `<div class="big">${fbAtual.acertos}/${fbAtual.total}</div>
+      <p>Sessão concluída — seu cérebro acabou de mudar.</p>
+      <button class="btn" onclick="voltarHoje()">Voltar para HOJE</button>`;
+    return;
+  }
+  renderItemSessao(fbAtual);
+};
+function voltarHoje() { $('tabbar').classList.add('on'); irTab('vHoje'); }
+
+async function loadMapa() {
+  const { data, error } = await sb.rpc('fn_meu_mapa', { p_edital: editalAtual.id });
+  if (error) { toast(error.message); return; }
+  const porNode = {}; (data.mapa || []).forEach(n => porNode[n.node_id] = n);
+  const med = (data.mapa || []).filter(n => n.incerteza < 85).length;
+  $('mpSub').textContent = `${editalAtual.concurso} · ${med} de ${(data.mapa || []).length} tópicos medidos`;
+  $('mpMapa').innerHTML = heatmapHtml(porNode);
+  animarBarras($('mpMapa'));
+}
+async function loadCerebroFull() {
+  const { data, error } = await sb.rpc('fn_meu_mapa', { p_edital: editalAtual.id });
+  if (error) { toast(error.message); return; }
+  const porNode = {}; (data.mapa || []).forEach(n => porNode[n.node_id] = n);
+  const verdes = (data.mapa || []).filter(n => n.incerteza < 85 && n.forca >= 70).length;
+  $('cbSub').textContent = `${verdes} nó(s) brilhando de domínio — continue acendendo.`;
+  renderCerebro(porNode, 'cbFull');
+}
+async function loadRevisoes() {
+  const { data, error } = await sb.rpc('fn_revisoes_hoje', { p_edital: editalAtual.id });
+  if (error) { toast(error.message); return; }
+  $('rvList').innerHTML = (data && data.length)
+    ? data.map(r => `<div class="revrow"><div class="rn">${esc(r.nome)}<span class="rd">vencida há ${r.dias_vencida} dia(s) · força ${r.forca}%</span></div>
+        <button onclick="iniciarSessaoEstudo('${r.node_id}','revisao')">Revisar</button></div>`).join('')
+    : '<div class="card" style="text-align:center;color:var(--dim)">Nenhuma revisão pendente. Memória em dia. ✨</div>';
+}
+$('btnShare2').onclick = () => $('btnShare').onclick();
 
 $('btnShare').onclick = async () => {
   const pct = Math.round(parseFloat(reveal.progresso) * 100);
