@@ -281,6 +281,18 @@ body.tabs main { padding-bottom:96px; }
 .dom .db { width:64px; height:4px; border-radius:3px; background:var(--card2); overflow:hidden; }
 .dom .db i { display:block; height:100%; border-radius:3px; }
 .cv-cap { text-align:center; font-size:11.5px; color:var(--dim); margin-top:14px; }
+.conqs { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+.conq { display:flex; align-items:center; gap:9px; border:1px solid var(--line); border-radius:10px;
+  padding:9px 11px; background:rgba(8,14,26,.5); opacity:.55; }
+.conq .ic { width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+  background:rgba(132,170,214,.08); color:var(--faint); flex-shrink:0; }
+.conq .ic svg { width:15px; height:15px; }
+.conq b { display:block; font-size:11px; color:var(--dim); line-height:1.2; }
+.conq small { display:block; font-size:9px; color:var(--faint); margin-top:1px; line-height:1.3; }
+.conq.ok { opacity:1; border-color:rgba(242,179,61,.4); background:rgba(242,179,61,.06);
+  box-shadow:0 0 20px rgba(242,179,61,.07); }
+.conq.ok .ic { background:rgba(242,179,61,.14); color:var(--amarelo); }
+.conq.ok b { color:var(--amarelo); }
 
 /* ---------- REVELAÇÃO ---------- */
 .rv .head { margin-bottom:18px; }
@@ -545,6 +557,7 @@ body.tabs main { padding-bottom:96px; }
       <aside class="cv-panel">
         <div class="cv-pk">DOMÍNIOS</div>
         <div id="cvDoms"></div>
+        <div id="cvConqs"></div>
         <button class="btn" id="btnShare2" style="margin-top:16px">Compartilhar meu cérebro</button>
       </aside>
     </div>
@@ -1036,6 +1049,7 @@ const CerebroVivo = {
       x: (Math.random() - .5) * 1300, y: (Math.random() - .5) * 900,
       r: Math.random() * 1.1 + .3, a: Math.random() * .35 + .08 }));
     this.cam = { x: 0, y: 0, z: 1 };
+    this.camT = { x: 0, y: 0, z: 1 };
     this.ligarEventos();
     this.redimensionar();
     if (!this.raf) { this.t0 = performance.now(); this.loop(); }
@@ -1064,6 +1078,7 @@ const CerebroVivo = {
       const dx = e.clientX - arrasto.x, dy = e.clientY - arrasto.y;
       if (Math.abs(dx) + Math.abs(dy) > 4) moveu = true;
       this.cam.x += dx; this.cam.y += dy;
+      this.camT.x = this.cam.x; this.camT.y = this.cam.y;
       arrasto = { x: e.clientX, y: e.clientY };
     });
     cv.addEventListener('pointerup', e => {
@@ -1081,11 +1096,18 @@ const CerebroVivo = {
     cv.addEventListener('touchend', () => td = null);
     $('cvZin').onclick = () => this.zoom(1.3);
     $('cvZout').onclick = () => this.zoom(1 / 1.3);
-    $('cvReset').onclick = () => { this.cam = { x: 0, y: 0, z: 1 }; this.sel = null; $('cvInfo').classList.remove('on'); };
+    $('cvReset').onclick = () => { this.camT = { x: 0, y: 0, z: 1 }; this.sel = null; $('cvInfo').classList.remove('on'); };
     window.addEventListener('resize', () => this.cv && this.redimensionar());
   },
   dist2(e) { const [a, b] = e.touches; return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY); },
-  zoom(f) { this.cam.z = Math.min(3.2, Math.max(.55, this.cam.z * f)); },
+  zoom(f) {
+    this.camT.z = Math.min(3.2, Math.max(.55, this.camT.z * f));
+    this.camT.x = this.cam.x; this.camT.y = this.cam.y;
+  },
+  focar(n, z = 1.9) { // câmera cinematográfica até o nó
+    const s = this.fit * z;
+    this.camT = { x: -n.x * s, y: -n.y * s, z };
+  },
 
   tocar(e) {
     const rc = this.cv.getBoundingClientRect();
@@ -1102,6 +1124,7 @@ const CerebroVivo = {
     this.sel = n;
     const box = $('cvInfo');
     if (!n) { box.classList.remove('on'); return; }
+    if (n.nivel === 'disciplina') this.focar(n, 1.9);
     const corTxt = { verde: 'DOMINADO', amarelo: 'NO CAMINHO', vermelho: 'LACUNA', nd: 'NÃO MEDIDO' }[n.cor] || '';
     const bc = n.nivel === 'topico' ? `${esc(n.disc)} · ${esc(n.assunto)}`
              : n.nivel === 'assunto' ? esc(n.disc) : 'DISCIPLINA';
@@ -1124,6 +1147,10 @@ const CerebroVivo = {
   loop() {
     this.raf = requestAnimationFrame(() => this.loop());
     if (!document.getElementById('vCerebroFull').classList.contains('on')) return;
+    // câmera suave rumo ao alvo
+    this.cam.x += (this.camT.x - this.cam.x) * .1;
+    this.cam.y += (this.camT.y - this.cam.y) * .1;
+    this.cam.z += (this.camT.z - this.cam.z) * .1;
     const ctx = this.ctx, w = this.cv.clientWidth, h = this.cv.clientHeight;
     const t = (performance.now() - this.t0) / 1000;
     const s = this.fit * this.cam.z;
@@ -1195,6 +1222,17 @@ const CerebroVivo = {
         ctx.strokeStyle = cor; ctx.lineWidth = 1.4 / this.cam.z;
         ctx.beginPath(); ctx.arc(x, y, n.r + 6 / this.cam.z, 0, 7); ctx.stroke();
       }
+      // rótulos dos tópicos surgem quando a câmera aproxima
+      if (n.nivel === 'topico' && this.cam.z >= 1.4) {
+        const alfa = Math.min(1, (this.cam.z - 1.35) * 1.8) * (n.cor === 'nd' ? .4 : .85);
+        ctx.globalAlpha = alfa;
+        ctx.font = `${9.5 / this.cam.z}px 'Atkinson Hyperlegible', sans-serif`;
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#BECDE1';
+        const nome = n.nome.length > 26 ? n.nome.slice(0, 25) + '…' : n.nome;
+        ctx.fillText(nome, x + n.r + 5 / this.cam.z, y + 3 / this.cam.z);
+        ctx.globalAlpha = 1;
+      }
       // rótulo das disciplinas
       if (n.nivel === 'disciplina') {
         const lx = Math.cos(n.ang) * 128, ly = Math.sin(n.ang) * 128;
@@ -1225,6 +1263,13 @@ async function loadCerebroFull() {
   const medidos = lista.filter(n => n.incerteza < 85);
   const indice = medidos.length ? (medidos.reduce((s, n) => s + n.forca, 0) / medidos.length) : 0;
   const verdes = medidos.filter(n => n.forca >= 70).length;
+  const setorOk = estrutura.some(dd => {
+    const tops = dd.assuntos.flatMap(a => a.topicos).map(t => porNode[t.node_id] || { forca: 0, incerteza: 100 });
+    const med = tops.filter(t => t.incerteza < 85);
+    return med.length > 0 && med.reduce((s, t) => s + t.forca, 0) / med.length >= 70;
+  });
+  cbDados = { indice, verdes, medidos: medidos.length, total: lista.length,
+    streak: home?.streak ?? 0, setorOk };
   $('cbKpis').innerHTML = `
     <div class="kpi"><div class="v">${indice.toFixed(1)}<small> /100</small></div><div class="k">ÍNDICE DE DOMÍNIO</div><div class="d">média dos tópicos medidos</div></div>
     <div class="kpi"><div class="v" style="color:var(--verde)">${verdes}</div><div class="k">NÓS DOMINADOS</div><div class="d">brilhando no grafo</div></div>
@@ -1247,6 +1292,7 @@ async function loadCerebroFull() {
     const n = CerebroVivo.nodes.find(x => x.id === 'd' + el.dataset.d);
     if (n) CerebroVivo.selecionar(n);
   });
+  $('cvConqs').innerHTML = renderConquistas(cbDados);
 }
 async function loadRevisoes() {
   const { data, error } = await sb.rpc('fn_revisoes_hoje', { p_edital: editalAtual.id });
@@ -1256,7 +1302,128 @@ async function loadRevisoes() {
         <button onclick="iniciarSessaoEstudo('${r.node_id}','revisao')">Revisar</button></div>`).join('')
     : '<div class="card" style="text-align:center;color:var(--dim)">Nenhuma revisão pendente. Memória em dia.</div>';
 }
-$('btnShare2').onclick = () => $('btnShare').onclick();
+// ---------- CÉREBRO v2: conquistas + compartilhar como imagem ----------
+let cbDados = null;
+const CONQUISTAS = [
+  { id: 'primeira_luz', nome: 'Primeira Luz', desc: '1º tópico medido', cond: d => d.medidos >= 1 },
+  { id: 'primeiro_dominio', nome: 'Primeiro Domínio', desc: '1º nó verde aceso', cond: d => d.verdes >= 1 },
+  { id: 'constelacao', nome: 'Constelação', desc: '5 nós dominados', cond: d => d.verdes >= 5 },
+  { id: 'setor_dominado', nome: 'Setor Dominado', desc: 'disciplina com média ≥ 70', cond: d => d.setorOk },
+  { id: 'cartografo', nome: 'Cartógrafo', desc: 'metade do edital medida', cond: d => d.total > 0 && d.medidos / d.total >= .5 },
+  { id: 'mapa_total', nome: 'Mapa Total', desc: '100% do edital medido', cond: d => d.total > 0 && d.medidos >= d.total },
+  { id: 'semana_fogo', nome: 'Semana de Fogo', desc: '7 dias seguidos', cond: d => d.streak >= 7 },
+  { id: 'maratonista', nome: 'Maratonista', desc: '30 dias seguidos', cond: d => d.streak >= 30 },
+];
+const ICONE_CONQ = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.5 14.4 8.6 20 9.4l-4 4 1 5.6-5-2.7-5 2.7 1-5.6-4-4 5.6-.8L12 3.5z"/></svg>';
+function renderConquistas(d) {
+  const feitas = CONQUISTAS.filter(c => c.cond(d)).map(c => c.id);
+  const vistas = JSON.parse(localStorage.getItem('dominei_conq') || '[]');
+  const novas = feitas.filter(id => !vistas.includes(id));
+  if (novas.length && vistas.length + d.medidos > 0) {
+    const c = CONQUISTAS.find(x => x.id === novas[0]);
+    toast(`Conquista desbloqueada: ${c.nome}`);
+  }
+  localStorage.setItem('dominei_conq', JSON.stringify(feitas));
+  return `<div class="cv-pk" style="margin-top:18px">CONQUISTAS · ${feitas.length}/${CONQUISTAS.length}</div>
+    <div class="conqs">` + CONQUISTAS.map(c => `
+      <div class="conq ${c.cond(d) ? 'ok' : ''}"><div class="ic">${ICONE_CONQ}</div>
+        <div><b>${c.nome}</b><small>${c.desc}</small></div></div>`).join('') + '</div>';
+}
+
+async function compartilharCerebro() {
+  if (!cbDados || !CerebroVivo.nodes.length) { toast('Abra o cérebro primeiro.'); return; }
+  await document.fonts.ready;
+  const W = 1080, H = 1920;
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  // fundo
+  x.fillStyle = '#030710'; x.fillRect(0, 0, W, H);
+  let g = x.createRadialGradient(W * .8, -100, 0, W * .8, -100, 900);
+  g.addColorStop(0, 'rgba(47,224,141,.14)'); g.addColorStop(1, 'transparent');
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  x.strokeStyle = 'rgba(120,160,220,.05)'; x.lineWidth = 1;
+  for (let i = 0; i < W; i += 54) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, H); x.stroke(); }
+  for (let i = 0; i < H; i += 54) { x.beginPath(); x.moveTo(0, i); x.lineTo(W, i); x.stroke(); }
+  for (let i = 0; i < 90; i++) {
+    x.globalAlpha = Math.random() * .4 + .1; x.fillStyle = '#9FB8D8';
+    x.beginPath(); x.arc(Math.random() * W, Math.random() * H, Math.random() * 1.6 + .4, 0, 7); x.fill();
+  }
+  x.globalAlpha = 1;
+  // marca
+  x.textAlign = 'center';
+  x.font = "64px 'Archivo Black', sans-serif";
+  const bw = x.measureText('DOMINEI').width;
+  x.fillStyle = '#EAF2EC'; x.textAlign = 'left';
+  x.fillText('DOMINE', W / 2 - bw / 2, 170);
+  x.fillStyle = '#2FE08D'; x.shadowColor = '#2FE08D'; x.shadowBlur = 26;
+  x.fillText('I', W / 2 - bw / 2 + x.measureText('DOMINE').width, 170);
+  x.shadowBlur = 0;
+  x.textAlign = 'center';
+  x.font = "700 34px 'Archivo', sans-serif"; x.fillStyle = '#7E8CA0';
+  x.fillText('O  M A P A  D O  M E U  C É R E B R O', W / 2, 244);
+  x.font = "700 40px 'Archivo', sans-serif"; x.fillStyle = '#EAF2EC';
+  x.fillText(editalAtual.concurso.toUpperCase(), W / 2, 310);
+  // grafo (posições reais, render estático)
+  const cx = W / 2, cy = 900, esc = 1.55;
+  const P = n => [cx + n.x * esc, cy + n.y * esc];
+  x.strokeStyle = 'rgba(130,165,215,.16)'; x.lineWidth = 1.6;
+  CerebroVivo.edges.forEach(([a, b]) => {
+    const [ax, ay] = P(a), [bx, by] = P(b);
+    x.beginPath(); x.moveTo(ax, ay); x.lineTo(bx, by); x.stroke();
+  });
+  CerebroVivo.nodes.forEach(n => {
+    const [nx, ny] = P(n);
+    if (n.nivel === 'core') {
+      x.shadowColor = '#2FE08D'; x.shadowBlur = 60;
+      x.fillStyle = '#2FE08D'; x.beginPath(); x.arc(nx, ny, 26, 0, 7); x.fill();
+      x.shadowBlur = 0; return;
+    }
+    const cor = COR_HEX[n.cor];
+    if (n.cor !== 'nd') { x.shadowColor = cor; x.shadowBlur = n.cor === 'verde' ? 42 : 26; }
+    x.globalAlpha = n.cor === 'nd' ? .45 : 1;
+    x.fillStyle = cor; x.beginPath(); x.arc(nx, ny, n.r * esc, 0, 7); x.fill();
+    x.shadowBlur = 0; x.globalAlpha = 1;
+    if (n.nivel === 'disciplina') {
+      x.font = "700 26px 'Archivo', sans-serif"; x.fillStyle = 'rgba(190,205,225,.85)';
+      x.fillText(n.nome.toUpperCase().slice(0, 28), cx + n.x * esc * 1.62, cy + n.y * esc * 1.62);
+      if (n.pct != null) { x.fillStyle = cor; x.font = '700 24px Menlo, monospace';
+        x.fillText(n.pct + '%', cx + n.x * esc * 1.62, cy + n.y * esc * 1.62 + 32); }
+    }
+  });
+  // stats
+  const d = cbDados;
+  const stats = [
+    [d.indice.toFixed(1), 'ÍNDICE DE DOMÍNIO'],
+    [`${d.verdes}`, 'NÓS DOMINADOS'],
+    [`${Math.round(d.medidos / Math.max(d.total, 1) * 100)}%`, 'DO EDITAL MAPEADO'],
+  ];
+  stats.forEach(([v, k], i) => {
+    const sx = W / 2 + (i - 1) * 320;
+    x.font = "84px 'Archivo Black', sans-serif"; x.fillStyle = i === 1 ? '#2FE08D' : '#EAF2EC';
+    x.fillText(v, sx, 1560);
+    x.font = '700 22px Menlo, monospace'; x.fillStyle = '#7E8CA0';
+    x.fillText(k, sx, 1600);
+  });
+  x.font = "700 30px 'Archivo', sans-serif"; x.fillStyle = '#7E8CA0';
+  x.fillText('Cada evidência acende um nó. E o seu cérebro?', W / 2, 1720);
+  x.font = "44px 'Archivo Black', sans-serif"; x.fillStyle = '#2FE08D';
+  x.shadowColor = '#2FE08D'; x.shadowBlur = 20;
+  x.fillText('dominei.app', W / 2, 1800);
+  x.shadowBlur = 0;
+
+  const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+  const file = new File([blob], 'meu-cerebro-dominei.png', { type: 'image/png' });
+  const texto = `O mapa do meu cérebro para ${editalAtual.concurso} no DOMINEI — ${Math.round(d.medidos / Math.max(d.total, 1) * 100)}% do edital mapeado. dominei.app`;
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], text: texto }); return; } catch (e) { /* cancelado */ }
+  } else {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'meu-cerebro-dominei.png';
+    a.click(); URL.revokeObjectURL(a.href);
+    toast('Imagem baixada — poste onde quiser.');
+  }
+}
+$('btnShare2').onclick = compartilharCerebro;
 
 // ---------- IMPORTAR (F6) ----------
 let impTipo = 'caderno_foto', impEnviando = false;
