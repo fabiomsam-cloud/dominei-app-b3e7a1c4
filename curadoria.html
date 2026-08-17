@@ -4,63 +4,98 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DOMINEI · Curadoria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Archivo+Black&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  :root { --navy:#16243D; --blue:#2456A6; --green:#1E7A46; --red:#B03030; --gold:#B8860B;
-          --grey:#5A6472; --light:#EEF2F8; --line:#C9D3E0; --bg:#F7F9FC; }
+  :root { --ink:#030710; --panel:rgba(13,23,40,.85); --panel2:#0E1A2E;
+          --glass:linear-gradient(168deg, rgba(15,26,45,.9), rgba(7,13,24,.95));
+          --line:rgba(132,170,214,.14); --text:#EAF2EC; --grey:#7E8CA0; --faint:#4C5870;
+          --green:#2FE08D; --red:#ED5A5A; --gold:#F2B33D; --blue:#4D8DFF; --roxo:#9D7BFF;
+          --navy:#0E1A2E; --light:rgba(132,170,214,.08);
+          --mono:"SF Mono", ui-monospace, Menlo, Consolas, monospace; }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:-apple-system, Segoe UI, Roboto, Arial, sans-serif; background:var(--bg); color:#222831; }
-  header { background:var(--navy); color:#fff; padding:14px 20px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
-  header h1 { font-size:18px; font-weight:800; letter-spacing:.5px; }
-  header .tag { background:var(--blue); border-radius:6px; padding:2px 10px; font-size:12px; font-weight:700; }
+  body { font-family:'Atkinson Hyperlegible', -apple-system, sans-serif;
+    background:
+      radial-gradient(1000px 500px at 80% -10%, rgba(47,224,141,.07), transparent 60%),
+      repeating-linear-gradient(0deg, rgba(120,160,220,.02) 0 1px, transparent 1px 46px),
+      repeating-linear-gradient(90deg, rgba(120,160,220,.02) 0 1px, transparent 1px 46px),
+      var(--ink);
+    color:var(--text); min-height:100vh; }
+  header { background:rgba(4,9,18,.8); backdrop-filter:blur(14px); border-bottom:1px solid var(--line);
+    color:var(--text); padding:14px 22px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    position:sticky; top:0; z-index:20; }
+  header h1 { font-family:'Archivo Black', sans-serif; font-size:17px; letter-spacing:.08em; font-weight:800; }
+  header h1 i { font-style:normal; color:var(--green); text-shadow:0 0 16px rgba(47,224,141,.6); }
+  header .tag { background:rgba(47,224,141,.12); color:var(--green); border:1px solid rgba(47,224,141,.3);
+    border-radius:7px; padding:3px 11px; font-size:11px; font-weight:700; font-family:var(--mono); letter-spacing:.08em; }
   header .spacer { flex:1; }
-  header .who { font-size:12px; opacity:.85; }
-  button { cursor:pointer; border:none; border-radius:8px; padding:8px 14px; font-size:13px; font-weight:700; }
-  .b-ghost { background:transparent; color:#fff; border:1px solid rgba(255,255,255,.4); }
-  .wrap { max-width:980px; margin:0 auto; padding:18px; }
-  .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:14px; }
-  .login { max-width:380px; margin:60px auto; }
-  .login h2 { color:var(--navy); margin-bottom:12px; font-size:20px; }
-  input, select, textarea { width:100%; border:1px solid var(--line); border-radius:8px; padding:9px 10px; font-size:14px; margin-bottom:10px; background:#fff; }
+  header .who { font-size:12px; color:var(--grey); font-family:var(--mono); }
+  button { cursor:pointer; border:none; border-radius:9px; padding:9px 15px; font-size:13px; font-weight:700; font-family:inherit; }
+  .b-ghost { background:transparent; color:var(--grey); border:1px solid var(--line); }
+  .b-ghost:hover { color:var(--text); }
+  .wrap { max-width:1080px; margin:0 auto; padding:22px 20px; }
+  .card { background:var(--glass); border:1px solid var(--line); border-radius:14px; padding:18px;
+    margin-bottom:14px; box-shadow:inset 0 1px 0 rgba(255,255,255,.04); }
+  .login { max-width:380px; margin:9vh auto; }
+  .login h2 { color:var(--text); margin-bottom:14px; font-size:20px; font-family:'Archivo', sans-serif; }
+  .login a { color:var(--green); }
+  input, select, textarea { width:100%; border:1px solid var(--line); border-radius:9px; padding:10px 11px;
+    font-size:14px; margin-bottom:10px; background:rgba(8,14,26,.8); color:var(--text); font-family:inherit; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:rgba(47,224,141,.4);
+    box-shadow:0 0 0 3px rgba(47,224,141,.08); }
+  select option { background:var(--panel2); }
   textarea { min-height:70px; }
-  label { font-size:12px; font-weight:700; color:var(--grey); display:block; margin-bottom:3px; }
-  .b-primary { background:var(--blue); color:#fff; width:100%; }
+  label { font-size:10.5px; font-weight:700; color:var(--grey); display:block; margin-bottom:4px;
+    font-family:var(--mono); letter-spacing:.1em; }
+  .b-primary { background:linear-gradient(180deg, #57F2AE, var(--green) 55%, #1FC77A); color:#04130B; width:100%;
+    box-shadow:0 5px 24px rgba(47,224,141,.25); font-weight:800; padding:12px; }
   .msg { font-size:13px; color:var(--red); min-height:18px; margin-top:6px; }
-  .tabs { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
-  .tabs button { background:#fff; border:1px solid var(--line); color:var(--grey); }
-  .tabs button.on { background:var(--navy); color:#fff; border-color:var(--navy); }
+  .tabs { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .tabs button { background:transparent; border:1px solid var(--line); color:var(--grey); }
+  .tabs button.on { background:rgba(47,224,141,.12); color:var(--green); border-color:rgba(47,224,141,.35);
+    box-shadow:0 0 20px rgba(47,224,141,.08); }
   .filters { display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
   .filters select { width:auto; margin:0; }
-  .prop { border-left:5px solid var(--blue); }
-  .prop .top { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px; }
-  .badge { font-size:11px; font-weight:800; padding:2px 9px; border-radius:20px; color:#fff; background:var(--blue); text-transform:uppercase; }
-  .badge.item { background:var(--gold); } .badge.edge { background:var(--green); } .badge.edital_node { background:#7B4FA6; }
-  .conf { font-size:12px; color:var(--grey); font-weight:700; }
+  .prop { border-left:3px solid var(--blue); }
+  .prop .top { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:8px; }
+  .badge { font-size:9.5px; font-weight:700; padding:3px 10px; border-radius:6px; text-transform:uppercase;
+    font-family:var(--mono); letter-spacing:.1em; color:var(--blue);
+    background:rgba(77,141,255,.12); border:1px solid rgba(77,141,255,.35); }
+  .badge.item { color:var(--gold); background:rgba(242,179,61,.1); border-color:rgba(242,179,61,.35); }
+  .badge.edge { color:var(--green); background:rgba(47,224,141,.1); border-color:rgba(47,224,141,.35); }
+  .badge.edital_node { color:var(--roxo); background:rgba(157,123,255,.1); border-color:rgba(157,123,255,.35); }
+  .conf { font-size:11px; color:var(--grey); font-weight:700; font-family:var(--mono); }
   .conf.baixa { color:var(--red); }
-  .nome { font-size:16px; font-weight:800; color:var(--navy); }
-  .meta { font-size:13px; color:var(--grey); margin:2px 0 8px; }
+  .nome { font-size:16px; font-weight:800; color:var(--text); font-family:'Archivo', sans-serif; }
+  .meta { font-size:13px; color:var(--grey); margin:3px 0 8px; }
   .sins { font-size:12px; color:var(--grey); }
-  .sins span { background:var(--light); border-radius:6px; padding:2px 8px; margin-right:5px; display:inline-block; margin-bottom:4px; }
-  .evid { background:#FBF6E3; border:1px solid #EAD9A0; border-radius:8px; padding:8px 10px; font-size:13px; margin:8px 0; }
-  .acts { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
-  .b-ok { background:var(--green); color:#fff; }
-  .b-edit { background:var(--blue); color:#fff; }
-  .b-merge { background:#7B4FA6; color:#fff; }
-  .b-split { background:var(--gold); color:#fff; }
-  .b-no { background:#fff; color:var(--red); border:1px solid var(--red); }
-  .subform { background:var(--light); border-radius:10px; padding:12px; margin-top:10px; }
+  .sins span { background:var(--light); border:1px solid var(--line); border-radius:6px; padding:2px 9px;
+    margin-right:5px; display:inline-block; margin-bottom:4px; }
+  .evid { background:rgba(242,179,61,.07); border:1px solid rgba(242,179,61,.25); border-radius:9px;
+    padding:9px 11px; font-size:13px; margin:8px 0; color:#E8D5AC; }
+  .acts { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+  .b-ok { background:rgba(47,224,141,.14); color:var(--green); border:1px solid rgba(47,224,141,.4); }
+  .b-ok:hover { background:rgba(47,224,141,.22); }
+  .b-edit { background:rgba(77,141,255,.14); color:var(--blue); border:1px solid rgba(77,141,255,.4); }
+  .b-merge { background:rgba(157,123,255,.14); color:var(--roxo); border:1px solid rgba(157,123,255,.4); }
+  .b-split { background:rgba(242,179,61,.12); color:var(--gold); border:1px solid rgba(242,179,61,.4); }
+  .b-no { background:transparent; color:var(--red); border:1px solid rgba(237,90,90,.45); }
+  .b-no:hover { background:rgba(237,90,90,.1); }
+  .subform { background:rgba(8,14,26,.6); border:1px solid var(--line); border-radius:11px; padding:14px; margin-top:10px; }
   .row2 { display:flex; gap:10px; } .row2 > * { flex:1; }
   .empty { text-align:center; color:var(--grey); padding:30px 10px; font-size:14px; }
-  .more { width:100%; background:#fff; border:1px dashed var(--line); color:var(--grey); }
-  .count { font-size:13px; color:var(--grey); margin-bottom:10px; }
-  .toast { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:var(--navy); color:#fff;
-           padding:10px 18px; border-radius:10px; font-size:13px; display:none; z-index:50; }
-  .hint { font-size:12px; color:var(--grey); margin-top:-6px; margin-bottom:8px; }
+  .more { width:100%; background:transparent; border:1px dashed var(--line); color:var(--grey); }
+  .count { font-size:12px; color:var(--grey); margin-bottom:12px; font-family:var(--mono); letter-spacing:.04em; }
+  .toast { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); color:#04130B;
+           padding:11px 18px; border-radius:10px; font-size:13px; font-weight:700; display:none; z-index:50; }
+  .hint { font-size:12px; color:var(--faint); margin-top:-6px; margin-bottom:8px; }
 </style>
 </head>
 <body>
 <header>
-  <h1>DOMINEI</h1><span class="tag">Painel de Curadoria</span>
+  <h1>DOMINE<i>I</i></h1><span class="tag">Painel de Curadoria</span>
   <span class="spacer"></span>
   <span class="who" id="who"></span>
   <button class="b-ghost" id="btnSair" style="display:none">Sair</button>
@@ -126,6 +161,7 @@ let modoCadastro = false, offProps = 0, offReports = 0, editais = {}, nodeCache 
 function toast(t, ok=true) {
   const el = $('toast'); el.textContent = t;
   el.style.background = ok ? 'var(--green)' : 'var(--red)';
+  el.style.color = ok ? '#04130B' : '#fff';
   el.style.display = 'block';
   setTimeout(() => el.style.display = 'none', 3200);
 }
@@ -190,7 +226,7 @@ async function loadProps() {
   if (error) { toast(error.message, false); return; }
   $('nProps').textContent = `(${count ?? 0})`;
   $('propCount').textContent = count ? `${count} proposta(s) pendente(s) — as de menor confiança primeiro` : '';
-  if (!count) $('listaProps').innerHTML = '<div class="card empty">Fila limpa! Nenhuma proposta pendente. 🎉</div>';
+  if (!count) $('listaProps').innerHTML = '<div class="card empty">Fila limpa. Nenhuma proposta pendente.</div>';
   (data || []).forEach(renderProp);
   offProps += PAGE;
   $('maisProps').style.display = (count && offProps < count) ? 'block' : 'none';
@@ -205,7 +241,7 @@ function confHtml(c) {
 function evidHtml(ev) {
   if (!ev) return '';
   const txt = typeof ev === 'string' ? ev : (ev.resumo || JSON.stringify(ev));
-  return `<div class="evid">📊 ${esc(txt)}</div>`;
+  return `<div class="evid">${esc(txt)}</div>`;
 }
 
 function renderProp(p) {
