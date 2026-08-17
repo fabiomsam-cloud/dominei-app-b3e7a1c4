@@ -390,6 +390,7 @@ body.tabs main { padding-bottom:96px; }
   <div class="sn-foot">
     <b>ALVO ATIVO</b>
     <span id="snEdital">—</span>
+    <button id="btnConta2">minha conta</button>
     <button id="btnSair2">sair da conta</button>
   </div>
 </aside>
@@ -425,6 +426,15 @@ body.tabs main { padding-bottom:96px; }
     <select id="selEdital"></select>
     <button class="btn" id="btnComecar" style="margin-top:8px">Descobrir meu mapa</button>
     <div class="msg" id="homeMsg"></div>
+    <div class="card" style="margin-top:26px">
+      <div class="imp-k">NÃO ACHOU SEU CONCURSO?</div>
+      <p style="font-size:13px;color:var(--dim);margin-bottom:10px">Peça aqui — os mais votados entram primeiro na fila de curadoria.</p>
+      <div style="display:flex;gap:8px">
+        <input id="reqConcurso" placeholder="ex.: PC-AM · Investigador" style="margin:0">
+        <button class="btn" id="btnSolicitar" style="width:auto;padding:12px 18px;font-size:13px">Pedir</button>
+      </div>
+      <div id="reqLista" style="margin-top:12px"></div>
+    </div>
   </section>
 
   <!-- FASE 0 -->
@@ -571,6 +581,19 @@ body.tabs main { padding-bottom:96px; }
     <div id="rvList"></div>
   </section>
 
+  <!-- CONTA (F7) -->
+  <section class="view" id="vConta">
+    <div class="pagetitle">C O N T A</div>
+    <div class="pagesub" id="ctEmail"></div>
+    <div class="card" id="ctAssin" style="margin-top:16px"></div>
+    <div class="card" style="margin-top:12px">
+      <div class="imp-k">SEUS DADOS (LGPD)</div>
+      <p style="font-size:13.5px;color:var(--dim);line-height:1.55">Tudo que o DOMINEI mediu é seu — inclusive para levar embora. Baixe a cópia completa em JSON quando quiser.</p>
+      <button class="btn ghost" id="btnExportar" style="margin-top:12px">Baixar meus dados</button>
+    </div>
+    <button class="btn ghost" id="btnSair3" style="margin-top:12px;color:var(--vermelho);border-color:rgba(237,90,90,.35)">Sair da conta</button>
+  </section>
+
   <!-- IMPORTAR (F6) -->
   <section class="view" id="vImportar">
     <div class="hj-hello">Importar estudo</div>
@@ -636,6 +659,7 @@ async function boot() {
     return;
   }
   show('vHome');
+  loadSolicitados();
 }
 $('lnkModo').onclick = (e) => { e.preventDefault(); modoCadastro = !modoCadastro;
   $('btnEntrar').textContent = modoCadastro ? 'Criar conta' : 'Entrar';
@@ -902,6 +926,8 @@ function entrarModoAluno() {
   document.body.classList.add('tabs');
   $('tabbar').classList.add('on');
   $('snEdital').textContent = `${editalAtual.concurso} — ${editalAtual.cargo || ''}`;
+  $('btnSair').textContent = 'conta';
+  $('btnSair').onclick = abrirConta;
   irTab('vHoje');
 }
 function irTab(v) {
@@ -917,6 +943,67 @@ function irTab(v) {
 document.querySelectorAll('.tabbar button, #sidenav button[data-v]')
   .forEach(b => b.onclick = () => irTab(b.dataset.v));
 $('btnSair2').onclick = async () => { await sb.auth.signOut(); location.reload(); };
+
+// ---------- CONTA (F7) ----------
+function abrirConta() {
+  document.querySelectorAll('.tabbar button, #sidenav button[data-v]').forEach(b => b.classList.remove('on'));
+  show('vConta'); loadConta();
+}
+$('btnConta2').onclick = abrirConta;
+async function loadConta() {
+  const { data: { session } } = await sb.auth.getSession();
+  $('ctEmail').textContent = session.user.email;
+  const { data, error } = await sb.rpc('fn_minha_conta');
+  if (error) { toast(error.message); return; }
+  const a = data.assinatura;
+  $('ctAssin').innerHTML = a
+    ? `<div class="imp-k">ASSINATURA</div>
+       <div style="font-size:17px;font-weight:800">${a.plano === 'anual_297' ? 'DOMINEI Anual' : esc(a.plano)}
+         · <span style="color:${a.status === 'ativa' ? 'var(--verde)' : 'var(--amarelo)'}">${a.status === 'ativa' ? 'ATIVA' : esc(a.status).toUpperCase()}</span></div>
+       <div style="font-size:12.5px;color:var(--dim);margin-top:4px">acesso até ${new Date(a.fim).toLocaleDateString('pt-BR')}${a.status === 'cancelada' ? ' (não renova)' : ''}</div>`
+    : `<div class="imp-k">ASSINATURA</div>
+       <div style="font-size:15px;font-weight:700">Você ainda não é assinante.</div>
+       <div style="font-size:12.5px;color:var(--dim);margin:6px 0 12px">R$ 297/ano — mapa vivo, sessões guiadas pelo motor, revisões na hora certa e imports do seu material.</div>
+       ${data.checkout_url
+         ? `<a class="btn" style="display:block;text-align:center;text-decoration:none" href="${esc(data.checkout_url)}" target="_blank" rel="noopener">Assinar o DOMINEI</a>`
+         : '<span class="imp-badge run">VENDAS ABREM EM BREVE</span>'}`;
+}
+$('btnExportar').onclick = async () => {
+  const { data, error } = await sb.rpc('fn_exportar_meus_dados');
+  if (error) { toast(error.message); return; }
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'meus-dados-dominei.json';
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('Cópia dos seus dados baixada.');
+};
+$('btnSair3').onclick = async () => { await sb.auth.signOut(); location.reload(); };
+
+// ---------- FILA DE EDITAIS (F7 · D9) ----------
+async function loadSolicitados() {
+  const { data, error } = await sb.rpc('fn_editais_solicitados');
+  if (error || !data) return;
+  $('reqLista').innerHTML = data.map(r => `
+    <div class="revrow" style="margin-bottom:6px"><div class="rn">${esc(r.concurso)}
+      <span class="rd" style="color:var(--dim)">${r.votos} pedido(s)${r.status === 'em_curadoria' ? ' · em curadoria' : ''}</span></div>
+      ${r.votei ? '<span class="imp-badge ok">PEDIDO ✓</span>'
+                : `<button onclick="votarEdital('${r.id}')">Também quero</button>`}
+    </div>`).join('');
+}
+async function votarEdital(id) {
+  const { error } = await sb.rpc('fn_edital_votar', { p_request: id });
+  if (error) { toast(error.message); return; }
+  loadSolicitados();
+}
+$('btnSolicitar').onclick = async () => {
+  const v = $('reqConcurso').value.trim();
+  if (v.length < 3) { toast('Escreva o nome do concurso.'); return; }
+  const { error } = await sb.rpc('fn_edital_solicitar', { p_concurso: v, p_detalhe: null });
+  if (error) { toast(error.message); return; }
+  $('reqConcurso').value = '';
+  toast('Pedido registrado — avisaremos quando entrar.');
+  loadSolicitados();
+};
 $('btnIrHoje').onclick = async () => {
   const { data: est } = await sb.rpc('fn_edital_estrutura', { p_edital: editalAtual.id });
   estrutura = est || estrutura;
@@ -933,6 +1020,19 @@ async function loadHoje() {
     <div class="minicard"><div class="v">${data.dominados}</div><div class="k">DOMINADOS</div></div>
     <div class="minicard"><div class="v">${data.medidos}/${data.total}</div><div class="k">MAPEADOS</div></div>
     <div class="minicard"><div class="v">${data.revisoes}</div><div class="k">REVISÕES</div></div>`;
+  // paywall (F7): mapa continua visível; o dia a dia guiado é do assinante
+  if (data.acesso === false) {
+    $('hjAcaoK').textContent = 'SEU MAPA ESTÁ VIVO — DESTRAVE O DIA A DIA';
+    $('hjAcaoN').textContent = 'Assine o DOMINEI';
+    $('hjAcaoM').textContent = 'O diagnóstico foi por nossa conta. Sessões guiadas pelo motor, revisões na hora certa e imports do seu caderno fazem parte da assinatura anual.';
+    $('btnSessao').style.display = 'block';
+    $('btnSessao').textContent = 'Ver planos';
+    $('btnSessao').onclick = abrirConta;
+    $('hjRevChip').innerHTML = '';
+    return;
+  }
+  $('btnSessao').textContent = 'Iniciar sessão';
+  $('btnSessao').onclick = () => iniciarSessaoEstudo(null, null);
   const a = data.acao || {};
   const rotulo = { revisao: 'REVISAR', sondar: 'MEDIR', estudar: 'ESTUDAR', descanso: 'DESCANSAR' }[a.acao] || '';
   $('hjAcaoK').textContent = 'SUA PRÓXIMA AÇÃO JÁ ESTÁ DECIDIDA — ' + rotulo;
