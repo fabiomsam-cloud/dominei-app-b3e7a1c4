@@ -11,27 +11,32 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --ink:#070D1B; --card:#0E1830; --card2:#111D3A; --line:rgba(148,168,214,.14);
-  --text:#F3F0E8; --dim:#93A0B8; --faint:#5A6478;
-  --verde:#2FE08D; --verde-dim:rgba(47,224,141,.14);
+  --ink:#030710; --card:#0A1322; --card2:#0E1A2E;
+  --glass:linear-gradient(168deg, rgba(15,26,45,.88), rgba(7,13,24,.94));
+  --line:rgba(132,170,214,.13); --line-v:rgba(47,224,141,.28);
+  --text:#EAF2EC; --dim:#7E8CA0; --faint:#4C5870;
+  --verde:#2FE08D; --verde2:#57F2AE; --verde-dim:rgba(47,224,141,.13);
   --amarelo:#F2B33D; --vermelho:#ED5A5A; --nd:#39435C;
-  --radius:18px;
+  --radius:14px;
+  --mono:"SF Mono", ui-monospace, Menlo, Consolas, monospace;
 }
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
 html, body { height:100%; }
 body {
   font-family:'Atkinson Hyperlegible', sans-serif;
   background:
-    radial-gradient(1200px 600px at 80% -10%, rgba(47,224,141,.07), transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, rgba(58,86,166,.12), transparent 55%),
+    radial-gradient(1100px 540px at 78% -12%, rgba(47,224,141,.09), transparent 60%),
+    radial-gradient(820px 500px at -10% 110%, rgba(62,110,235,.08), transparent 55%),
+    repeating-linear-gradient(0deg, rgba(120,160,220,.022) 0 1px, transparent 1px 46px),
+    repeating-linear-gradient(90deg, rgba(120,160,220,.022) 0 1px, transparent 1px 46px),
     var(--ink);
   color:var(--text);
   min-height:100dvh;
   display:flex; flex-direction:column;
 }
-.brand { font-family:'Archivo Black', sans-serif; letter-spacing:.06em; }
-.brand i { font-style:normal; color:var(--verde); }
-h1,h2,h3,.disp { font-family:'Archivo', sans-serif; font-variation-settings:'wdth' 75, 'wght' 800; }
+.brand { font-family:'Archivo Black', sans-serif; letter-spacing:.08em; }
+.brand i { font-style:normal; color:var(--verde); text-shadow:0 0 18px rgba(47,224,141,.6); }
+h1,h2,h3,.disp { font-family:'Archivo', sans-serif; font-variation-settings:'wdth' 78, 'wght' 800; }
 
 header { padding:16px 20px 0; display:flex; align-items:center; justify-content:space-between; }
 header .brand { font-size:17px; }
@@ -44,17 +49,42 @@ main { flex:1; width:100%; max-width:520px; margin:0 auto; padding:16px 20px 40p
 
 button { font-family:inherit; cursor:pointer; border:none; }
 .btn {
-  width:100%; padding:16px; border-radius:var(--radius);
-  font-size:16px; font-weight:700; color:#06130C;
-  background:var(--verde);
-  box-shadow:0 8px 30px rgba(47,224,141,.25);
+  width:100%; padding:15px; border-radius:11px;
+  font-size:15.5px; font-weight:800; color:#04130B; letter-spacing:.02em;
+  background:linear-gradient(180deg, var(--verde2), var(--verde) 55%, #1FC77A);
+  box-shadow:0 6px 28px rgba(47,224,141,.28), inset 0 1px 0 rgba(255,255,255,.35);
   transition:transform .12s ease, box-shadow .2s;
 }
+.btn:hover { box-shadow:0 8px 36px rgba(47,224,141,.4), inset 0 1px 0 rgba(255,255,255,.35); }
 .btn:active { transform:scale(.98); }
-.btn.ghost { background:transparent; color:var(--dim); box-shadow:none; border:1px dashed var(--line); }
+.btn.ghost { background:transparent; color:var(--dim); box-shadow:none; border:1px solid var(--line); }
 .btn[disabled] { opacity:.5; pointer-events:none; }
 
-.card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:20px; }
+.card { background:var(--glass); border:1px solid var(--line); border-radius:var(--radius); padding:20px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04); }
+
+.k, .lbl, .imp-k, .sn-k, .kpi .k, .stat .k, .minicard .k { font-family:var(--mono); }
+
+/* ---------- CABEÇALHO DE PÁGINA ---------- */
+.pagetitle { font-family:'Archivo', sans-serif; font-variation-settings:'wdth' 82,'wght' 700;
+  font-size:19px; letter-spacing:.42em; color:var(--text); }
+.pagesub { color:var(--dim); font-size:13px; margin-top:5px; }
+
+/* ---------- SIDEBAR (desktop) ---------- */
+#sidenav { display:none; }
+.sn-k { font-size:9.5px; letter-spacing:.24em; color:var(--faint); padding:0 10px 10px; }
+#sidenav button[data-v] { display:flex; align-items:center; gap:12px; width:100%;
+  background:none; border:1px solid transparent; border-radius:12px; padding:12px 14px;
+  color:var(--dim); font-size:14px; font-weight:700; margin-bottom:3px; transition:all .15s; }
+#sidenav button[data-v]:hover { color:var(--text); background:rgba(132,170,214,.06); }
+#sidenav button[data-v].on { color:var(--verde);
+  background:linear-gradient(90deg, rgba(47,224,141,.13), rgba(47,224,141,.02));
+  border-color:rgba(47,224,141,.28); box-shadow:0 0 26px rgba(47,224,141,.10); }
+#sidenav svg, .tabbar svg { width:19px; height:19px; flex-shrink:0; }
+.sn-foot { margin-top:auto; padding:16px 10px 4px; border-top:1px solid var(--line);
+  font-size:11.5px; color:var(--faint); line-height:1.7; }
+.sn-foot b { display:block; color:var(--dim); font-family:var(--mono); font-size:10px; letter-spacing:.12em; }
+.sn-foot button { background:none; border:none; color:var(--dim); font-size:12px; padding:8px 0 0; text-decoration:underline dotted; text-underline-offset:3px; }
 
 /* ---------- AUTH / HOME ---------- */
 .hero { padding:8vh 0 24px; }
@@ -62,10 +92,11 @@ button { font-family:inherit; cursor:pointer; border:none; }
 .hero p.lead { color:var(--dim); font-size:17px; margin:14px 0 4px; max-width:34ch; }
 .hero p.lead b { color:var(--text); }
 input, select {
-  width:100%; padding:14px; border-radius:14px; border:1px solid var(--line);
-  background:var(--card); color:var(--text); font-size:15px; font-family:inherit; margin-bottom:10px;
+  width:100%; padding:14px; border-radius:11px; border:1px solid var(--line);
+  background:rgba(8,14,26,.8); color:var(--text); font-size:15px; font-family:inherit; margin-bottom:10px;
 }
-label { display:block; font-size:12px; color:var(--dim); margin:0 0 5px 2px; letter-spacing:.04em; }
+input:focus, select:focus { outline:none; border-color:rgba(47,224,141,.4); box-shadow:0 0 0 3px rgba(47,224,141,.08); }
+label { display:block; font-size:11px; color:var(--dim); margin:0 0 5px 2px; letter-spacing:.1em; font-family:var(--mono); }
 .msg { min-height:20px; font-size:13px; color:var(--vermelho); margin-top:8px; }
 .alt { text-align:center; margin-top:14px; font-size:13px; color:var(--dim); }
 .alt a { color:var(--verde); text-decoration:none; }
@@ -73,116 +104,134 @@ label { display:block; font-size:12px; color:var(--dim); margin:0 0 5px 2px; let
 /* ---------- FASE 0 ---------- */
 .f0 h2 { font-size:22px; margin-bottom:6px; }
 .f0 .sub { color:var(--dim); font-size:14px; margin-bottom:18px; }
-.disc { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; margin-bottom:10px; }
+.disc { background:var(--glass); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; margin-bottom:10px; }
 .disc .nome { font-weight:700; font-size:15px; margin-bottom:10px; }
 .chips { display:flex; gap:8px; }
 .chip {
-  flex:1; padding:9px 4px; border-radius:12px; font-size:12.5px; font-weight:700;
-  background:var(--card2); color:var(--dim); border:1px solid var(--line);
-  transition:all .15s;
+  flex:1; padding:10px 6px; border-radius:9px; font-size:12.5px; font-weight:700;
+  background:rgba(14,26,46,.7); color:var(--dim); border:1px solid var(--line);
+  transition:all .15s; text-align:center; cursor:pointer;
 }
-.chip.on { background:var(--verde-dim); color:var(--verde); border-color:var(--verde); }
+.chip.on { background:var(--verde-dim); color:var(--verde); border-color:var(--line-v);
+  box-shadow:0 0 18px rgba(47,224,141,.12); }
 
 /* ---------- TESTE ---------- */
 .topbar { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
 .prog { flex:1; }
-.prog .lbl { font-size:11px; letter-spacing:.14em; color:var(--dim); margin-bottom:6px; }
+.prog .lbl { font-size:10px; letter-spacing:.18em; color:var(--dim); margin-bottom:6px; }
 .prog .lbl b { color:var(--verde); }
 .dots { display:flex; flex-wrap:wrap; gap:3px; }
 .dot { width:6px; height:6px; border-radius:2px; background:var(--card2); transition:background .4s; }
 .dot.fill { background:#3A5AA6; }
 
 .qcard {
-  background:var(--card); border:1px solid var(--line); border-radius:22px;
+  background:var(--glass); border:1px solid var(--line); border-radius:18px;
   padding:26px 22px; min-height:200px; display:flex; flex-direction:column; justify-content:center;
-  animation:enter .35s both;
+  animation:enter .35s both; box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
 }
-.qcard .tipo { font-size:11px; letter-spacing:.18em; color:var(--dim); margin-bottom:14px; }
+.qcard .tipo { font-size:10px; letter-spacing:.22em; color:var(--dim); margin-bottom:14px; font-family:var(--mono); }
 .qcard .enun { font-size:19px; line-height:1.55; }
 .alts { margin-top:16px; display:flex; flex-direction:column; gap:8px; }
-.altbtn { text-align:left; padding:13px 15px; border-radius:14px; background:var(--card2); color:var(--text); border:1px solid var(--line); font-size:15px; }
-.altbtn.on { border-color:var(--verde); background:var(--verde-dim); }
+.altbtn { text-align:left; padding:13px 15px; border-radius:11px; background:var(--card2); color:var(--text); border:1px solid var(--line); font-size:15px; }
+.altbtn.on { border-color:var(--line-v); background:var(--verde-dim); }
 
 .answers { display:flex; gap:10px; margin-top:18px; }
 .answers .abtn {
-  flex:1; padding:20px 0; border-radius:var(--radius); font-size:17px; font-weight:800; letter-spacing:.08em;
-  border:1.5px solid var(--line); background:var(--card); color:var(--text);
-  transition:all .15s;
+  flex:1; padding:19px 0; border-radius:12px; font-size:16px; font-weight:800; letter-spacing:.1em;
+  border:1.5px solid var(--line); background:var(--glass); color:var(--text);
+  transition:all .15s; font-family:var(--mono);
 }
-.abtn.on { border-color:var(--verde); background:var(--verde-dim); color:var(--verde); }
+.abtn.on { border-color:var(--line-v); background:var(--verde-dim); color:var(--verde);
+  box-shadow:0 0 22px rgba(47,224,141,.15); }
 .nuncavi { margin-top:12px; width:100%; background:none; border:none; color:var(--dim); font-size:14px; padding:10px; }
 .nuncavi u { text-decoration-style:dotted; text-underline-offset:4px; }
-.nuncavi small { display:block; color:var(--faint, #5A6478); font-size:11.5px; margin-top:3px; }
+.nuncavi small { display:block; color:var(--faint); font-size:11.5px; margin-top:3px; }
 
 .confbox { margin-top:16px; display:none; animation:enter .25s both; }
 .confbox.on { display:block; }
-.confbox .lbl { font-size:12px; color:var(--dim); text-align:center; margin-bottom:9px; letter-spacing:.06em; }
+.confbox .lbl { font-size:11px; color:var(--dim); text-align:center; margin-bottom:9px; letter-spacing:.14em; }
 .confs { display:flex; gap:8px; }
-.confs button { flex:1; padding:13px 4px; border-radius:14px; font-size:13.5px; font-weight:700; background:var(--card2); color:var(--text); border:1px solid var(--line); }
-.confs button:active { border-color:var(--verde); }
+.confs button { flex:1; padding:13px 4px; border-radius:11px; font-size:13.5px; font-weight:700; background:var(--card2); color:var(--text); border:1px solid var(--line); }
+.confs button:active { border-color:var(--line-v); }
 
-/* ---------- TABBAR + DIA A DIA (F5) ---------- */
+/* ---------- TABBAR (mobile) ---------- */
 .tabbar { position:fixed; bottom:0; left:0; right:0; display:none; justify-content:space-around;
-  background:rgba(10,16,32,.96); backdrop-filter:blur(12px); border-top:1px solid var(--line);
-  padding:8px 4px calc(8px + env(safe-area-inset-bottom)); z-index:40; }
+  background:rgba(5,10,20,.92); backdrop-filter:blur(16px); border-top:1px solid var(--line);
+  padding:9px 4px calc(9px + env(safe-area-inset-bottom)); z-index:40; }
 .tabbar.on { display:flex; }
-.tabbar button { background:none; border:none; color:var(--dim); font-size:10.5px; font-weight:700;
-  display:flex; flex-direction:column; align-items:center; gap:3px; letter-spacing:.04em; }
-.tabbar button span { font-size:20px; }
+.tabbar button { background:none; border:none; color:var(--dim); font-size:9px; font-weight:700;
+  display:flex; flex-direction:column; align-items:center; gap:4px; letter-spacing:.08em; font-family:var(--mono); }
 .tabbar button.on { color:var(--verde); }
-body.tabs main { padding-bottom:92px; }
-.hj-hello { font-size:22px; margin:6px 0 2px; font-family:'Archivo'; font-variation-settings:'wdth' 75,'wght' 800; }
+.tabbar button.on svg { filter:drop-shadow(0 0 6px rgba(47,224,141,.7)); }
+body.tabs main { padding-bottom:96px; }
+
+/* ---------- HOJE ---------- */
+.hj-hello { font-size:23px; margin:6px 0 2px; font-family:'Archivo'; font-variation-settings:'wdth' 78,'wght' 800; }
 .hj-sub { color:var(--dim); font-size:13px; margin-bottom:16px; }
-.acaocard { background:linear-gradient(160deg, var(--card2), var(--card));
-  border:1px solid rgba(47,224,141,.35); border-radius:22px; padding:20px; margin-bottom:12px; }
-.acaocard .k { font-size:11px; letter-spacing:.16em; color:var(--verde); margin-bottom:8px; font-weight:800; }
-.acaocard .n { font-size:20px; font-family:'Archivo'; font-variation-settings:'wdth' 75,'wght' 800; }
+.acaocard { background:var(--glass);
+  border:1px solid var(--line-v); border-radius:16px; padding:20px; margin-bottom:12px;
+  box-shadow:0 0 46px rgba(47,224,141,.07), inset 0 1px 0 rgba(255,255,255,.05); }
+.acaocard .k { font-size:10px; letter-spacing:.2em; color:var(--verde); margin-bottom:8px; font-weight:700; }
+.acaocard .n { font-size:21px; font-family:'Archivo'; font-variation-settings:'wdth' 78,'wght' 800; }
 .acaocard .m { color:var(--dim); font-size:13.5px; line-height:1.5; margin:8px 0 14px; }
 .minicards { display:flex; gap:10px; margin-bottom:12px; }
-.minicard { flex:1; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px; text-align:center; }
-.minicard .v { font-size:20px; font-weight:800; color:var(--verde); }
-.minicard .k { font-size:10px; color:var(--dim); letter-spacing:.08em; margin-top:2px; }
-.fb { margin-top:16px; border-radius:16px; padding:14px 16px; display:none; animation:enter .3s both; border:1px solid var(--line); }
+.minicard { flex:1; background:var(--glass); border:1px solid var(--line); border-radius:13px; padding:13px 12px; text-align:center; }
+.minicard .v { font-size:22px; font-weight:800; color:var(--verde); font-family:'Archivo'; font-variation-settings:'wdth' 80,'wght' 800; font-variant-numeric:tabular-nums; }
+.minicard .k { font-size:9px; color:var(--dim); letter-spacing:.14em; margin-top:3px; }
+
+/* ---------- KPIs (cérebro) ---------- */
+.kpis { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0; }
+.kpi { background:var(--glass); border:1px solid var(--line); border-radius:13px; padding:15px 16px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04); }
+.kpi .v { font-family:'Archivo'; font-variation-settings:'wdth' 80,'wght' 800; font-size:28px;
+  font-variant-numeric:tabular-nums; line-height:1; }
+.kpi .v small { font-size:14px; color:var(--dim); font-weight:400; }
+.kpi .k { font-size:9px; letter-spacing:.18em; color:var(--dim); margin-top:6px; }
+.kpi .d { font-size:11px; color:var(--verde); margin-top:5px; }
+.kpi.dourado .v { color:var(--amarelo); }
+
+/* ---------- FEEDBACK / IMPORT / REVISÕES ---------- */
+.fb { margin-top:16px; border-radius:13px; padding:14px 16px; display:none; animation:enter .3s both; border:1px solid var(--line); }
 .fb.on { display:block; }
-.fb.ok { background:rgba(47,224,141,.1); border-color:rgba(47,224,141,.45); }
-.fb.no { background:rgba(237,90,90,.1); border-color:rgba(237,90,90,.45); }
+.fb.ok { background:rgba(47,224,141,.09); border-color:rgba(47,224,141,.4); }
+.fb.no { background:rgba(237,90,90,.09); border-color:rgba(237,90,90,.4); }
 .fb b { display:block; margin-bottom:4px; font-size:14px; }
 .fb.ok b { color:var(--verde); } .fb.no b { color:var(--vermelho); }
 .fb p { font-size:13.5px; line-height:1.5; }
-.imp-k { font-size:10.5px; color:var(--dim); letter-spacing:.1em; font-weight:800; margin-bottom:10px; }
+.imp-k { font-size:10px; color:var(--dim); letter-spacing:.16em; font-weight:700; margin-bottom:10px; }
 .imp-status { display:none; margin-top:12px; font-size:13px; color:var(--amarelo); }
 .imp-status.on { display:block; }
-.imp-badge { font-size:10px; font-weight:800; letter-spacing:.06em; padding:3px 8px; border-radius:99px; white-space:nowrap; }
-.imp-badge.ok { background:var(--verde-dim); color:var(--verde); }
-.imp-badge.run { background:rgba(242,179,61,.12); color:var(--amarelo); }
-.imp-badge.err { background:rgba(237,90,90,.12); color:var(--vermelho); }
-.revrow { display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--line);
-  border-radius:14px; padding:13px 14px; margin-bottom:8px; }
+.imp-badge { font-size:9.5px; font-weight:700; letter-spacing:.08em; padding:4px 9px; border-radius:6px; white-space:nowrap; font-family:var(--mono); }
+.imp-badge.ok { background:var(--verde-dim); color:var(--verde); border:1px solid rgba(47,224,141,.3); }
+.imp-badge.run { background:rgba(242,179,61,.1); color:var(--amarelo); border:1px solid rgba(242,179,61,.3); }
+.imp-badge.err { background:rgba(237,90,90,.1); color:var(--vermelho); border:1px solid rgba(237,90,90,.3); }
+.revrow { display:flex; align-items:center; gap:10px; background:var(--glass); border:1px solid var(--line);
+  border-radius:12px; padding:13px 14px; margin-bottom:8px; }
 .revrow .rn { flex:1; font-size:14px; }
 .revrow .rd { font-size:11px; color:var(--amarelo); display:block; margin-top:2px; }
-.revrow button { background:var(--verde-dim); color:var(--verde); border:1px solid var(--verde);
-  border-radius:10px; padding:8px 12px; font-size:12px; font-weight:800; }
+.revrow button { background:var(--verde-dim); color:var(--verde); border:1px solid rgba(47,224,141,.4);
+  border-radius:9px; padding:8px 13px; font-size:11.5px; font-weight:800; font-family:var(--mono); letter-spacing:.04em; }
 .sess-res { text-align:center; padding:5vh 0; }
-.sess-res .big { font-size:46px; color:var(--verde); font-family:'Archivo'; font-variation-settings:'wdth' 75,'wght' 800; }
+.sess-res .big { font-size:46px; color:var(--verde); font-family:'Archivo'; font-variation-settings:'wdth' 78,'wght' 800;
+  text-shadow:0 0 34px rgba(47,224,141,.4); }
 .sess-res p { color:var(--dim); margin:8px 0 22px; }
 
 /* ---------- PRÉ-REVELAÇÃO ---------- */
 .pre { text-align:center; padding:10vh 0; }
 .pre .pulse {
-  width:120px; height:120px; margin:0 auto 26px; border-radius:50%;
-  background:radial-gradient(circle, rgba(47,224,141,.25), transparent 65%);
+  width:130px; height:130px; margin:0 auto 26px; border-radius:50%;
+  background:radial-gradient(circle, rgba(47,224,141,.22), transparent 65%);
   display:flex; align-items:center; justify-content:center;
   animation:pulse 1.8s ease-in-out infinite;
 }
-.pre .pulse span { font-size:44px; }
 @keyframes pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.12); } }
 .pre h2 { font-size:26px; margin-bottom:8px; }
 .pre p { color:var(--dim); margin-bottom:28px; }
 
-/* ---------- CÉREBRO ---------- */
+/* ---------- CÉREBRO (SVG da revelação) ---------- */
 #rvCerebro { margin:2px 0 16px; }
 #rvCerebro svg { width:100%; display:block; }
-#rvCerebro .ce { fill:none; stroke:rgba(147,168,214,.16); stroke-width:1; }
+#rvCerebro .ce { fill:none; stroke:rgba(147,168,214,.15); stroke-width:1; }
 #rvCerebro .cn { opacity:0; animation:ign .6s both; animation-delay:var(--d); transform-box:fill-box; transform-origin:center; }
 #rvCerebro .cn.nd { animation:ignd .6s both; animation-delay:var(--d); }
 @keyframes ign { from { opacity:0; transform:scale(.2); } to { opacity:1; transform:none; } }
@@ -191,45 +240,147 @@ body.tabs main { padding-bottom:92px; }
 @keyframes corepulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.09); } }
 .cbcap { text-align:center; font-size:11.5px; color:var(--dim); margin-top:4px; }
 
+/* ---------- CÉREBRO VIVO (canvas) ---------- */
+.cv-grid { margin-top:4px; }
+.cv-wrap { position:relative; border-radius:16px; border:1px solid var(--line); overflow:hidden;
+  background:radial-gradient(640px 420px at 50% 42%, rgba(24,52,52,.32), transparent 72%), #02060C;
+  height:420px; box-shadow:inset 0 1px 0 rgba(255,255,255,.03), 0 0 60px rgba(47,224,141,.04); }
+.cv-wrap canvas { width:100%; height:100%; display:block; touch-action:none; cursor:grab; }
+.cv-wrap canvas:active { cursor:grabbing; }
+.cv-controls { position:absolute; left:12px; bottom:12px; display:flex; flex-direction:column; gap:6px; }
+.cv-controls button { width:34px; height:34px; border-radius:9px; background:rgba(9,16,30,.85);
+  border:1px solid var(--line); color:var(--dim); font-size:16px; font-family:var(--mono);
+  backdrop-filter:blur(8px); }
+.cv-controls button:hover { color:var(--verde); border-color:var(--line-v); }
+.cv-legend { position:absolute; top:12px; right:12px; background:rgba(7,12,24,.82); border:1px solid var(--line);
+  border-radius:11px; padding:11px 14px; backdrop-filter:blur(8px); }
+.cv-legend .t { font-family:var(--mono); font-size:8.5px; letter-spacing:.2em; color:var(--dim); margin-bottom:8px; }
+.cv-legend .lg { display:flex; align-items:center; gap:8px; font-size:11px; color:var(--dim); padding:2.5px 0; }
+.cv-legend .lg::before { content:''; width:8px; height:8px; border-radius:50%; }
+.cv-legend .lg-v::before { background:var(--verde); box-shadow:0 0 8px var(--verde); }
+.cv-legend .lg-a::before { background:var(--amarelo); box-shadow:0 0 8px var(--amarelo); }
+.cv-legend .lg-r::before { background:var(--vermelho); box-shadow:0 0 8px var(--vermelho); }
+.cv-legend .lg-n::before { background:var(--nd); }
+.cv-info { position:absolute; left:12px; right:12px; bottom:58px; display:none; animation:enter .25s both;
+  background:rgba(7,13,25,.92); border:1px solid var(--line-v); border-radius:13px; padding:14px 16px;
+  backdrop-filter:blur(10px); box-shadow:0 8px 40px rgba(0,0,0,.5); }
+.cv-info.on { display:block; }
+.cv-info .bc { font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:var(--dim); margin-bottom:4px; }
+.cv-info .nm { font-size:16px; font-weight:800; font-family:'Archivo'; font-variation-settings:'wdth' 78,'wght' 800; }
+.cv-info .st { display:flex; gap:14px; margin-top:8px; font-size:12px; color:var(--dim); }
+.cv-info .st b { font-family:var(--mono); font-size:13px; }
+.cv-info .est { margin-top:12px; width:auto; padding:10px 18px; font-size:13px; border-radius:9px; }
+.cv-info .fech { position:absolute; top:8px; right:12px; background:none; border:none; color:var(--faint); font-size:16px; }
+.cv-panel { margin-top:14px; }
+.cv-pk { font-family:var(--mono); font-size:9.5px; letter-spacing:.22em; color:var(--dim); margin-bottom:10px; }
+.dom { display:flex; align-items:center; gap:12px; padding:10px 2px; border-bottom:1px solid rgba(132,170,214,.07); cursor:pointer; }
+.dom:hover .dn { color:var(--verde); }
+.dom .dn { flex:1; font-size:13px; transition:color .15s; }
+.dom .dn small { display:block; color:var(--faint); font-size:10px; font-family:var(--mono); margin-top:1px; }
+.dom .dv { font-family:var(--mono); font-size:12.5px; font-weight:700; }
+.dom .db { width:64px; height:4px; border-radius:3px; background:var(--card2); overflow:hidden; }
+.dom .db i { display:block; height:100%; border-radius:3px; }
+.cv-cap { text-align:center; font-size:11.5px; color:var(--dim); margin-top:14px; }
+
 /* ---------- REVELAÇÃO ---------- */
 .rv .head { margin-bottom:18px; }
 .rv .head h2 { font-size:24px; }
 .rv .head p { color:var(--dim); font-size:13.5px; margin-top:4px; }
 .stats { display:flex; gap:10px; margin-bottom:16px; }
-.stat { flex:1; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px; text-align:center; }
-.stat .v { font-family:'Archivo', sans-serif; font-variation-settings:'wdth' 75,'wght' 800; font-size:22px; color:var(--verde); }
-.stat .k { font-size:10.5px; color:var(--dim); letter-spacing:.08em; margin-top:2px; }
+.stat { flex:1; background:var(--glass); border:1px solid var(--line); border-radius:13px; padding:12px; text-align:center; }
+.stat .v { font-family:'Archivo', sans-serif; font-variation-settings:'wdth' 80,'wght' 800; font-size:22px; color:var(--verde); }
+.stat .k { font-size:9.5px; color:var(--dim); letter-spacing:.1em; margin-top:2px; }
 
-.insight { border-radius:var(--radius); padding:15px 16px; margin-bottom:10px; font-size:14px; line-height:1.5; border:1px solid var(--line); background:var(--card); animation:enter .5s both; }
-.insight b { display:block; font-size:11px; letter-spacing:.14em; margin-bottom:5px; }
+.insight { border-radius:var(--radius); padding:15px 16px; margin-bottom:10px; font-size:14px; line-height:1.5; border:1px solid var(--line); background:var(--glass); animation:enter .5s both; }
+.insight b { display:block; font-size:10px; letter-spacing:.18em; margin-bottom:5px; font-family:var(--mono); }
 .insight.risco b { color:var(--vermelho); }
 .insight.forte b { color:var(--verde); }
 .insight.ilusao b { color:var(--amarelo); }
 .insight.acao { background:var(--verde-dim); border-color:rgba(47,224,141,.4); }
 .insight.acao b { color:var(--verde); }
 
-.dsec { margin:20px 0 6px; }
+.dsec { margin:20px 0 6px; break-inside:avoid; }
 .dsec h3 { font-size:15px; letter-spacing:.03em; margin-bottom:10px; display:flex; justify-content:space-between; align-items:baseline; }
-.dsec h3 small { color:var(--dim); font-weight:400; font-size:11.5px; }
+.dsec h3 small { color:var(--dim); font-weight:400; font-size:11px; font-family:var(--mono); }
 .trow { display:flex; align-items:center; gap:10px; margin-bottom:7px; opacity:0; animation:enter .4s both; animation-delay:var(--d, 0ms); }
 .trow .tn { flex:1; font-size:13px; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.trow .bar { flex:1.1; height:9px; border-radius:6px; background:var(--card2); overflow:hidden; }
-.trow .bar i { display:block; height:100%; width:0; border-radius:6px; transition:width 1s cubic-bezier(.2,.8,.2,1); }
-.trow.v-verde .bar i { background:var(--verde); }
+.trow .bar { flex:1.1; height:8px; border-radius:5px; background:var(--card2); overflow:hidden; }
+.trow .bar i { display:block; height:100%; width:0; border-radius:5px; transition:width 1s cubic-bezier(.2,.8,.2,1); }
+.trow.v-verde .bar i { background:linear-gradient(90deg, #1FBF77, var(--verde)); box-shadow:0 0 10px rgba(47,224,141,.5); }
 .trow.v-amarelo .bar i { background:var(--amarelo); }
 .trow.v-vermelho .bar i { background:var(--vermelho); }
-.trow.v-nd .bar i { background:var(--nd); width:100% !important; opacity:.45; }
+.trow.v-nd .bar i { background:var(--nd); width:100% !important; opacity:.4; }
 .trow.v-nd .tn { color:var(--dim); }
 .legend { display:flex; gap:14px; margin:14px 0 4px; font-size:11px; color:var(--dim); flex-wrap:wrap; }
-.legend span::before { content:''; display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; vertical-align:-1px; }
-.legend .lg-v::before { background:var(--verde); } .legend .lg-a::before { background:var(--amarelo); }
-.legend .lg-r::before { background:var(--vermelho); } .legend .lg-n::before { background:var(--nd); }
+.legend span::before { content:''; display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+.legend .lg-v::before { background:var(--verde); box-shadow:0 0 6px var(--verde); }
+.legend .lg-a::before { background:var(--amarelo); }
+.legend .lg-r::before { background:var(--vermelho); }
+.legend .lg-n::before { background:var(--nd); }
 
 .sharebar { position:sticky; bottom:0; padding:14px 0 8px; background:linear-gradient(transparent, var(--ink) 40%); }
-.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--card2); border:1px solid var(--line); color:var(--text); padding:11px 18px; border-radius:14px; font-size:13px; display:none; z-index:60; }
+.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(10,18,34,.95); border:1px solid var(--line); color:var(--text); padding:11px 18px; border-radius:11px; font-size:13px; display:none; z-index:60; backdrop-filter:blur(8px); }
+
+/* ============ DESKTOP ============ */
+@media (min-width:1024px) {
+  body.tabs { display:grid; grid-template-columns:242px minmax(0,1fr); grid-template-rows:auto 1fr; }
+  body.tabs #sidenav { display:flex; flex-direction:column; grid-row:1/3; grid-column:1;
+    position:sticky; top:0; height:100dvh; padding:28px 16px 20px;
+    border-right:1px solid var(--line); background:rgba(4,9,18,.72); backdrop-filter:blur(16px); }
+  #sidenav .brand { font-size:21px; padding:0 10px 30px; }
+  body.tabs header { display:none; }
+  body.tabs main { grid-column:2; max-width:1200px; padding:36px 46px 60px 40px; }
+  body.tabs .tabbar { display:none !important; }
+  body.tabs main { padding-bottom:60px; }
+
+  body:not(.tabs) main { max-width:560px; }
+
+  /* HOJE em grade */
+  #vHoje.on { display:grid; grid-template-columns:1.55fr 1fr; gap:0 20px; align-items:start; }
+  #vHoje .hj-hello { grid-column:1/-1; font-size:30px; }
+  #vHoje .hj-sub { grid-column:1/-1; font-size:14px; }
+  #vHoje .minicards { grid-column:1/-1; }
+  #vHoje .minicard { text-align:left; padding:16px 20px; }
+  #vHoje .minicard .v { font-size:30px; }
+  #vHoje .acaocard { grid-column:1; margin-bottom:0; padding:26px; }
+  #vHoje .acaocard .n { font-size:26px; }
+  #vHoje #hjRevChip { grid-column:2; }
+
+  /* MAPA em duas colunas */
+  #vMapa .hj-hello { font-size:30px; }
+  #mpMapa { column-count:2; column-gap:44px; }
+
+  /* CÉREBRO */
+  .kpis { grid-template-columns:repeat(4,1fr); gap:14px; }
+  .kpi { padding:18px 20px; }
+  .kpi .v { font-size:34px; }
+  .cv-grid { display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:18px; align-items:start; }
+  .cv-wrap { height:600px; }
+  .cv-panel { margin-top:0; background:var(--glass); border:1px solid var(--line); border-radius:16px; padding:20px; }
+  .cv-info { left:auto; right:12px; width:340px; }
+
+  /* Teste/sessão centrados no desktop */
+  #vTeste, #vSessao, #vReveal, #vPre { max-width:640px; margin:0 auto; }
+  #vRevisoes, #vImportar { max-width:780px; }
+  #vRevisoes .hj-hello, #vImportar .hj-hello { font-size:30px; }
+}
 </style>
 </head>
 <body>
+<aside id="sidenav">
+  <div class="brand">DOMINE<i>I</i></div>
+  <div class="sn-k">NAVEGAÇÃO</div>
+  <button data-v="vHoje" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 5 13.5h5L10 22l8-11.5h-5L13 2z"/></svg>Hoje</button>
+  <button data-v="vMapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>Mapa</button>
+  <button data-v="vCerebroFull"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="2.4"/><circle cx="12" cy="4.2" r="1.6"/><circle cx="19.3" cy="9.2" r="1.6"/><circle cx="16.9" cy="18.4" r="1.6"/><circle cx="7.1" cy="18.4" r="1.6"/><circle cx="4.7" cy="9.2" r="1.6"/><path d="M12 9.6V5.8M14 13.5l3.5 3.6M10 13.5l-3.5 3.6M14.2 11l3.6-1.2M9.8 11 6.2 9.8"/></svg>Cérebro</button>
+  <button data-v="vRevisoes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 3v4h-4"/></svg>Revisões</button>
+  <button data-v="vImportar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/><path d="M12 4v10m-4-4 4 4 4-4"/></svg>Importar</button>
+  <div class="sn-foot">
+    <b>ALVO ATIVO</b>
+    <span id="snEdital">—</span>
+    <button id="btnSair2">sair da conta</button>
+  </div>
+</aside>
 <header>
   <div class="brand">DOMINE<i>I</i></div>
   <button class="sair" id="btnSair" style="display:none">sair</button>
@@ -267,7 +418,7 @@ body.tabs main { padding-bottom:92px; }
   <!-- FASE 0 -->
   <section class="view f0" id="vFase0">
     <h2>Antes de começar…</h2>
-    <p class="sub">Como você se sente em cada disciplina? Sinceridade pinta seu mapa mais rápido — a gente confere depois. 😉</p>
+    <p class="sub">Como você se sente em cada disciplina? Sinceridade pinta seu mapa mais rápido — a gente confere depois.</p>
     <div id="listaDisc"></div>
     <button class="btn" id="btnIniciarTeste" style="margin-top:10px">Começar o teste</button>
   </section>
@@ -293,16 +444,16 @@ body.tabs main { padding-bottom:92px; }
     <div class="confbox" id="confbox">
       <div class="lbl">QUÃO CONFIANTE VOCÊ ESTÁ?</div>
       <div class="confs">
-        <button data-c="chutei">🎲 Chutei</button>
-        <button data-c="acho_que_sei">🤔 Acho que sei</button>
-        <button data-c="certeza">💪 Certeza</button>
+        <button data-c="chutei">Chutei</button>
+        <button data-c="acho_que_sei">Acho que sei</button>
+        <button data-c="certeza">Certeza</button>
       </div>
     </div>
   </section>
 
   <!-- PRÉ-REVELAÇÃO -->
   <section class="view pre" id="vPre">
-    <div class="pulse"><span>🧠</span></div>
+    <div class="pulse"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#2FE08D" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="2.6"/><circle cx="12" cy="4" r="1.7"/><circle cx="19.5" cy="9" r="1.7"/><circle cx="17" cy="18.6" r="1.7"/><circle cx="7" cy="18.6" r="1.7"/><circle cx="4.5" cy="9" r="1.7"/><path d="M12 9.4V5.7M14.1 13.6l2 3.5M9.9 13.6l-2 3.5M14.5 11.1l3.3-1.3M9.5 11.1 6.2 9.8"/></svg></div>
     <h2>Seu mapa está pronto.</h2>
     <p id="preSub">Analisamos suas respostas contra o edital inteiro.</p>
     <button class="btn" id="btnRevelar">REVELAR MEU MAPA</button>
@@ -369,12 +520,35 @@ body.tabs main { padding-bottom:92px; }
     <div id="mpMapa"></div>
   </section>
 
-  <!-- CÉREBRO (F5) -->
+  <!-- CÉREBRO (F5 · vivo desde o redesign) -->
   <section class="view" id="vCerebroFull">
-    <div class="hj-hello">Seu cérebro</div>
-    <div class="hj-sub" id="cbSub"></div>
-    <div id="cbFull"></div>
-    <button class="btn" id="btnShare2" style="margin-top:12px">Compartilhar meu cérebro</button>
+    <div class="pagetitle">C É R E B R O</div>
+    <div class="pagesub">Seu sistema de conhecimento. Cada evidência acende um nó.</div>
+    <div class="kpis" id="cbKpis"></div>
+    <div class="cv-grid">
+      <div class="cv-wrap">
+        <canvas id="cvCanvas"></canvas>
+        <div class="cv-legend">
+          <div class="t">LEGENDA</div>
+          <div class="lg lg-v">Dominado</div>
+          <div class="lg lg-a">No caminho</div>
+          <div class="lg lg-r">Lacuna</div>
+          <div class="lg lg-n">Não medido</div>
+        </div>
+        <div class="cv-controls">
+          <button id="cvZin">+</button>
+          <button id="cvZout">−</button>
+          <button id="cvReset">⤾</button>
+        </div>
+        <div class="cv-info" id="cvInfo"></div>
+      </div>
+      <aside class="cv-panel">
+        <div class="cv-pk">DOMÍNIOS</div>
+        <div id="cvDoms"></div>
+        <button class="btn" id="btnShare2" style="margin-top:16px">Compartilhar meu cérebro</button>
+      </aside>
+    </div>
+    <div class="cv-cap" id="cbSub"></div>
   </section>
 
   <!-- REVISÕES (F5) -->
@@ -391,9 +565,9 @@ body.tabs main { padding-bottom:92px; }
     <div class="card" style="margin-bottom:14px">
       <div class="imp-k">O QUE VOCÊ VAI ENVIAR?</div>
       <div class="chips" id="impTipos" style="flex-wrap:wrap">
-        <div class="chip on" data-t="caderno_foto">📓 Caderno / resumo</div>
-        <div class="chip" data-t="print_qc">🧾 Print de questões</div>
-        <div class="chip" data-t="print_desempenho">📊 Print de desempenho</div>
+        <div class="chip on" data-t="caderno_foto">Caderno / resumo</div>
+        <div class="chip" data-t="print_qc">Print de questões</div>
+        <div class="chip" data-t="print_desempenho">Print de desempenho</div>
       </div>
       <button class="btn" id="btnImportar" style="margin-top:14px">Enviar arquivo</button>
       <input type="file" id="impFile" accept="image/jpeg,image/png,image/webp,image/gif,.pdf" style="display:none">
@@ -405,11 +579,11 @@ body.tabs main { padding-bottom:92px; }
 </main>
 
 <nav class="tabbar" id="tabbar">
-  <button data-v="vHoje" class="on"><span>⚡</span>HOJE</button>
-  <button data-v="vMapa"><span>🗺️</span>MAPA</button>
-  <button data-v="vCerebroFull"><span>🧠</span>CÉREBRO</button>
-  <button data-v="vRevisoes"><span>🔁</span>REVISÕES</button>
-  <button data-v="vImportar"><span>📥</span>IMPORTAR</button>
+  <button data-v="vHoje" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 5 13.5h5L10 22l8-11.5h-5L13 2z"/></svg>HOJE</button>
+  <button data-v="vMapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>MAPA</button>
+  <button data-v="vCerebroFull"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="2.4"/><circle cx="12" cy="4.2" r="1.6"/><circle cx="19.3" cy="9.2" r="1.6"/><circle cx="16.9" cy="18.4" r="1.6"/><circle cx="7.1" cy="18.4" r="1.6"/><circle cx="4.7" cy="9.2" r="1.6"/><path d="M12 9.6V5.8M14 13.5l3.5 3.6M10 13.5l-3.5 3.6M14.2 11l3.6-1.2M9.8 11 6.2 9.8"/></svg>CÉREBRO</button>
+  <button data-v="vRevisoes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 3v4h-4"/></svg>REVISÕES</button>
+  <button data-v="vImportar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/><path d="M12 4v10m-4-4 4 4 4-4"/></svg>IMPORTAR</button>
 </nav>
 <div class="toast" id="toast"></div>
 
@@ -714,10 +888,12 @@ let perfil = {}, sessEstudo = null, ssT0 = null, fbAtual = null;
 function entrarModoAluno() {
   document.body.classList.add('tabs');
   $('tabbar').classList.add('on');
+  $('snEdital').textContent = `${editalAtual.concurso} — ${editalAtual.cargo || ''}`;
   irTab('vHoje');
 }
 function irTab(v) {
-  document.querySelectorAll('.tabbar button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  document.querySelectorAll('.tabbar button, #sidenav button[data-v]')
+    .forEach(b => b.classList.toggle('on', b.dataset.v === v));
   show(v);
   if (v === 'vHoje') loadHoje();
   if (v === 'vMapa') loadMapa();
@@ -725,7 +901,9 @@ function irTab(v) {
   if (v === 'vRevisoes') loadRevisoes();
   if (v === 'vImportar') loadImportar();
 }
-document.querySelectorAll('.tabbar button').forEach(b => b.onclick = () => irTab(b.dataset.v));
+document.querySelectorAll('.tabbar button, #sidenav button[data-v]')
+  .forEach(b => b.onclick = () => irTab(b.dataset.v));
+$('btnSair2').onclick = async () => { await sb.auth.signOut(); location.reload(); };
 $('btnIrHoje').onclick = async () => {
   const { data: est } = await sb.rpc('fn_edital_estrutura', { p_edital: editalAtual.id });
   estrutura = est || estrutura;
@@ -737,7 +915,7 @@ async function loadHoje() {
   $('hjHello').textContent = (h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite') + (perfil.nome ? ', ' + perfil.nome.split(' ')[0] : '') + '.';
   const { data, error } = await sb.rpc('fn_home', { p_edital: editalAtual.id });
   if (error) { toast(error.message); return; }
-  $('hjSub').textContent = `${editalAtual.concurso} · ${data.streak > 0 ? '🔥 ' + data.streak + ' dia(s) seguidos' : 'comece sua sequência hoje'}`;
+  $('hjSub').textContent = `${editalAtual.concurso} · ${data.streak > 0 ? 'sequência de ' + data.streak + ' dia(s)' : 'comece sua sequência hoje'}`;
   $('hjCards').innerHTML = `
     <div class="minicard"><div class="v">${data.dominados}</div><div class="k">DOMINADOS</div></div>
     <div class="minicard"><div class="v">${data.medidos}/${data.total}</div><div class="k">MAPEADOS</div></div>
@@ -749,13 +927,13 @@ async function loadHoje() {
   $('hjAcaoM').textContent = a.motivo || '';
   $('btnSessao').style.display = a.acao === 'descanso' ? 'none' : 'block';
   $('hjRevChip').innerHTML = data.revisoes > 0
-    ? `<div class="revrow"><div class="rn">🔁 ${data.revisoes} revisão(ões) esperando<span class="rd">antes que a memória apague</span></div><button onclick="irTab('vRevisoes')">Ver</button></div>` : '';
+    ? `<div class="revrow"><div class="rn">${data.revisoes} revisão(ões) esperando<span class="rd">antes que a memória apague</span></div><button onclick="irTab('vRevisoes')">Ver</button></div>` : '';
 }
 
 $('btnSessao').onclick = () => iniciarSessaoEstudo(null, null);
 async function iniciarSessaoEstudo(node, tipo) {
   const { data, error } = await sb.rpc('fn_sessao_iniciar', { p_edital: editalAtual.id, p_tipo: tipo, p_node: node });
-  if (error) { toast(error.message === 'assinatura_necessaria' ? 'Sua assinatura dá acesso a isto 💚' : error.message); return; }
+  if (error) { toast(error.message === 'assinatura_necessaria' ? 'Sua assinatura dá acesso a isto' : error.message); return; }
   if (data.erro === 'sem_itens') { toast('Ainda não há questões para este tópico.'); return; }
   if (data.acao === 'descanso') { toast(data.motivo); return; }
   sessEstudo = data;
@@ -811,13 +989,264 @@ async function loadMapa() {
   $('mpMapa').innerHTML = heatmapHtml(porNode);
   animarBarras($('mpMapa'));
 }
+// ============ CÉREBRO VIVO (canvas, F5 redesign) ============
+const CerebroVivo = {
+  cv: null, ctx: null, nodes: [], edges: [], pulses: [], stars: [],
+  cam: { x: 0, y: 0, z: 1 }, sel: null, raf: null, t0: 0, dpr: 1,
+
+  montar(porNode) {
+    this.cv = $('cvCanvas'); this.ctx = this.cv.getContext('2d');
+    this.nodes = []; this.edges = []; this.pulses = []; this.sel = null;
+    $('cvInfo').classList.remove('on');
+    const ND = Math.max(estrutura.length, 1), setor = 2 * Math.PI / ND;
+    const core = { id: 'core', nome: 'DOMINEI', nivel: 'core', x: 0, y: 0, r: 15, cor: 'core', ph: 0 };
+    this.nodes.push(core);
+    estrutura.forEach((d, di) => {
+      const angD = -Math.PI / 2 + setor * (di + 0.5);
+      const topsD = d.assuntos.flatMap(a => a.topicos).map(t => porNode[t.node_id] || { forca: 0, incerteza: 100 });
+      const medD = topsD.filter(t => t.incerteza < 85);
+      const nd = { id: 'd' + di, nome: d.disciplina, nivel: 'disciplina',
+        x: Math.cos(angD) * 90, y: Math.sin(angD) * 90, r: 8.5,
+        cor: corMedia(topsD), ph: Math.random() * 7, ang: angD,
+        pct: medD.length ? Math.round(medD.reduce((s, t) => s + t.forca, 0) / medD.length) : null };
+      this.nodes.push(nd); this.edges.push([core, nd]);
+      d.assuntos.forEach((a, ai) => {
+        const na = d.assuntos.length;
+        const angA = angD + (ai - (na - 1) / 2) * (setor * 0.6 / Math.max(na, 1));
+        const nA = { id: 'a' + di + '_' + ai, nome: a.assunto, nivel: 'assunto',
+          x: Math.cos(angA) * 165, y: Math.sin(angA) * 165, r: 5.5,
+          cor: corMedia(a.topicos.map(t => porNode[t.node_id] || { forca: 0, incerteza: 100 })),
+          ph: Math.random() * 7, disc: d.disciplina };
+        this.nodes.push(nA); this.edges.push([nd, nA]);
+        a.topicos.forEach((t, ti) => {
+          const nt = a.topicos.length;
+          const angT = angA + (ti - (nt - 1) / 2) * (setor * 0.42 / Math.max(nt, 1));
+          const jit = ((di * 7 + ai * 5 + ti * 13) % 26) - 13;
+          const st = porNode[t.node_id] || { forca: 0, incerteza: 100 };
+          const nT = { id: t.node_id, nome: t.nome, nivel: 'topico',
+            x: Math.cos(angT) * (238 + jit), y: Math.sin(angT) * (238 + jit),
+            r: 3.4 + (t.peso || 0.5) * 3.2, cor: corDe(st),
+            ph: Math.random() * 7, forca: st.forca, incerteza: st.incerteza,
+            disc: d.disciplina, assunto: a.assunto };
+          this.nodes.push(nT); this.edges.push([nA, nT]);
+        });
+      });
+    });
+    this.stars = Array.from({ length: 70 }, () => ({
+      x: (Math.random() - .5) * 1300, y: (Math.random() - .5) * 900,
+      r: Math.random() * 1.1 + .3, a: Math.random() * .35 + .08 }));
+    this.cam = { x: 0, y: 0, z: 1 };
+    this.ligarEventos();
+    this.redimensionar();
+    if (!this.raf) { this.t0 = performance.now(); this.loop(); }
+  },
+
+  redimensionar() {
+    const w = this.cv.clientWidth, h = this.cv.clientHeight;
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.cv.width = w * this.dpr; this.cv.height = h * this.dpr;
+    const alvo = window.innerWidth >= 1024 ? 620 : 540;
+    this.fit = Math.min(w, h) / alvo;
+  },
+
+  mundo(px, py) { // tela → mundo
+    const w = this.cv.clientWidth, h = this.cv.clientHeight, s = this.fit * this.cam.z;
+    return [(px - w / 2 - this.cam.x) / s, (py - h / 2 - this.cam.y) / s];
+  },
+
+  ligarEventos() {
+    if (this.eventosOk) return; this.eventosOk = true;
+    const cv = this.cv;
+    let arrasto = null, moveu = false, pinca = null;
+    cv.addEventListener('pointerdown', e => { arrasto = { x: e.clientX, y: e.clientY }; moveu = false; cv.setPointerCapture(e.pointerId); });
+    cv.addEventListener('pointermove', e => {
+      if (!arrasto) return;
+      const dx = e.clientX - arrasto.x, dy = e.clientY - arrasto.y;
+      if (Math.abs(dx) + Math.abs(dy) > 4) moveu = true;
+      this.cam.x += dx; this.cam.y += dy;
+      arrasto = { x: e.clientX, y: e.clientY };
+    });
+    cv.addEventListener('pointerup', e => {
+      arrasto = null;
+      if (!moveu) this.tocar(e);
+    });
+    cv.addEventListener('wheel', e => { e.preventDefault();
+      this.zoom(e.deltaY < 0 ? 1.15 : 1 / 1.15); }, { passive: false });
+    let td = null;
+    cv.addEventListener('touchstart', e => { if (e.touches.length === 2) td = this.dist2(e); }, { passive: true });
+    cv.addEventListener('touchmove', e => {
+      if (e.touches.length === 2 && td) { e.preventDefault();
+        const d = this.dist2(e); this.zoom(d / td); td = d; }
+    }, { passive: false });
+    cv.addEventListener('touchend', () => td = null);
+    $('cvZin').onclick = () => this.zoom(1.3);
+    $('cvZout').onclick = () => this.zoom(1 / 1.3);
+    $('cvReset').onclick = () => { this.cam = { x: 0, y: 0, z: 1 }; this.sel = null; $('cvInfo').classList.remove('on'); };
+    window.addEventListener('resize', () => this.cv && this.redimensionar());
+  },
+  dist2(e) { const [a, b] = e.touches; return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY); },
+  zoom(f) { this.cam.z = Math.min(3.2, Math.max(.55, this.cam.z * f)); },
+
+  tocar(e) {
+    const rc = this.cv.getBoundingClientRect();
+    const [mx, my] = this.mundo(e.clientX - rc.left, e.clientY - rc.top);
+    let melhor = null, md = 18 / (this.fit * this.cam.z);
+    this.nodes.forEach(n => {
+      if (n.nivel === 'core') return;
+      const d = Math.hypot(n.x - mx, n.y - my);
+      if (d < md + n.r) { if (!melhor || d < melhor.d) melhor = { n, d }; }
+    });
+    this.selecionar(melhor ? melhor.n : null);
+  },
+  selecionar(n) {
+    this.sel = n;
+    const box = $('cvInfo');
+    if (!n) { box.classList.remove('on'); return; }
+    const corTxt = { verde: 'DOMINADO', amarelo: 'NO CAMINHO', vermelho: 'LACUNA', nd: 'NÃO MEDIDO' }[n.cor] || '';
+    const bc = n.nivel === 'topico' ? `${esc(n.disc)} · ${esc(n.assunto)}`
+             : n.nivel === 'assunto' ? esc(n.disc) : 'DISCIPLINA';
+    const stats = n.nivel === 'topico'
+      ? `<div class="st"><span>força <b style="color:${COR_HEX[n.cor]}">${n.incerteza >= 85 ? '—' : Math.round(n.forca)}</b></span>
+         <span>incerteza <b>${Math.round(n.incerteza)}%</b></span>
+         <span><b style="color:${COR_HEX[n.cor]}">${corTxt}</b></span></div>`
+      : n.pct != null ? `<div class="st"><span>domínio médio <b style="color:${COR_HEX[n.cor]}">${n.pct}%</b></span></div>`
+      : `<div class="st"><span><b style="color:${COR_HEX[n.cor]}">${corTxt}</b></span></div>`;
+    box.innerHTML = `<button class="fech" id="cvFech">×</button>
+      <div class="bc">${bc.toUpperCase()}</div>
+      <div class="nm">${esc(n.nome)}</div>${stats}
+      ${n.nivel === 'topico' ? `<button class="btn est" id="cvEstudar">Estudar este tópico agora</button>` : ''}`;
+    box.classList.add('on');
+    $('cvFech').onclick = () => this.selecionar(null);
+    const be = $('cvEstudar');
+    if (be) be.onclick = () => iniciarSessaoEstudo(n.id, n.incerteza >= 60 ? 'sondar' : 'estudar');
+  },
+
+  loop() {
+    this.raf = requestAnimationFrame(() => this.loop());
+    if (!document.getElementById('vCerebroFull').classList.contains('on')) return;
+    const ctx = this.ctx, w = this.cv.clientWidth, h = this.cv.clientHeight;
+    const t = (performance.now() - this.t0) / 1000;
+    const s = this.fit * this.cam.z;
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    ctx.translate(w / 2 + this.cam.x, h / 2 + this.cam.y);
+    ctx.scale(s, s);
+
+    // estrelas
+    this.stars.forEach(st => { ctx.globalAlpha = st.a * (0.7 + 0.3 * Math.sin(t * .8 + st.x));
+      ctx.fillStyle = '#9FB8D8'; ctx.beginPath(); ctx.arc(st.x, st.y, st.r / this.cam.z, 0, 7); ctx.fill(); });
+    ctx.globalAlpha = 1;
+
+    const pos = n => [n.x + Math.sin(t * .55 + n.ph) * 2.6, n.y + Math.cos(t * .48 + n.ph * 1.3) * 2.6];
+
+    // arestas
+    this.edges.forEach(([a, b]) => {
+      const [ax, ay] = pos(a), [bx, by] = pos(b);
+      const ligada = this.sel && (a === this.sel || b === this.sel);
+      ctx.strokeStyle = ligada ? 'rgba(47,224,141,.55)' : 'rgba(130,165,215,.13)';
+      ctx.lineWidth = (ligada ? 1.6 : 0.8) / this.cam.z;
+      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+    });
+
+    // pulsos viajantes (evidência fluindo)
+    if (Math.random() < .05 && this.pulses.length < 7) {
+      const medidos = this.nodes.filter(n => n.nivel === 'topico' && n.cor !== 'nd');
+      if (medidos.length) {
+        const alvo = medidos[Math.floor(Math.random() * medidos.length)];
+        const rota = this.rota(alvo);
+        if (rota) this.pulses.push({ rota, p: 0, cor: COR_HEX[alvo.cor] });
+      }
+    }
+    this.pulses = this.pulses.filter(pu => pu.p < 1);
+    this.pulses.forEach(pu => {
+      pu.p += 0.012;
+      const seg = Math.min(Math.floor(pu.p * (pu.rota.length - 1)), pu.rota.length - 2);
+      const f = pu.p * (pu.rota.length - 1) - seg;
+      const [ax, ay] = pos(pu.rota[seg]), [bx, by] = pos(pu.rota[seg + 1]);
+      const x = ax + (bx - ax) * f, y = ay + (by - ay) * f;
+      ctx.shadowColor = pu.cor; ctx.shadowBlur = 12;
+      ctx.fillStyle = pu.cor; ctx.globalAlpha = .9 * (1 - pu.p * .5);
+      ctx.beginPath(); ctx.arc(x, y, 2.1, 0, 7); ctx.fill();
+      ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+    });
+
+    // nós
+    this.nodes.forEach(n => {
+      const [x, y] = pos(n);
+      if (n.nivel === 'core') {
+        const pulso = 1 + Math.sin(t * 2.1) * .08;
+        ctx.shadowColor = '#2FE08D'; ctx.shadowBlur = 34;
+        ctx.fillStyle = '#0D2A1D'; ctx.beginPath(); ctx.arc(0, 0, n.r * pulso + 5, 0, 7); ctx.fill();
+        ctx.fillStyle = '#2FE08D'; ctx.beginPath(); ctx.arc(0, 0, n.r * pulso, 0, 7); ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = 'rgba(47,224,141,.35)'; ctx.lineWidth = 1 / this.cam.z;
+        ctx.beginPath(); ctx.arc(0, 0, n.r * pulso + 9 + Math.sin(t * 2.1) * 2, 0, 7); ctx.stroke();
+        return;
+      }
+      const cor = COR_HEX[n.cor];
+      const medido = n.cor !== 'nd';
+      const pulso = medido ? 1 + Math.sin(t * 1.7 + n.ph) * .12 : 1;
+      if (medido) { ctx.shadowColor = cor; ctx.shadowBlur = (n.cor === 'verde' ? 20 : 13); }
+      ctx.globalAlpha = medido ? 1 : .5;
+      ctx.fillStyle = cor;
+      ctx.beginPath(); ctx.arc(x, y, n.r * pulso, 0, 7); ctx.fill();
+      ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+      if (this.sel === n) {
+        ctx.strokeStyle = cor; ctx.lineWidth = 1.4 / this.cam.z;
+        ctx.beginPath(); ctx.arc(x, y, n.r + 6 / this.cam.z, 0, 7); ctx.stroke();
+      }
+      // rótulo das disciplinas
+      if (n.nivel === 'disciplina') {
+        const lx = Math.cos(n.ang) * 128, ly = Math.sin(n.ang) * 128;
+        ctx.font = `700 ${10.5 / this.cam.z}px Archivo, sans-serif`;
+        ctx.textAlign = Math.cos(n.ang) > .3 ? 'left' : Math.cos(n.ang) < -.3 ? 'right' : 'center';
+        ctx.fillStyle = 'rgba(190,205,225,.75)';
+        ctx.fillText(n.nome.toUpperCase(), lx, ly);
+        if (n.pct != null) { ctx.fillStyle = cor; ctx.font = `700 ${10 / this.cam.z}px Menlo, monospace`;
+          ctx.fillText(n.pct + '%', lx, ly + 13 / this.cam.z); }
+      }
+    });
+  },
+  rota(alvo) {
+    const paiA = this.edges.find(([a, b]) => b === alvo)?.[0]; if (!paiA) return null;
+    const paiD = this.edges.find(([a, b]) => b === paiA)?.[0]; if (!paiD) return null;
+    return [this.nodes[0], paiD, paiA, alvo];
+  }
+};
+
 async function loadCerebroFull() {
-  const { data, error } = await sb.rpc('fn_meu_mapa', { p_edital: editalAtual.id });
-  if (error) { toast(error.message); return; }
-  const porNode = {}; (data.mapa || []).forEach(n => porNode[n.node_id] = n);
-  const verdes = (data.mapa || []).filter(n => n.incerteza < 85 && n.forca >= 70).length;
-  $('cbSub').textContent = `${verdes} nó(s) brilhando de domínio — continue acendendo.`;
-  renderCerebro(porNode, 'cbFull');
+  const [{ data: mapa, error: e1 }, { data: home }] = await Promise.all([
+    sb.rpc('fn_meu_mapa', { p_edital: editalAtual.id }),
+    sb.rpc('fn_home', { p_edital: editalAtual.id })
+  ]);
+  if (e1) { toast(e1.message); return; }
+  const lista = mapa.mapa || [];
+  const porNode = {}; lista.forEach(n => porNode[n.node_id] = n);
+  const medidos = lista.filter(n => n.incerteza < 85);
+  const indice = medidos.length ? (medidos.reduce((s, n) => s + n.forca, 0) / medidos.length) : 0;
+  const verdes = medidos.filter(n => n.forca >= 70).length;
+  $('cbKpis').innerHTML = `
+    <div class="kpi"><div class="v">${indice.toFixed(1)}<small> /100</small></div><div class="k">ÍNDICE DE DOMÍNIO</div><div class="d">média dos tópicos medidos</div></div>
+    <div class="kpi"><div class="v" style="color:var(--verde)">${verdes}</div><div class="k">NÓS DOMINADOS</div><div class="d">brilhando no grafo</div></div>
+    <div class="kpi dourado"><div class="v">${home?.revisoes ?? 0}</div><div class="k">REVISÕES DE HOJE</div><div class="d">antes que a memória apague</div></div>
+    <div class="kpi"><div class="v">${home?.streak ?? 0}</div><div class="k">DIAS SEGUIDOS</div><div class="d">sequência de estudo</div></div>`;
+  $('cvDoms').innerHTML = estrutura.map((d, di) => {
+    const tops = d.assuntos.flatMap(a => a.topicos).map(t => porNode[t.node_id] || { forca: 0, incerteza: 100 });
+    const med = tops.filter(t => t.incerteza < 85);
+    const pct = med.length ? Math.round(med.reduce((s, t) => s + t.forca, 0) / med.length) : null;
+    const cor = COR_HEX[corMedia(tops)];
+    return `<div class="dom" data-d="${di}">
+      <div class="dn">${esc(d.disciplina)}<small>${med.length}/${tops.length} medidos</small></div>
+      <div class="db"><i style="width:${pct ?? 0}%;background:${cor};box-shadow:0 0 8px ${cor}"></i></div>
+      <div class="dv" style="color:${cor}">${pct != null ? pct + '%' : '—'}</div>
+    </div>`;
+  }).join('');
+  $('cbSub').textContent = `Seu cérebro para ${editalAtual.concurso} cresce conforme você domina os assuntos.`;
+  CerebroVivo.montar(porNode);
+  document.querySelectorAll('#cvDoms .dom').forEach(el => el.onclick = () => {
+    const n = CerebroVivo.nodes.find(x => x.id === 'd' + el.dataset.d);
+    if (n) CerebroVivo.selecionar(n);
+  });
 }
 async function loadRevisoes() {
   const { data, error } = await sb.rpc('fn_revisoes_hoje', { p_edital: editalAtual.id });
@@ -825,7 +1254,7 @@ async function loadRevisoes() {
   $('rvList').innerHTML = (data && data.length)
     ? data.map(r => `<div class="revrow"><div class="rn">${esc(r.nome)}<span class="rd">vencida há ${r.dias_vencida} dia(s) · força ${r.forca}%</span></div>
         <button onclick="iniciarSessaoEstudo('${r.node_id}','revisao')">Revisar</button></div>`).join('')
-    : '<div class="card" style="text-align:center;color:var(--dim)">Nenhuma revisão pendente. Memória em dia. ✨</div>';
+    : '<div class="card" style="text-align:center;color:var(--dim)">Nenhuma revisão pendente. Memória em dia.</div>';
 }
 $('btnShare2').onclick = () => $('btnShare').onclick();
 
@@ -858,7 +1287,7 @@ $('impFile').onchange = async () => {
       p_tipo: impTipo, p_edital: editalAtual.id, p_storage_path: path });
     if (criarErr) throw criarErr;
 
-    st.textContent = '🧠 Analisando com IA e mapeando no seu edital… (pode levar ~1 min)';
+    st.textContent = 'Analisando com IA e mapeando no seu edital… (pode levar ~1 min)';
     await loadImportar();
     const resp = await fetch(`${SB_URL}/functions/v1/processar-material`, {
       method: 'POST',
@@ -866,7 +1295,7 @@ $('impFile').onchange = async () => {
       body: JSON.stringify({ material_id: matId }) });
     const res = await resp.json();
     if (res.status === 'processado') {
-      toast(`✓ ${res.eventos} evidência(s) registrada(s) em ${res.nodes} tópico(s) 🧠`);
+      toast(`✓ ${res.eventos} evidência(s) registrada(s) em ${res.nodes} tópico(s)`);
     } else if (res.status === 'erro') {
       toast('Não consegui processar: ' + (res.erro || 'erro desconhecido'));
     } else if (res.error) {
@@ -881,8 +1310,8 @@ $('impFile').onchange = async () => {
     loadImportar();
   }
 };
-const IMP_TIPO_LABEL = { caderno_foto: '📓 Caderno', resumo: '📓 Resumo', pdf: '📓 PDF',
-  print_qc: '🧾 Questões', print_tec: '🧾 Questões', print_desempenho: '📊 Desempenho', outro: '📎 Material' };
+const IMP_TIPO_LABEL = { caderno_foto: 'Caderno', resumo: 'Resumo', pdf: 'PDF',
+  print_qc: 'Questões', print_tec: 'Questões', print_desempenho: 'Desempenho', outro: 'Material' };
 async function loadImportar() {
   const { data, error } = await sb.rpc('fn_meus_materiais');
   if (error) { toast(error.message); return; }
@@ -898,14 +1327,14 @@ async function loadImportar() {
         const dt = new Date(m.criado).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
         return `<div class="revrow"><div class="rn">${IMP_TIPO_LABEL[m.tipo] || m.tipo} · ${dt}<span class="rd" style="color:var(--dim)">${det}</span></div>${badge}</div>`;
       }).join('')
-    : '<div class="card" style="text-align:center;color:var(--dim)">Nada importado ainda. Seu caderno vale evidência — envie a primeira foto. 📓</div>';
+    : '<div class="card" style="text-align:center;color:var(--dim)">Nada importado ainda. Seu caderno vale evidência — envie a primeira foto.</div>';
 }
 
 $('btnShare').onclick = async () => {
   const pct = Math.round(parseFloat(reveal.progresso) * 100);
   const texto = `Revelei o mapa do meu cérebro para ${editalAtual.concurso} no DOMINEI 🧠 ${pct}% do edital mapeado — e minha primeira ação de estudo já está decidida. dominei.app`;
   if (navigator.share) { try { await navigator.share({ text: texto }); } catch (e) {} }
-  else { await navigator.clipboard.writeText(texto); toast('Copiado! Cole onde quiser 🚀'); }
+  else { await navigator.clipboard.writeText(texto); toast('Copiado! Cole onde quiser.'); }
 };
 
 boot();
