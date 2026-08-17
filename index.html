@@ -134,6 +134,18 @@ label { display:block; font-size:12px; color:var(--dim); margin:0 0 5px 2px; let
 .pre h2 { font-size:26px; margin-bottom:8px; }
 .pre p { color:var(--dim); margin-bottom:28px; }
 
+/* ---------- CÉREBRO ---------- */
+#rvCerebro { margin:2px 0 16px; }
+#rvCerebro svg { width:100%; display:block; }
+#rvCerebro .ce { fill:none; stroke:rgba(147,168,214,.16); stroke-width:1; }
+#rvCerebro .cn { opacity:0; animation:ign .6s both; animation-delay:var(--d); transform-box:fill-box; transform-origin:center; }
+#rvCerebro .cn.nd { animation:ignd .6s both; animation-delay:var(--d); }
+@keyframes ign { from { opacity:0; transform:scale(.2); } to { opacity:1; transform:none; } }
+@keyframes ignd { from { opacity:0; } to { opacity:.38; } }
+#rvCerebro .core { animation:corepulse 2.4s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+@keyframes corepulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.09); } }
+.cbcap { text-align:center; font-size:11.5px; color:var(--dim); margin-top:4px; }
+
 /* ---------- REVELAÇÃO ---------- */
 .rv .head { margin-bottom:18px; }
 .rv .head h2 { font-size:24px; }
@@ -257,6 +269,7 @@ label { display:block; font-size:12px; color:var(--dim); margin:0 0 5px 2px; let
       <h2 class="disp">O mapa do seu cérebro</h2>
       <p id="rvSub"></p>
     </div>
+    <div id="rvCerebro"></div>
     <div class="stats" id="rvStats"></div>
     <div id="rvInsights"></div>
     <div class="legend">
@@ -444,9 +457,63 @@ function corDe(n) {
   if (n.forca >= 40) return 'amarelo';
   return 'vermelho';
 }
+const COR_HEX = { verde: '#2FE08D', amarelo: '#F2B33D', vermelho: '#ED5A5A', nd: '#39435C' };
+function nodeSvg(x, y, r, cor, i) {
+  const glow = (cor === 'verde' || cor === 'amarelo') ? 'filter="url(#glow)"' : '';
+  return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${COR_HEX[cor]}" ${glow} class="cn ${cor === 'nd' ? 'nd' : ''}" style="--d:${250 + i * 70}ms"/>`;
+}
+function corMedia(tops) {
+  const med = tops.filter(t => t.incerteza < 85);
+  if (!med.length) return 'nd';
+  return corDe({ forca: med.reduce((s, t) => s + t.forca, 0) / med.length, incerteza: 0 });
+}
+function renderCerebro(porNode) {
+  const W = 360, C = W / 2;
+  const ND = Math.max(estrutura.length, 1);
+  const setor = 2 * Math.PI / ND;
+  const pt = (ang, r) => [C + r * Math.cos(ang), C + r * Math.sin(ang)];
+  let edges = '', nodes = '', idx = 0;
+  estrutura.forEach((d, di) => {
+    const angD = -Math.PI / 2 + setor * (di + 0.5);
+    const [dx, dy] = pt(angD, 55);
+    const topsD = d.assuntos.flatMap(a => a.topicos).map(t => porNode[t.node_id] || { forca: 0, incerteza: 100 });
+    edges += `<path d="M${C} ${C} Q ${(C + dx) / 2} ${(C + dy) / 2} ${dx.toFixed(1)} ${dy.toFixed(1)}" class="ce"/>`;
+    nodes += nodeSvg(dx, dy, 9, corMedia(topsD), idx++);
+    d.assuntos.forEach((a, ai) => {
+      const na = d.assuntos.length;
+      const angA = angD + (ai - (na - 1) / 2) * (setor * 0.55 / Math.max(na, 1));
+      const [ax, ay] = pt(angA, 102);
+      const topsA = a.topicos.map(t => porNode[t.node_id] || { forca: 0, incerteza: 100 });
+      edges += `<path d="M${dx.toFixed(1)} ${dy.toFixed(1)} Q ${(dx + ax) / 2} ${(dy + ay) / 2} ${ax.toFixed(1)} ${ay.toFixed(1)}" class="ce"/>`;
+      nodes += nodeSvg(ax, ay, 6, corMedia(topsA), idx++);
+      a.topicos.forEach((t, ti) => {
+        const nt = a.topicos.length;
+        const angT = angA + (ti - (nt - 1) / 2) * (setor * 0.4 / Math.max(nt, 1));
+        const jit = ((di * 7 + ai * 5 + ti * 13) % 14) - 7;
+        const [tx, ty] = pt(angT, 148 + jit);
+        const st = porNode[t.node_id] || { forca: 0, incerteza: 100 };
+        edges += `<path d="M${ax.toFixed(1)} ${ay.toFixed(1)} Q ${(ax + tx) / 2} ${(ay + ty) / 2} ${tx.toFixed(1)} ${ty.toFixed(1)}" class="ce"/>`;
+        nodes += nodeSvg(tx, ty, 4 + (t.peso || 0.5) * 3.5, corDe(st), idx++);
+      });
+    });
+  });
+  $('rvCerebro').innerHTML = `
+    <svg viewBox="0 0 ${W} ${W}">
+      <defs><filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+        <feGaussianBlur stdDeviation="4" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter></defs>
+      ${edges}
+      <circle cx="${C}" cy="${C}" r="15" fill="#2FE08D" filter="url(#glow)" class="core"/>
+      ${nodes}
+    </svg>
+    <div class="cbcap">Seu cérebro para ${esc(editalAtual.concurso)} — ele cresce e acende conforme você domina.</div>`;
+}
+
 function renderReveal() {
   const mapa = reveal.mapa || [];
   const porNode = {}; mapa.forEach(n => porNode[n.node_id] = n);
+  renderCerebro(porNode);
   const medidos = mapa.filter(n => n.incerteza < 85);
   const verdes = medidos.filter(n => n.forca >= 70).length;
 
