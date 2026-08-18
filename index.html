@@ -1333,15 +1333,18 @@ const CerebroVivo = {
         ctx.fillText(nome, x + n.r + 5 / this.cam.z, y + 3 / this.cam.z);
         ctx.globalAlpha = 1;
       }
-      // rótulo das disciplinas
+      // rótulo das disciplinas (raio alternado p/ editais com muitos setores)
       if (n.nivel === 'disciplina') {
-        const lx = Math.cos(n.ang) * 128, ly = Math.sin(n.ang) * 128;
-        ctx.font = `700 ${10.5 / this.cam.z}px Archivo, sans-serif`;
+        const alt = parseInt(n.id.slice(1), 10) % 2;
+        const lr = 122 + alt * 34;
+        const lx = Math.cos(n.ang) * lr, ly = Math.sin(n.ang) * lr;
+        ctx.font = `700 ${9.5 / this.cam.z}px Archivo, sans-serif`;
         ctx.textAlign = Math.cos(n.ang) > .3 ? 'left' : Math.cos(n.ang) < -.3 ? 'right' : 'center';
-        ctx.fillStyle = 'rgba(190,205,225,.75)';
-        ctx.fillText(n.nome.toUpperCase(), lx, ly);
-        if (n.pct != null) { ctx.fillStyle = cor; ctx.font = `700 ${10 / this.cam.z}px Menlo, monospace`;
-          ctx.fillText(n.pct + '%', lx, ly + 13 / this.cam.z); }
+        ctx.fillStyle = 'rgba(190,205,225,.78)';
+        const rot = n.nome.length > 24 ? n.nome.toUpperCase().slice(0, 23) + '…' : n.nome.toUpperCase();
+        ctx.fillText(rot, lx, ly);
+        if (n.pct != null) { ctx.fillStyle = cor; ctx.font = `700 ${9.5 / this.cam.z}px Menlo, monospace`;
+          ctx.fillText(n.pct + '%', lx, ly + 12 / this.cam.z); }
       }
     });
   },
