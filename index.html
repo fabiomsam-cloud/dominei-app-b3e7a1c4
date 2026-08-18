@@ -16,7 +16,7 @@
   --line:rgba(132,170,214,.13); --line-v:rgba(47,224,141,.28);
   --text:#EAF2EC; --dim:#7E8CA0; --faint:#4C5870;
   --verde:#2FE08D; --verde2:#57F2AE; --verde-dim:rgba(47,224,141,.13);
-  --amarelo:#F2B33D; --vermelho:#ED5A5A; --nd:#39435C;
+  --amarelo:#F2B33D; --vermelho:#ED5A5A; --nd:#39435C; --ouro:#F5C542;
   --radius:14px;
   --mono:"SF Mono", ui-monospace, Menlo, Consolas, monospace;
 }
@@ -261,6 +261,13 @@ body.tabs main { padding-bottom:96px; }
 .cv-legend .lg-a::before { background:var(--amarelo); box-shadow:0 0 8px var(--amarelo); }
 .cv-legend .lg-r::before { background:var(--vermelho); box-shadow:0 0 8px var(--vermelho); }
 .cv-legend .lg-n::before { background:var(--nd); }
+.cv-legend .lg-o::before { background:var(--ouro); box-shadow:0 0 8px var(--ouro);
+  border-radius:50% 50% 50% 50%/62% 62% 40% 40%; height:10px; }
+.cv-info .ovo { display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:9px;
+  letter-spacing:.16em; color:var(--ouro); background:rgba(245,197,66,.09);
+  border:1px solid rgba(245,197,66,.35); border-radius:999px; padding:4px 11px; margin-bottom:8px; }
+.cv-info .ovo::before { content:''; width:7px; height:9px; background:var(--ouro);
+  border-radius:50% 50% 50% 50%/62% 62% 40% 40%; box-shadow:0 0 9px var(--ouro); }
 .cv-info { position:absolute; left:12px; right:12px; bottom:58px; display:none; animation:enter .25s both;
   background:rgba(7,13,25,.92); border:1px solid var(--line-v); border-radius:13px; padding:14px 16px;
   backdrop-filter:blur(10px); box-shadow:0 8px 40px rgba(0,0,0,.5); }
@@ -556,6 +563,7 @@ body.tabs main { padding-bottom:96px; }
           <div class="lg lg-a">No caminho</div>
           <div class="lg lg-r">Lacuna</div>
           <div class="lg lg-n">Não medido</div>
+          <div class="lg lg-o">Ovo de Ouro · favorito da banca</div>
         </div>
         <div class="cv-controls">
           <button id="cvZin">+</button>
@@ -810,6 +818,7 @@ function corDe(n) {
   return 'vermelho';
 }
 const COR_HEX = { verde: '#2FE08D', amarelo: '#F2B33D', vermelho: '#ED5A5A', nd: '#39435C' };
+const OURO = '#F5C542';
 function nodeSvg(x, y, r, cor, i) {
   const glow = (cor === 'verde' || cor === 'amarelo') ? 'filter="url(#glow)"' : '';
   return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${COR_HEX[cor]}" ${glow} class="cn ${cor === 'nd' ? 'nd' : ''}" style="--d:${250 + i * 70}ms"/>`;
@@ -1136,10 +1145,12 @@ const CerebroVivo = {
           const angT = angA + (ti - (nt - 1) / 2) * (setor * 0.42 / Math.max(nt, 1));
           const jit = ((di * 7 + ai * 5 + ti * 13) % 26) - 13;
           const st = porNode[t.node_id] || { forca: 0, incerteza: 100 };
+          const freq = t.provas_freq || 0;
           const nT = { id: t.node_id, nome: t.nome, nivel: 'topico',
             x: Math.cos(angT) * (238 + jit), y: Math.sin(angT) * (238 + jit),
-            r: 3.4 + (t.peso || 0.5) * 3.2, cor: corDe(st),
+            r: 3.4 + Math.min((t.peso || 0.003) * 55, 3.4), cor: corDe(st),
             ph: Math.random() * 7, forca: st.forca, incerteza: st.incerteza,
+            freq, ovo: freq >= 3,
             disc: d.disciplina, assunto: a.assunto };
           this.nodes.push(nT); this.edges.push([nA, nT]);
         });
@@ -1231,10 +1242,12 @@ const CerebroVivo = {
     const stats = n.nivel === 'topico'
       ? `<div class="st"><span>força <b style="color:${COR_HEX[n.cor]}">${n.incerteza >= 85 ? '—' : Math.round(n.forca)}</b></span>
          <span>incerteza <b>${Math.round(n.incerteza)}%</b></span>
-         <span><b style="color:${COR_HEX[n.cor]}">${corTxt}</b></span></div>`
+         <span><b style="color:${COR_HEX[n.cor]}">${corTxt}</b></span>
+         ${n.freq > 0 ? `<span>cobrado <b style="color:${OURO}">${n.freq}×</b> nas últimas 3 provas</span>` : ''}</div>`
       : n.pct != null ? `<div class="st"><span>domínio médio <b style="color:${COR_HEX[n.cor]}">${n.pct}%</b></span></div>`
       : `<div class="st"><span><b style="color:${COR_HEX[n.cor]}">${corTxt}</b></span></div>`;
     box.innerHTML = `<button class="fech" id="cvFech">×</button>
+      ${n.ovo ? `<div class="ovo">OVO DE OURO · FAVORITO DA BANCA</div>` : ''}
       <div class="bc">${bc.toUpperCase()}</div>
       <div class="nm">${esc(n.nome)}</div>${stats}
       ${n.nivel === 'topico' ? `<button class="btn est" id="cvEstudar">Estudar este tópico agora</button>` : ''}`;
@@ -1284,6 +1297,15 @@ const CerebroVivo = {
         if (rota) this.pulses.push({ rota, p: 0, cor: COR_HEX[alvo.cor] });
       }
     }
+    // pulsos dourados rumo aos Ovos de Ouro (a banca apontando o caminho)
+    if (Math.random() < .025 && this.pulses.length < 9) {
+      const ovos = this.nodes.filter(n => n.ovo);
+      if (ovos.length) {
+        const alvo = ovos[Math.floor(Math.random() * ovos.length)];
+        const rota = this.rota(alvo);
+        if (rota) this.pulses.push({ rota, p: 0, cor: OURO });
+      }
+    }
     this.pulses = this.pulses.filter(pu => pu.p < 1);
     this.pulses.forEach(pu => {
       pu.p += 0.012;
@@ -1313,8 +1335,18 @@ const CerebroVivo = {
       const cor = COR_HEX[n.cor];
       const medido = n.cor !== 'nd';
       const pulso = medido ? 1 + Math.sin(t * 1.7 + n.ph) * .12 : 1;
+      // Ovo de Ouro: aura dourada respirando por trás do nó (favorito da banca)
+      if (n.ovo) {
+        const resp = .55 + Math.sin(t * 1.15 + n.ph) * .3;
+        ctx.shadowColor = OURO; ctx.shadowBlur = 26 * resp;
+        ctx.strokeStyle = `rgba(245,197,66,${.35 + resp * .45})`;
+        ctx.lineWidth = 1.2 / this.cam.z;
+        ctx.beginPath(); ctx.arc(x, y, n.r * pulso + (3.4 + resp * 1.6) / this.cam.z, 0, 7); ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
       if (medido) { ctx.shadowColor = cor; ctx.shadowBlur = (n.cor === 'verde' ? 20 : 13); }
-      ctx.globalAlpha = medido ? 1 : .5;
+      else if (n.ovo) { ctx.shadowColor = OURO; ctx.shadowBlur = 10; }
+      ctx.globalAlpha = medido ? 1 : (n.ovo ? .75 : .5);
       ctx.fillStyle = cor;
       ctx.beginPath(); ctx.arc(x, y, n.r * pulso, 0, 7); ctx.fill();
       ctx.shadowBlur = 0; ctx.globalAlpha = 1;
@@ -1324,11 +1356,11 @@ const CerebroVivo = {
       }
       // rótulos dos tópicos surgem quando a câmera aproxima
       if (n.nivel === 'topico' && this.cam.z >= 1.4) {
-        const alfa = Math.min(1, (this.cam.z - 1.35) * 1.8) * (n.cor === 'nd' ? .4 : .85);
+        const alfa = Math.min(1, (this.cam.z - 1.35) * 1.8) * (n.ovo ? .95 : n.cor === 'nd' ? .4 : .85);
         ctx.globalAlpha = alfa;
-        ctx.font = `${9.5 / this.cam.z}px 'Atkinson Hyperlegible', sans-serif`;
+        ctx.font = `${n.ovo ? '700 ' : ''}${9.5 / this.cam.z}px 'Atkinson Hyperlegible', sans-serif`;
         ctx.textAlign = 'left';
-        ctx.fillStyle = '#BECDE1';
+        ctx.fillStyle = n.ovo ? OURO : '#BECDE1';
         const nome = n.nome.length > 26 ? n.nome.slice(0, 25) + '…' : n.nome;
         ctx.fillText(nome, x + n.r + 5 / this.cam.z, y + 3 / this.cam.z);
         ctx.globalAlpha = 1;
@@ -1482,8 +1514,14 @@ async function compartilharCerebro() {
       x.shadowBlur = 0; return;
     }
     const cor = COR_HEX[n.cor];
+    if (n.ovo) {
+      x.shadowColor = OURO; x.shadowBlur = 34;
+      x.strokeStyle = 'rgba(245,197,66,.8)'; x.lineWidth = 2.4;
+      x.beginPath(); x.arc(nx, ny, n.r * esc + 8, 0, 7); x.stroke();
+      x.shadowBlur = 0;
+    }
     if (n.cor !== 'nd') { x.shadowColor = cor; x.shadowBlur = n.cor === 'verde' ? 42 : 26; }
-    x.globalAlpha = n.cor === 'nd' ? .45 : 1;
+    x.globalAlpha = n.cor === 'nd' ? (n.ovo ? .7 : .45) : 1;
     x.fillStyle = cor; x.beginPath(); x.arc(nx, ny, n.r * esc, 0, 7); x.fill();
     x.shadowBlur = 0; x.globalAlpha = 1;
     if (n.nivel === 'disciplina') {
