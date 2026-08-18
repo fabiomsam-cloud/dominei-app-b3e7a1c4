@@ -265,6 +265,9 @@ body.tabs main { padding-bottom:96px; }
 .cv-legend .lg-a::before { background:var(--amarelo); box-shadow:0 0 8px var(--amarelo); }
 .cv-legend .lg-r::before { background:var(--vermelho); box-shadow:0 0 8px var(--vermelho); }
 .cv-legend .lg-n::before { background:var(--nd); }
+.cv-legend .lg-e::before { background:linear-gradient(135deg, var(--verde) 15%, var(--amarelo) 85%);
+  box-shadow:0 0 8px var(--amarelo); animation:esqFade 2.4s ease-in-out infinite; }
+@keyframes esqFade { 50% { opacity:.3; } }
 .cv-legend .lg-o::before { background:var(--ouro); box-shadow:0 0 8px var(--ouro);
   border-radius:50% 50% 50% 50%/62% 62% 40% 40%; height:10px; }
 .cv-info .ovo { display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:9px;
@@ -566,6 +569,7 @@ body.tabs main { padding-bottom:96px; }
           <div class="lg lg-v" data-f="verde">Dominado</div>
           <div class="lg lg-a" data-f="amarelo">No caminho</div>
           <div class="lg lg-r" data-f="vermelho">Lacuna</div>
+          <div class="lg lg-e" data-f="esq">Esquecendo</div>
           <div class="lg lg-n" data-f="nd">Não medido</div>
           <div class="lg lg-o" data-f="ovo">Ovo de Ouro · favorito da banca</div>
         </div>
@@ -1151,11 +1155,14 @@ const CerebroVivo = {
           const jit = ((di * 7 + ai * 5 + ti * 13) % 26) - 13;
           const st = porNode[t.node_id] || { forca: 0, incerteza: 100 };
           const freq = t.provas_freq || 0;
+          const atraso = st.proxima_revisao != null
+            ? Math.floor((Date.now() - new Date(st.proxima_revisao)) / 86400000) : null;
           const nT = { id: t.node_id, nome: t.nome, nivel: 'topico',
             x: Math.cos(angT) * (238 + jit), y: Math.sin(angT) * (238 + jit),
             r: 3.4 + Math.min((t.peso || 0.003) * 55, 3.4), cor: corDe(st),
             ph: Math.random() * 7, forca: st.forca, incerteza: st.incerteza,
             freq, ovo: freq >= 3,
+            atraso, esq: atraso != null && atraso >= 0,
             disc: d.disciplina, assunto: a.assunto };
           this.nodes.push(nT); this.edges.push([nA, nT]); nA.filhos.push(nT);
         });
@@ -1224,7 +1231,9 @@ const CerebroVivo = {
   passa(n) { // um tópico sobrevive ao filtro ativo?
     if (!this.filtro) return true;
     if (n.nivel !== 'topico') return this.aceso(n);
-    return this.filtro === 'ovo' ? !!n.ovo : n.cor === this.filtro;
+    if (this.filtro === 'ovo') return !!n.ovo;
+    if (this.filtro === 'esq') return !!n.esq;
+    return n.cor === this.filtro;
   },
   aceso(n) { // disciplina/assunto acendem se algum descendente passa
     if (!this.filtro || n.nivel === 'core') return true;
@@ -1276,6 +1285,7 @@ const CerebroVivo = {
       ? `<div class="st"><span>força <b style="color:${COR_HEX[n.cor]}">${n.incerteza >= 85 ? '—' : Math.round(n.forca)}</b></span>
          <span>incerteza <b>${Math.round(n.incerteza)}%</b></span>
          <span><b style="color:${COR_HEX[n.cor]}">${corTxt}</b></span>
+         ${n.esq ? `<span><b style="color:${COR_HEX.amarelo}">${n.atraso === 0 ? 'revisão vence hoje' : `esquecendo — revisão vencida há ${n.atraso}d`}</b></span>` : ''}
          ${n.freq > 0 ? `<span>cobrado <b style="color:${OURO}">${n.freq}×</b> nas últimas 3 provas</span>` : ''}</div>`
       : n.pct != null ? `<div class="st"><span>domínio médio <b style="color:${COR_HEX[n.cor]}">${n.pct}%</b></span></div>`
       : `<div class="st"><span><b style="color:${COR_HEX[n.cor]}">${corTxt}</b></span></div>`;
