@@ -131,6 +131,18 @@ label { display:block; font-size:11px; color:var(--dim); margin:0 0 5px 2px; let
 }
 .qcard .tipo { font-size:10px; letter-spacing:.22em; color:var(--dim); margin-bottom:14px; font-family:var(--mono); }
 .qcard .enun { font-size:19px; line-height:1.55; }
+.txbase { display:none; margin:0 0 14px; padding:12px 14px; border-radius:11px;
+  background:var(--glass); border:1px solid var(--line); max-height:38vh; overflow:auto; }
+.txbase.on { display:block; }
+.txbase .tl { font-family:var(--mono); font-size:8.5px; letter-spacing:.2em; color:var(--dim); margin-bottom:7px; }
+.txbase .tc { font-size:14.5px; line-height:1.6; color:var(--text); white-space:pre-wrap; }
+.txbase .tf { font-size:11px; color:var(--faint); margin-top:8px; font-style:italic; }
+.rep-btn { display:inline-flex; align-items:center; gap:6px; margin-top:10px; background:none;
+  border:none; color:var(--faint); font-size:11.5px; cursor:pointer; padding:4px 0; }
+.rep-btn:hover { color:var(--dim); }
+.rep-btn svg { width:12px; height:12px; }
+.rep-form { margin-top:8px; display:flex; flex-direction:column; gap:8px; }
+.rep-form select, .rep-form textarea { font-size:13px; }
 .alts { margin-top:16px; display:flex; flex-direction:column; gap:8px; }
 .altbtn { text-align:left; padding:13px 15px; border-radius:11px; background:var(--card2); color:var(--text); border:1px solid var(--line); font-size:15px; }
 .altbtn.on { border-color:var(--line-v); background:var(--verde-dim); }
@@ -467,6 +479,7 @@ body.tabs main { padding-bottom:96px; }
         <div class="dots" id="pgDots"></div>
       </div>
     </div>
+    <div class="txbase" id="qTexto"></div>
     <div class="qcard" id="qcard">
       <div class="tipo" id="qTipo">JULGUE O ITEM</div>
       <div class="enun" id="qEnun"></div>
@@ -532,6 +545,7 @@ body.tabs main { padding-bottom:96px; }
   <!-- SESSÃO (F5) -->
   <section class="view" id="vSessao">
     <div class="prog"><div class="lbl" id="ssTitulo">SESSÃO</div></div>
+    <div class="txbase" id="ssTexto" style="margin-top:10px"></div>
     <div class="qcard" style="margin-top:10px">
       <div class="tipo">JULGUE O ITEM</div>
       <div class="enun" id="ssEnun"></div>
@@ -540,7 +554,7 @@ body.tabs main { padding-bottom:96px; }
       <button class="abtn" data-r="certo">CERTO</button>
       <button class="abtn" data-r="errado">ERRADO</button>
     </div>
-    <div class="fb" id="ssFb"><b id="ssFbT"></b><p id="ssFbE"></p></div>
+    <div class="fb" id="ssFb"><b id="ssFbT"></b><p id="ssFbE"></p><div id="ssRep"></div></div>
     <button class="btn" id="ssContinuar" style="display:none;margin-top:14px">Continuar</button>
     <div class="sess-res" id="ssFim" style="display:none"></div>
   </section>
@@ -772,12 +786,22 @@ function tratarResposta(data) {
   setProgresso(parseFloat(data.progresso));
   renderItem(data.item);
 }
+function renderTextoBase(elId, item) { // texto de apoio acima do enunciado (LP/RLM/Física…)
+  const el = $(elId);
+  const tb = item && item.texto_base;
+  if (!tb) { el.classList.remove('on'); el.innerHTML = ''; return; }
+  const rot = tb.formato === 'premissa' ? 'SITUAÇÃO · ' : 'TEXTO DE APOIO · ';
+  el.innerHTML = `<div class="tl">${rot}${esc(tb.codigo)}</div>
+    <div class="tc">${esc(tb.conteudo)}</div>`;
+  el.classList.add('on'); el.scrollTop = 0;
+}
 function renderItem(item) {
   itemAtual = item; respostaEscolhida = null; t0 = Date.now();
   $('confbox').classList.remove('on');
   document.querySelectorAll('.abtn').forEach(b => b.classList.remove('on'));
   const card = $('qcard');
   card.style.animation = 'none'; void card.offsetWidth; card.style.animation = '';
+  renderTextoBase('qTexto', item);
   $('qEnun').textContent = item.enunciado;
   const me = item.tipo === 'multipla_escolha';
   $('qTipo').textContent = me ? 'MARQUE A ALTERNATIVA' : 'JULGUE O ITEM';
@@ -1075,11 +1099,39 @@ async function iniciarSessaoEstudo(node, tipo) {
 function renderItemSessao(data) {
   fbAtual = null; ssT0 = Date.now();
   $('ssTitulo').textContent = `${(sessEstudo.tipo || '').toUpperCase()} · ${esc(sessEstudo.nome)} · ${(data.respondidos ?? 0) + 1}/${sessEstudo.total}`;
+  renderTextoBase('ssTexto', data.item);
   $('ssEnun').textContent = data.item.enunciado;
-  $('ssFb').className = 'fb'; $('ssContinuar').style.display = 'none';
+  $('ssFb').className = 'fb'; $('ssContinuar').style.display = 'none'; $('ssRep').innerHTML = '';
   $('ssAns').style.display = 'flex';
   document.querySelectorAll('#ssAns .abtn').forEach(b => b.classList.remove('on'));
   sessEstudo.itemAtual = data.item;
+}
+function renderReportBtn() { // report reativo: alimenta a fila de Qualidade da equipe
+  const itemId = sessEstudo.itemAtual?.id;
+  if (!itemId) return;
+  $('ssRep').innerHTML = `<button class="rep-btn" id="btnRep">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V4m0 1h13l-2.5 4L17 13H4"/></svg>
+    Reportar erro nesta questão</button>`;
+  $('btnRep').onclick = () => {
+    $('ssRep').innerHTML = `<div class="rep-form">
+      <select id="repMotivo">
+        <option value="gabarito_errado">Gabarito parece errado</option>
+        <option value="enunciado_ambiguo">Enunciado ambíguo</option>
+        <option value="erro_digitacao">Erro de digitação</option>
+        <option value="explicacao_errada">Explicação errada</option>
+        <option value="outro">Outro</option>
+      </select>
+      <textarea id="repDetalhe" rows="2" placeholder="Detalhe (opcional)"></textarea>
+      <button class="btn" id="btnRepEnviar" style="padding:10px">Enviar report</button></div>`;
+    $('btnRepEnviar').onclick = async () => {
+      const { error } = await sb.rpc('fn_item_reportar', {
+        p_item: itemId, p_motivo: $('repMotivo').value,
+        p_detalhe: $('repDetalhe').value.trim() || null });
+      if (error) { toast(error.message); return; }
+      $('ssRep').innerHTML = '';
+      toast('Recebido — nossa equipe revisa esta questão.', true);
+    };
+  };
 }
 document.querySelectorAll('#ssAns .abtn').forEach(b => b.onclick = async () => {
   if (fbAtual) return;
@@ -1093,12 +1145,14 @@ document.querySelectorAll('#ssAns .abtn').forEach(b => b.onclick = async () => {
   $('ssFb').className = 'fb on ' + (ok ? 'ok' : 'no');
   $('ssFbT').textContent = ok ? '✓ Você acertou' : '✗ Não foi dessa vez — gabarito: ' + data.gabarito.toUpperCase();
   $('ssFbE').textContent = data.explicacao || '';
+  renderReportBtn();
   $('ssContinuar').style.display = 'block';
 });
 $('ssContinuar').onclick = () => {
   if (!fbAtual) return;
   if (fbAtual.fim) {
     $('ssAns').style.display = 'none';
+    $('ssTexto').classList.remove('on');
     $('ssFb').className = 'fb'; $('ssContinuar').style.display = 'none';
     $('ssFim').style.display = 'block';
     $('ssFim').innerHTML = `<div class="big">${fbAtual.acertos}/${fbAtual.total}</div>

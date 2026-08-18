@@ -3,17 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DOMINEI · Curadoria</title>
+<title>DOMINEI · Administração</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Archivo+Black&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  :root { --ink:#030710; --panel:rgba(13,23,40,.85); --panel2:#0E1A2E;
+  :root { --ink:#030710; --card:rgba(13,23,40,.85); --card2:#0E1A2E;
           --glass:linear-gradient(168deg, rgba(15,26,45,.9), rgba(7,13,24,.95));
-          --line:rgba(132,170,214,.14); --text:#EAF2EC; --grey:#7E8CA0; --faint:#4C5870;
-          --green:#2FE08D; --red:#ED5A5A; --gold:#F2B33D; --blue:#4D8DFF; --roxo:#9D7BFF;
-          --navy:#0E1A2E; --light:rgba(132,170,214,.08);
+          --line:rgba(132,170,214,.14); --line-v:rgba(47,224,141,.3);
+          --text:#EAF2EC; --dim:#7E8CA0; --faint:#4C5870;
+          --verde:#2FE08D; --verde2:#57F2AE; --amarelo:#F2B33D; --vermelho:#ED5A5A;
+          --nd:#39435C; --ouro:#F5C542; --blue:#4D8DFF; --roxo:#9D7BFF;
+          --light:rgba(132,170,214,.08); --radius:14px;
           --mono:"SF Mono", ui-monospace, Menlo, Consolas, monospace; }
   * { box-sizing:border-box; margin:0; padding:0; }
   body { font-family:'Atkinson Hyperlegible', -apple-system, sans-serif;
@@ -23,128 +25,163 @@
       repeating-linear-gradient(90deg, rgba(120,160,220,.02) 0 1px, transparent 1px 46px),
       var(--ink);
     color:var(--text); min-height:100vh; }
-  header { background:rgba(4,9,18,.8); backdrop-filter:blur(14px); border-bottom:1px solid var(--line);
-    color:var(--text); padding:14px 22px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;
-    position:sticky; top:0; z-index:20; }
-  header h1 { font-family:'Archivo Black', sans-serif; font-size:17px; letter-spacing:.08em; font-weight:800; }
-  header h1 i { font-style:normal; color:var(--green); text-shadow:0 0 16px rgba(47,224,141,.6); }
-  header .tag { background:rgba(47,224,141,.12); color:var(--green); border:1px solid rgba(47,224,141,.3);
-    border-radius:7px; padding:3px 11px; font-size:11px; font-weight:700; font-family:var(--mono); letter-spacing:.08em; }
-  header .spacer { flex:1; }
-  header .who { font-size:12px; color:var(--grey); font-family:var(--mono); }
   button { cursor:pointer; border:none; border-radius:9px; padding:9px 15px; font-size:13px; font-weight:700; font-family:inherit; }
-  .b-ghost { background:transparent; color:var(--grey); border:1px solid var(--line); }
-  .b-ghost:hover { color:var(--text); }
-  .wrap { max-width:1080px; margin:0 auto; padding:22px 20px; }
-  .card { background:var(--glass); border:1px solid var(--line); border-radius:14px; padding:18px;
-    margin-bottom:14px; box-shadow:inset 0 1px 0 rgba(255,255,255,.04); }
-  .login { max-width:380px; margin:9vh auto; }
-  .login h2 { color:var(--text); margin-bottom:14px; font-size:20px; font-family:'Archivo', sans-serif; }
-  .login a { color:var(--green); }
   input, select, textarea { width:100%; border:1px solid var(--line); border-radius:9px; padding:10px 11px;
     font-size:14px; margin-bottom:10px; background:rgba(8,14,26,.8); color:var(--text); font-family:inherit; }
   input:focus, select:focus, textarea:focus { outline:none; border-color:rgba(47,224,141,.4);
     box-shadow:0 0 0 3px rgba(47,224,141,.08); }
-  select option { background:var(--panel2); }
+  select option { background:var(--card2); }
   textarea { min-height:70px; }
-  label { font-size:10.5px; font-weight:700; color:var(--grey); display:block; margin-bottom:4px;
+  label { font-size:10.5px; font-weight:700; color:var(--dim); display:block; margin-bottom:4px;
     font-family:var(--mono); letter-spacing:.1em; }
-  .b-primary { background:linear-gradient(180deg, #57F2AE, var(--green) 55%, #1FC77A); color:#04130B; width:100%;
+
+  /* ---------- layout: sidebar desktop / tabbar mobile ---------- */
+  .shell { display:block; }
+  #sidenav { display:none; }
+  #mobtabs { display:flex; gap:6px; overflow-x:auto; padding:10px 14px; position:sticky; top:0; z-index:20;
+    background:rgba(4,9,18,.85); backdrop-filter:blur(14px); border-bottom:1px solid var(--line); }
+  #mobtabs::-webkit-scrollbar { display:none; }
+  #mobtabs button { flex:0 0 auto; background:transparent; border:1px solid var(--line); color:var(--dim);
+    font-size:12px; padding:7px 12px; white-space:nowrap; }
+  #mobtabs button.on { background:rgba(47,224,141,.12); color:var(--verde); border-color:var(--line-v); }
+  .main { max-width:1180px; margin:0 auto; padding:22px 20px 60px; }
+  @media (min-width:1024px) {
+    .shell { display:grid; grid-template-columns:242px minmax(0,1fr); min-height:100vh; }
+    #mobtabs { display:none; }
+    #sidenav { display:flex; flex-direction:column; gap:4px; padding:22px 14px; position:sticky; top:0;
+      height:100vh; border-right:1px solid var(--line); background:rgba(4,9,18,.55); }
+    #sidenav .brand { font-family:'Archivo Black', sans-serif; font-size:19px; letter-spacing:.06em;
+      padding:2px 10px 4px; }
+    #sidenav .brand i { font-style:normal; color:var(--verde); text-shadow:0 0 16px rgba(47,224,141,.6); }
+    #sidenav .sub { font-family:var(--mono); font-size:8.5px; letter-spacing:.22em; color:var(--faint);
+      padding:0 10px 18px; }
+    #sidenav button { display:flex; align-items:center; gap:11px; background:transparent; color:var(--dim);
+      font-size:13.5px; font-weight:700; padding:11px 12px; border-radius:11px; text-align:left; }
+    #sidenav button svg { width:17px; height:17px; flex:0 0 auto; }
+    #sidenav button:hover { color:var(--text); background:var(--light); }
+    #sidenav button.on { color:var(--verde); background:rgba(47,224,141,.1); }
+    #sidenav .nb { margin-left:auto; font-family:var(--mono); font-size:10px; color:var(--amarelo);
+      background:rgba(242,179,61,.12); border-radius:99px; padding:1px 8px; }
+    #sidenav .foot { margin-top:auto; padding:10px; font-size:11px; color:var(--faint); font-family:var(--mono); word-break:break-all; }
+    #sidenav .foot button { padding:6px 10px; font-size:11px; margin-top:6px; border:1px solid var(--line); color:var(--dim); background:none; }
+  }
+
+  .card { background:var(--glass); border:1px solid var(--line); border-radius:var(--radius); padding:18px;
+    margin-bottom:14px; box-shadow:inset 0 1px 0 rgba(255,255,255,.04); }
+  .login { max-width:380px; margin:9vh auto; }
+  .login h2 { margin-bottom:14px; font-size:20px; font-family:'Archivo', sans-serif; }
+  .login a { color:var(--verde); }
+  .b-primary { background:linear-gradient(180deg, var(--verde2), var(--verde) 55%, #1FC77A); color:#04130B; width:100%;
     box-shadow:0 5px 24px rgba(47,224,141,.25); font-weight:800; padding:12px; }
-  .msg { font-size:13px; color:var(--red); min-height:18px; margin-top:6px; }
-  .tabs { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
-  .tabs button { background:transparent; border:1px solid var(--line); color:var(--grey); }
-  .tabs button.on { background:rgba(47,224,141,.12); color:var(--green); border-color:rgba(47,224,141,.35);
-    box-shadow:0 0 20px rgba(47,224,141,.08); }
+  .msg { font-size:13px; color:var(--vermelho); min-height:18px; margin-top:6px; }
+  .pagetitle { font-family:'Archivo Black', sans-serif; font-size:21px; letter-spacing:.14em; margin-bottom:4px; }
+  .pagesub { color:var(--dim); font-size:13px; margin-bottom:18px; }
   .filters { display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
-  .filters select { width:auto; margin:0; }
-  .prop { border-left:3px solid var(--blue); }
-  .prop .top { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:8px; }
+  .filters select, .filters input { width:auto; margin:0; min-width:130px; }
+  .count { font-size:12px; color:var(--dim); margin-bottom:12px; font-family:var(--mono); letter-spacing:.04em; }
+  .empty { text-align:center; color:var(--dim); padding:30px 10px; font-size:14px; }
+  .more { width:100%; background:transparent; border:1px dashed var(--line); color:var(--dim); }
+  .toast { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); color:#04130B;
+           padding:11px 18px; border-radius:10px; font-size:13px; font-weight:700; display:none; z-index:50; }
+  .hint { font-size:12px; color:var(--faint); margin-top:-6px; margin-bottom:8px; }
+  .meta { font-size:13px; color:var(--dim); margin:3px 0 8px; }
+  .nome { font-size:16px; font-weight:800; font-family:'Archivo', sans-serif; }
+  .acts { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+  .b-ghost { background:transparent; color:var(--dim); border:1px solid var(--line); }
+  .b-ghost:hover { color:var(--text); }
+  .b-ok { background:rgba(47,224,141,.14); color:var(--verde); border:1px solid rgba(47,224,141,.4); }
+  .b-ok:hover { background:rgba(47,224,141,.22); }
+  .b-edit { background:rgba(77,141,255,.14); color:var(--blue); border:1px solid rgba(77,141,255,.4); }
+  .b-merge { background:rgba(157,123,255,.14); color:var(--roxo); border:1px solid rgba(157,123,255,.4); }
+  .b-split { background:rgba(242,179,61,.12); color:var(--amarelo); border:1px solid rgba(242,179,61,.4); }
+  .b-no { background:transparent; color:var(--vermelho); border:1px solid rgba(237,90,90,.45); }
+  .b-no:hover { background:rgba(237,90,90,.1); }
+  .subform { background:rgba(8,14,26,.6); border:1px solid var(--line); border-radius:11px; padding:14px; margin-top:10px; }
+  .row2 { display:flex; gap:10px; } .row2 > * { flex:1; }
   .badge { font-size:9.5px; font-weight:700; padding:3px 10px; border-radius:6px; text-transform:uppercase;
     font-family:var(--mono); letter-spacing:.1em; color:var(--blue);
-    background:rgba(77,141,255,.12); border:1px solid rgba(77,141,255,.35); }
-  .badge.item { color:var(--gold); background:rgba(242,179,61,.1); border-color:rgba(242,179,61,.35); }
-  .badge.edge { color:var(--green); background:rgba(47,224,141,.1); border-color:rgba(47,224,141,.35); }
+    background:rgba(77,141,255,.12); border:1px solid rgba(77,141,255,.35); display:inline-block; }
+  .badge.item { color:var(--amarelo); background:rgba(242,179,61,.1); border-color:rgba(242,179,61,.35); }
+  .badge.edge { color:var(--verde); background:rgba(47,224,141,.1); border-color:rgba(47,224,141,.35); }
   .badge.edital_node { color:var(--roxo); background:rgba(157,123,255,.1); border-color:rgba(157,123,255,.35); }
-  .conf { font-size:11px; color:var(--grey); font-weight:700; font-family:var(--mono); }
-  .conf.baixa { color:var(--red); }
-  .nome { font-size:16px; font-weight:800; color:var(--text); font-family:'Archivo', sans-serif; }
-  .meta { font-size:13px; color:var(--grey); margin:3px 0 8px; }
-  .sins { font-size:12px; color:var(--grey); }
+  .badge.ouro { color:var(--ouro); background:rgba(245,197,66,.1); border-color:rgba(245,197,66,.4); }
+  .badge.red { color:var(--vermelho); background:rgba(237,90,90,.1); border-color:rgba(237,90,90,.4); }
+  .badge.grey { color:var(--dim); background:var(--light); border-color:var(--line); }
+  .conf { font-size:11px; color:var(--dim); font-weight:700; font-family:var(--mono); }
+  .conf.baixa { color:var(--vermelho); }
+  .sins { font-size:12px; color:var(--dim); }
   .sins span { background:var(--light); border:1px solid var(--line); border-radius:6px; padding:2px 9px;
     margin-right:5px; display:inline-block; margin-bottom:4px; }
   .evid { background:rgba(242,179,61,.07); border:1px solid rgba(242,179,61,.25); border-radius:9px;
     padding:9px 11px; font-size:13px; margin:8px 0; color:#E8D5AC; }
-  .acts { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
-  .b-ok { background:rgba(47,224,141,.14); color:var(--green); border:1px solid rgba(47,224,141,.4); }
-  .b-ok:hover { background:rgba(47,224,141,.22); }
-  .b-edit { background:rgba(77,141,255,.14); color:var(--blue); border:1px solid rgba(77,141,255,.4); }
-  .b-merge { background:rgba(157,123,255,.14); color:var(--roxo); border:1px solid rgba(157,123,255,.4); }
-  .b-split { background:rgba(242,179,61,.12); color:var(--gold); border:1px solid rgba(242,179,61,.4); }
-  .b-no { background:transparent; color:var(--red); border:1px solid rgba(237,90,90,.45); }
-  .b-no:hover { background:rgba(237,90,90,.1); }
-  .subform { background:rgba(8,14,26,.6); border:1px solid var(--line); border-radius:11px; padding:14px; margin-top:10px; }
-  .row2 { display:flex; gap:10px; } .row2 > * { flex:1; }
-  .empty { text-align:center; color:var(--grey); padding:30px 10px; font-size:14px; }
-  .more { width:100%; background:transparent; border:1px dashed var(--line); color:var(--grey); }
-  .count { font-size:12px; color:var(--grey); margin-bottom:12px; font-family:var(--mono); letter-spacing:.04em; }
-  .toast { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); color:#04130B;
-           padding:11px 18px; border-radius:10px; font-size:13px; font-weight:700; display:none; z-index:50; }
-  .hint { font-size:12px; color:var(--faint); margin-top:-6px; margin-bottom:8px; }
+  .prop { border-left:3px solid var(--blue); }
+
+  /* dashboard */
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:16px; }
+  .kpi { background:var(--glass); border:1px solid var(--line); border-radius:13px; padding:14px; cursor:pointer; }
+  .kpi:hover { border-color:var(--line-v); }
+  .kpi .v { font-family:'Archivo Black', sans-serif; font-size:24px; }
+  .kpi .k { font-family:var(--mono); font-size:8.5px; letter-spacing:.18em; color:var(--dim); margin-top:3px; }
+  .kpi.warn .v { color:var(--amarelo); } .kpi.bad .v { color:var(--vermelho); } .kpi.good .v { color:var(--verde); }
+  table.tb { width:100%; border-collapse:collapse; font-size:13px; }
+  table.tb th { text-align:left; font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:var(--dim);
+    padding:7px 8px; border-bottom:1px solid var(--line); }
+  table.tb td { padding:8px; border-bottom:1px solid rgba(132,170,214,.07); }
+  .bar { height:5px; border-radius:99px; background:rgba(132,170,214,.12); overflow:hidden; min-width:70px; }
+  .bar i { display:block; height:100%; background:var(--verde); }
+
+  /* árvore do edital */
+  .disc { margin-bottom:6px; }
+  .disc > .dh { display:flex; align-items:center; gap:10px; cursor:pointer; padding:9px 10px; border-radius:9px; }
+  .disc > .dh:hover { background:var(--light); }
+  .disc > .dh b { font-family:'Archivo', sans-serif; font-size:14.5px; }
+  .disc .body { display:none; padding-left:12px; }
+  .disc.open .body { display:block; }
+  .ass { font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; color:var(--dim); margin:9px 0 3px; }
+  .top-row { display:flex; align-items:center; gap:9px; padding:5px 8px; border-radius:8px; font-size:13px; }
+  .top-row:hover { background:var(--light); }
+  .top-row .pw { font-family:var(--mono); font-size:11px; color:var(--dim); min-width:52px; text-align:right; }
+  .top-row .ov { width:64px; margin:0; padding:4px 7px; font-size:12px; }
+  .top-row .cov { font-family:var(--mono); font-size:10px; color:var(--faint); min-width:58px; }
+  .dot-ouro { width:8px; height:10px; border-radius:50% 50% 50% 50%/62% 62% 40% 40%; background:var(--ouro);
+    box-shadow:0 0 8px var(--ouro); flex:0 0 auto; }
+
+  .qenun { font-size:14px; line-height:1.5; }
+  .gab { font-family:var(--mono); font-size:11px; }
+  .gab.c { color:var(--verde); } .gab.e { color:var(--vermelho); }
+  details.det { margin-top:8px; }
+  details.det summary { cursor:pointer; color:var(--dim); font-size:12px; }
+  .mono { font-family:var(--mono); }
 </style>
 </head>
 <body>
-<header>
-  <h1>DOMINE<i>I</i></h1><span class="tag">Painel de Curadoria</span>
-  <span class="spacer"></span>
-  <span class="who" id="who"></span>
-  <button class="b-ghost" id="btnSair" style="display:none">Sair</button>
-</header>
-
-<div class="wrap">
-  <!-- LOGIN -->
-  <div class="card login" id="viewLogin" style="display:none">
-    <h2 id="loginTitle">Entrar</h2>
-    <label>E-mail</label><input id="email" type="email" autocomplete="username">
-    <label>Senha</label><input id="senha" type="password" autocomplete="current-password">
-    <button class="b-primary" id="btnEntrar">Entrar</button>
-    <div class="msg" id="loginMsg"></div>
-    <p style="font-size:12px;color:var(--grey);margin-top:8px">
-      Primeira vez? <a href="#" id="lnkModo">Criar conta</a> (o acesso é liberado apenas para e-mails da equipe.)
-    </p>
-  </div>
-
-  <!-- SEM ACESSO -->
-  <div class="card" id="viewNoAccess" style="display:none">
-    <div class="empty">Sua conta foi criada, mas este e-mail não está na lista da equipe.<br>Fale com o Fábio para liberar o acesso.</div>
-  </div>
-
-  <!-- APP -->
-  <div id="viewApp" style="display:none">
-    <div class="tabs">
-      <button id="tabProps" class="on">Propostas <span id="nProps"></span></button>
-      <button id="tabReports">Reports de questão <span id="nReports"></span></button>
-    </div>
-
-    <div id="paneProps">
-      <div class="filters">
-        <select id="fTipo">
-          <option value="">Todos os tipos</option>
-          <option value="node">Tópicos (nós)</option>
-          <option value="edge">Conexões</option>
-          <option value="edital_node">Pesos do edital</option>
-          <option value="item">Questões</option>
-        </select>
-        <select id="fEdital"><option value="">Todos os editais</option></select>
+<div class="shell">
+  <nav id="sidenav" style="visibility:hidden">
+    <div class="brand">DOMINE<i>I</i></div>
+    <div class="sub">ADMINISTRAÇÃO</div>
+    <div id="navBtns"></div>
+    <div class="foot"><span id="who2"></span><br><button id="btnSair2">Sair</button></div>
+  </nav>
+  <div>
+    <div id="mobtabs" style="display:none"></div>
+    <div class="main">
+      <!-- LOGIN -->
+      <div class="card login" id="viewLogin" style="display:none">
+        <h2 id="loginTitle">Entrar</h2>
+        <label>E-mail</label><input id="email" type="email" autocomplete="username">
+        <label>Senha</label><input id="senha" type="password" autocomplete="current-password">
+        <button class="b-primary" id="btnEntrar">Entrar</button>
+        <div class="msg" id="loginMsg"></div>
+        <p style="font-size:12px;color:var(--dim);margin-top:8px">
+          Primeira vez? <a href="#" id="lnkModo">Criar conta</a> (o acesso é liberado apenas para e-mails da equipe.)
+        </p>
       </div>
-      <div class="count" id="propCount"></div>
-      <div id="listaProps"></div>
-      <button class="more" id="maisProps" style="display:none">Carregar mais</button>
-    </div>
-
-    <div id="paneReports" style="display:none">
-      <div id="listaReports"></div>
-      <button class="more" id="maisReports" style="display:none">Carregar mais</button>
+      <!-- SEM ACESSO -->
+      <div class="card" id="viewNoAccess" style="display:none">
+        <div class="empty">Sua conta foi criada, mas este e-mail não está na lista da equipe.<br>Fale com o Fábio para liberar o acesso.</div>
+      </div>
+      <!-- APP: panes gerados pelo registry -->
+      <div id="viewApp" style="display:none"></div>
     </div>
   </div>
 </div>
@@ -153,34 +190,112 @@
 <script>
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
+const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
 const sb = supabase.createClient(SB_URL, SB_KEY);
 const $ = (id) => document.getElementById(id);
 const PAGE = 50;                       // regra da casa: toda lista paginada
-let modoCadastro = false, offProps = 0, offReports = 0, editais = {}, nodeCache = {};
+let modoCadastro = false, editais = {}, propCache = {}, bancasCache = [], provasCache = [];
 
-function toast(t, ok=true) {
+function toast(t, ok = true) {
   const el = $('toast'); el.textContent = t;
-  el.style.background = ok ? 'var(--green)' : 'var(--red)';
+  el.style.background = ok ? 'var(--verde)' : 'var(--vermelho)';
   el.style.color = ok ? '#04130B' : '#fff';
   el.style.display = 'block';
   setTimeout(() => el.style.display = 'none', 3200);
 }
 const esc = (s) => (s ?? '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pct = (x) => Math.round((x ?? 0) * 1000) / 10;
+
+// ---------- fábrica de lista paginada ----------
+function criarLista({ mount, fetch, render, countEl }) {
+  let off = 0, total = 0;
+  const box = $(mount);
+  async function load() {
+    const r = await fetch(off, PAGE);
+    if (!r) return;
+    total = r.total ?? 0;
+    if (countEl) $(countEl).textContent = total ? `${total} registro(s)` : '';
+    if (!total && off === 0) box.insertAdjacentHTML('beforeend', '<div class="card empty">Nada por aqui.</div>');
+    (r.rows || []).forEach(x => box.insertAdjacentHTML('beforeend', render(x)));
+    off += PAGE;
+    let more = box.parentElement.querySelector('.more');
+    if (more) more.style.display = (total && off < total) ? 'block' : 'none';
+  }
+  return {
+    reset() { off = 0; total = 0; box.innerHTML = ''; return this; },
+    load, get total() { return total; },
+  };
+}
+
+// ---------- ícones (SVG stroke, zero emoji) ----------
+const IC = {
+  visao: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>',
+  editais: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h7"/></svg>',
+  provas: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5M4 4l3 3M20 4l-3 3"/></svg>',
+  bancas: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V10l7-6 7 6v11M9 21v-6h6v6"/></svg>',
+  itens: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6l1.5 1.5L7 5M3 12l1.5 1.5L7 11M3 18l1.5 1.5L7 17"/></svg>',
+  qualidade: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>',
+  propostas: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+  solicitacoes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-8M12 12l-3 3M12 12l3 3"/><path d="M4 4h16M4 8h16"/></svg>',
+};
+
+// ---------- registry de abas + hash deep-link ----------
+const TABS = [
+  { id: 'visao',        label: 'Visão Geral',  ic: 'visao',        load: loadVisao },
+  { id: 'editais',      label: 'Editais',      ic: 'editais',      load: loadEditais },
+  { id: 'provas',       label: 'Provas',       ic: 'provas',       load: loadProvas },
+  { id: 'bancas',       label: 'Bancas',       ic: 'bancas',       load: loadBancas },
+  { id: 'itens',        label: 'Itens',        ic: 'itens',        load: loadItens },
+  { id: 'qualidade',    label: 'Qualidade',    ic: 'qualidade',    load: loadQualidade },
+  { id: 'propostas',    label: 'Propostas',    ic: 'propostas',    load: loadPropostas },
+  { id: 'solicitacoes', label: 'Solicitações', ic: 'solicitacoes', load: loadSolicitacoes },
+];
+let abaAtual = null, hashParams = {};
+
+function montarNav() {
+  $('navBtns').innerHTML = TABS.map(t =>
+    `<button data-tab="${t.id}">${IC[t.ic]}<span>${t.label}</span><span class="nb" id="nb-${t.id}" style="display:none"></span></button>`).join('');
+  $('mobtabs').innerHTML = TABS.map(t => `<button data-tab="${t.id}">${t.label}</button>`).join('');
+  $('viewApp').innerHTML = TABS.map(t => `<section id="pane-${t.id}" style="display:none"></section>`).join('');
+  document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => irPara(b.dataset.tab));
+}
+function irPara(id, params = {}) {
+  const qs = Object.entries(params).filter(([, v]) => v != null && v !== '')
+    .map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+  location.hash = `#/${id}${qs ? '?' + qs : ''}`;
+}
+function parseHash() {
+  const m = location.hash.match(/^#\/([a-z]+)(?:\?(.*))?$/);
+  hashParams = {};
+  if (m && m[2]) m[2].split('&').forEach(p => { const [k, v] = p.split('='); hashParams[k] = decodeURIComponent(v ?? ''); });
+  return (m && TABS.find(t => t.id === m[1])) ? m[1] : 'visao';
+}
+function ativarAba(id) {
+  abaAtual = id;
+  TABS.forEach(t => $('pane-' + t.id).style.display = t.id === id ? 'block' : 'none');
+  document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === id));
+  const tab = TABS.find(t => t.id === id);
+  tab.load();
+}
+window.addEventListener('hashchange', () => { if ($('viewApp').style.display !== 'none') ativarAba(parseHash()); });
 
 // ---------- sessão ----------
 async function boot() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { show('viewLogin'); return; }
-  $('who').textContent = session.user.email;
-  $('btnSair').style.display = 'inline-block';
   const { data: staff } = await sb.rpc('fn_is_staff');
   if (!staff) { show('viewNoAccess'); return; }
+  $('who2').textContent = session.user.email;
+  montarNav();
   show('viewApp');
+  $('sidenav').style.visibility = 'visible';
+  $('mobtabs').style.display = window.innerWidth >= 1024 ? 'none' : 'flex';
   await carregarEditais();
-  resetProps(); resetReports(); loadProps(); loadReports();
+  ativarAba(parseHash());
+  atualizarBadges();
 }
 function show(id) {
-  ['viewLogin','viewNoAccess','viewApp'].forEach(v => $(v).style.display = v === id ? 'block' : 'none');
+  ['viewLogin', 'viewNoAccess', 'viewApp'].forEach(v => $(v).style.display = v === id ? 'block' : 'none');
 }
 $('lnkModo').onclick = (e) => { e.preventDefault(); modoCadastro = !modoCadastro;
   $('loginTitle').textContent = modoCadastro ? 'Criar conta' : 'Entrar';
@@ -196,57 +311,604 @@ $('btnEntrar').onclick = async () => {
   if (modoCadastro) { $('loginMsg').textContent = 'Conta criada. Confirme pelo e-mail e entre.'; modoCadastro = false; return; }
   boot();
 };
-$('btnSair').onclick = async () => { await sb.auth.signOut(); location.reload(); };
-
-// ---------- abas / filtros ----------
-$('tabProps').onclick = () => { $('tabProps').classList.add('on'); $('tabReports').classList.remove('on');
-  $('paneProps').style.display = 'block'; $('paneReports').style.display = 'none'; };
-$('tabReports').onclick = () => { $('tabReports').classList.add('on'); $('tabProps').classList.remove('on');
-  $('paneReports').style.display = 'block'; $('paneProps').style.display = 'none'; };
-$('fTipo').onchange = () => { resetProps(); loadProps(); };
-$('fEdital').onchange = () => { resetProps(); loadProps(); };
+$('btnSair2').onclick = async () => { await sb.auth.signOut(); location.hash = ''; location.reload(); };
 
 async function carregarEditais() {
-  const { data } = await sb.from('editais').select('id, concurso, cargo').order('created_at').range(0, 199);
-  (data || []).forEach(e => { editais[e.id] = `${e.concurso} · ${e.cargo}`;
-    $('fEdital').insertAdjacentHTML('beforeend', `<option value="${e.id}">${esc(e.concurso)} · ${esc(e.cargo)}</option>`); });
-}
-
-// ---------- propostas ----------
-function resetProps() { offProps = 0; $('listaProps').innerHTML = ''; }
-async function loadProps() {
-  let q = sb.from('curadoria_propostas')
-    .select('*', { count: 'exact' })
-    .eq('status', 'pendente')
-    .order('confianca_ia', { ascending: true, nullsFirst: false })
-    .range(offProps, offProps + PAGE - 1);
-  if ($('fTipo').value) q = q.eq('tipo', $('fTipo').value);
-  if ($('fEdital').value) q = q.eq('edital_id', $('fEdital').value);
-  const { data, count, error } = await q;
+  const { data, error } = await sb.rpc('fn_admin_editais_listar');
   if (error) { toast(error.message, false); return; }
-  $('nProps').textContent = `(${count ?? 0})`;
-  $('propCount').textContent = count ? `${count} proposta(s) pendente(s) — as de menor confiança primeiro` : '';
-  if (!count) $('listaProps').innerHTML = '<div class="card empty">Fila limpa. Nenhuma proposta pendente.</div>';
-  (data || []).forEach(renderProp);
-  offProps += PAGE;
-  $('maisProps').style.display = (count && offProps < count) ? 'block' : 'none';
+  editais = {};
+  (data || []).forEach(e => editais[e.id] = e);
 }
-$('maisProps').onclick = loadProps;
+async function atualizarBadges() {
+  const { data } = await sb.rpc('fn_admin_dashboard');
+  if (!data) return;
+  const set = (id, n) => { const el = $('nb-' + id); if (el) { el.textContent = n; el.style.display = n > 0 ? 'inline-block' : 'none'; } };
+  set('qualidade', (data.reports_abertos ?? 0) + (data.itens_suspensos ?? 0));
+  set('propostas', data.propostas_pendentes ?? 0);
+  set('solicitacoes', data.solicitacoes_abertas ?? 0);
+}
 
+// =====================================================================
+// VISÃO GERAL
+// =====================================================================
+async function loadVisao() {
+  const pane = $('pane-visao');
+  pane.innerHTML = '<div class="pagetitle">V I S Ã O &nbsp; G E R A L</div><div class="pagesub">O estado da operação num relance.</div><div class="empty">carregando…</div>';
+  const { data: d, error } = await sb.rpc('fn_admin_dashboard');
+  if (error) { pane.innerHTML = `<div class="card empty">${esc(error.message)}</div>`; return; }
+  const eds = d.editais || [];
+  pane.innerHTML = `
+    <div class="pagetitle">V I S Ã O &nbsp; G E R A L</div>
+    <div class="pagesub">O estado da operação num relance.</div>
+    <div class="kpis">
+      <div class="kpi ${d.reports_abertos ? 'warn' : 'good'}" onclick="irPara('qualidade')"><div class="v">${d.reports_abertos}</div><div class="k">REPORTS ABERTOS</div></div>
+      <div class="kpi ${d.itens_suspensos ? 'bad' : 'good'}" onclick="irPara('qualidade')"><div class="v">${d.itens_suspensos}</div><div class="k">ITENS SUSPENSOS</div></div>
+      <div class="kpi ${d.propostas_pendentes ? 'warn' : 'good'}" onclick="irPara('propostas')"><div class="v">${d.propostas_pendentes}</div><div class="k">PROPOSTAS PENDENTES</div></div>
+      <div class="kpi" onclick="irPara('solicitacoes')"><div class="v">${d.solicitacoes_abertas}</div><div class="k">SOLICITAÇÕES</div></div>
+      <div class="kpi" onclick="irPara('provas')"><div class="v">${d.provas}</div><div class="k">PROVAS OFICIAIS</div></div>
+      <div class="kpi" onclick="irPara('bancas')"><div class="v">${d.bancas}</div><div class="k">BANCAS</div></div>
+    </div>
+    <div class="card">
+      <table class="tb"><thead><tr><th>EDITAL</th><th>STATUS</th><th>TÓPICOS</th><th>COBERTURA DE SONDAS</th><th>OFICIAIS</th><th>IA</th><th>PEND. TEXTO</th></tr></thead>
+      <tbody>${eds.map(e => `
+        <tr style="cursor:pointer" onclick="irPara('editais',{edital:'${e.id}'})">
+          <td><b>${esc(e.concurso)}</b><br><span class="meta">${esc(e.cargo || '')}</span></td>
+          <td><span class="badge ${e.status === 'publicado' ? 'edge' : 'grey'}">${esc(e.status)}</span></td>
+          <td class="mono">${e.topicos}</td>
+          <td><div class="bar"><i style="width:${e.topicos ? Math.round(e.cobertos_1 / e.topicos * 100) : 0}%"></i></div>
+            <span class="meta mono">${e.cobertos_1}/${e.topicos} (≥3: ${e.cobertos_3})</span></td>
+          <td class="mono">${e.oficiais}</td><td class="mono">${e.sondas_ia}</td>
+          <td class="mono" style="color:${e.pendentes_texto ? 'var(--amarelo)' : 'var(--faint)'}">${e.pendentes_texto}</td>
+        </tr>`).join('')}</tbody></table>
+    </div>
+    <div class="card meta">Última execução da saúde: ${d.ultima_saude
+      ? `${new Date(d.ultima_saude.created_at).toLocaleString('pt-BR')} (${esc(d.ultima_saude.origem)}, ${d.ultima_saude.suspensos} suspensos de ${d.ultima_saude.avaliados} avaliados)`
+      : 'nunca'} · cron diário às 03:00 (Manaus)</div>`;
+}
+
+// =====================================================================
+// EDITAIS
+// =====================================================================
+async function loadEditais() {
+  const pane = $('pane-editais');
+  const foco = hashParams.edital;
+  await carregarEditais();
+  const lista = Object.values(editais);
+  pane.innerHTML = `
+    <div class="pagetitle">E D I T A I S</div>
+    <div class="pagesub">A lente de cada concurso: estrutura, pesos e cobertura.</div>
+    <div class="card">
+      <div class="acts" style="margin:0 0 10px">
+        <select id="edSel" style="flex:1;margin:0">${lista.map(e =>
+          `<option value="${e.id}" ${e.id === foco ? 'selected' : ''}>${esc(e.concurso)} · ${esc(e.cargo || '')} (${e.status})</option>`).join('')}</select>
+        <button class="b-ghost" id="btnNovoEdital">+ Novo edital</button>
+      </div>
+      <div id="edNovoBox" style="display:none"></div>
+      <div id="edDetalhe"></div>
+    </div>`;
+  $('edSel').onchange = () => renderEdital($('edSel').value);
+  $('btnNovoEdital').onclick = () => {
+    const b = $('edNovoBox'); b.style.display = b.style.display === 'none' ? 'block' : 'none';
+    b.innerHTML = `<div class="subform">
+      <div class="row2"><div><label>Concurso</label><input id="ne-conc" placeholder="ex.: PF"></div>
+      <div><label>Cargo</label><input id="ne-cargo" placeholder="ex.: Agente"></div></div>
+      <div class="row2"><div><label>Banca</label><select id="ne-banca">${bancasCache.map(b2 => `<option value="${b2.id}">${esc(b2.nome)}</option>`).join('')}</select></div>
+      <div><label>Data da prova (opcional)</label><input id="ne-data" type="date"></div></div>
+      <button class="b-ok" id="btnCriarEdital">Criar (rascunho)</button></div>`;
+    if (!bancasCache.length) sb.rpc('fn_admin_bancas_listar').then(({ data }) => {
+      bancasCache = data || [];
+      $('ne-banca').innerHTML = bancasCache.map(b2 => `<option value="${b2.id}">${esc(b2.nome)}</option>`).join('');
+    });
+    $('btnCriarEdital').onclick = async () => {
+      const { data, error } = await sb.rpc('fn_admin_edital_salvar', { p: {
+        concurso: $('ne-conc').value.trim(), cargo: $('ne-cargo').value.trim(),
+        banca_id: $('ne-banca').value || null, data_prova: $('ne-data').value || null } });
+      if (error) { toast(error.message, false); return; }
+      toast('Edital criado (rascunho) — a estrutura entra pela pipeline de curadoria.');
+      loadEditais();
+    };
+  };
+  const alvo = foco || (lista[0] && lista[0].id);
+  if (alvo) renderEdital(alvo);
+}
+async function renderEdital(id) {
+  const box = $('edDetalhe');
+  box.innerHTML = '<div class="empty">carregando estrutura…</div>';
+  const { data: d, error } = await sb.rpc('fn_admin_edital_detalhe', { p_edital: id });
+  if (error) { box.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
+  const e = d.edital || {};
+  const st = e.status;
+  box.innerHTML = `
+    <div class="acts" style="margin-bottom:10px">
+      ${['rascunho','curadoria','publicado','arquivado'].map(s =>
+        `<button class="${s === st ? 'b-ok' : 'b-ghost'}" onclick="mudarStatusEdital('${id}','${s}')">${s}</button>`).join('')}
+      <span style="flex:1"></span>
+      <button class="b-split" onclick="abrirGerarSondas('${id}')">Gerar sondas em lote</button>
+    </div>
+    <div id="gsBox"></div>
+    <div id="edArvore">${(d.estrutura || []).map((disc, i) => `
+      <div class="disc" id="disc-${i}">
+        <div class="dh" onclick="$('disc-${i}').classList.toggle('open')">
+          <b>${esc(disc.disciplina)}</b>
+          <span class="meta mono">${(disc.assuntos || []).reduce((s, a) => s + (a.topicos || []).length, 0)} tópicos</span>
+        </div>
+        <div class="body">${(disc.assuntos || []).map(a => `
+          <div class="ass">${esc(a.assunto)}</div>
+          ${(a.topicos || []).map(t => `
+            <div class="top-row">
+              ${t.ovo ? '<span class="dot-ouro" title="Ovo de Ouro"></span>' : '<span style="width:8px"></span>'}
+              <span style="flex:1">${esc(t.nome)}</span>
+              <span class="cov" title="sondas aprovadas / itens oficiais">s:${t.n_sondas} o:${t.n_oficiais}</span>
+              <span class="pw" title="peso efetivo">${pct(t.peso_override ?? t.peso)}%</span>
+              <input class="ov" type="number" min="0" max="100" step="0.1" placeholder="ovr"
+                value="${t.peso_override != null ? pct(t.peso_override) : ''}"
+                onchange="salvarOverride('${id}','${t.node_id}', this.value)">
+            </div>`).join('')}`).join('')}
+        </div>
+      </div>`).join('')}</div>
+    <div class="hint" style="margin-top:8px">Override em % (vazio = usar o peso calculado). O motor usa coalesce(override, peso).</div>`;
+}
+async function mudarStatusEdital(id, s) {
+  const { error } = await sb.rpc('fn_admin_edital_status', { p_id: id, p_status: s });
+  if (error) { toast(error.message, false); return; }
+  toast('Status atualizado ✓'); renderEdital(id); carregarEditais();
+}
+async function salvarOverride(edital, node, v) {
+  const val = v === '' ? null : Math.min(100, Math.max(0, parseFloat(v))) / 100;
+  const { error } = await sb.rpc('fn_admin_peso_override', { p_edital: edital, p_node: node, p_override: val });
+  if (error) { toast(error.message, false); return; }
+  toast(val == null ? 'Override removido' : 'Override salvo ✓');
+}
+async function abrirGerarSondas(edital) {
+  const box = $('gsBox');
+  box.innerHTML = `<div class="subform">
+    <div class="row2">
+      <div><label>Sondas por tópico (piso)</label><input id="gs-min" type="number" min="1" max="3" value="1"></div>
+      <div><label>Tópicos por rodada</label><input id="gs-lote" type="number" min="1" max="10" value="6"></div>
+    </div>
+    <button class="b-ok" id="gsRun">Rodar geração agora</button>
+    <div class="meta" id="gsOut" style="margin-top:8px"></div></div>`;
+  $('gsRun').onclick = async () => {
+    $('gsOut').textContent = 'gerando… (a IA escreve e o verificador reprova na dúvida — pode levar 1-2 min)';
+    try {
+      const token = (await sb.rpc('fn_admin_jobs_token')).data;
+      const r = await fetch(EDGE_SONDAS, { method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-jobs-token': token },
+        body: JSON.stringify({ edital_id: edital, por_topico: +$('gs-min').value, lote: +$('gs-lote').value }) });
+      const j = await r.json();
+      if (j.status === 'completo') { $('gsOut').textContent = 'Cobertura completa neste piso — nada a gerar.'; return; }
+      $('gsOut').textContent = `Publicadas: ${j.publicados} · reprovadas pelo verificador: ${j.reprovados_pelo_verificador} · tópicos ainda pendentes: ${j.topicos_ainda_pendentes}`;
+      renderEdital(edital);
+    } catch (e) { $('gsOut').textContent = 'erro: ' + e.message; }
+  };
+}
+
+// =====================================================================
+// PROVAS
+// =====================================================================
+async function loadProvas() {
+  const pane = $('pane-provas');
+  pane.innerHTML = `
+    <div class="pagetitle">P R O V A S</div>
+    <div class="pagesub">Provas oficiais por edital — gabarito, classificação e refino dos pesos.</div>
+    <div class="acts" style="margin-bottom:12px">
+      <button class="b-ghost" id="btnNovaProva">+ Cadastrar prova</button>
+      <button class="b-split" id="btnRefino">Rodar refino de pesos</button>
+    </div>
+    <div id="pvForm"></div><div id="pvRefino"></div><div id="pvLista"><div class="empty">carregando…</div></div>`;
+  $('btnNovaProva').onclick = abrirNovaProva;
+  $('btnRefino').onclick = abrirRefino;
+  const { data, error } = await sb.rpc('fn_admin_provas_listar');
+  if (error) { $('pvLista').innerHTML = `<div class="card empty">${esc(error.message)}</div>`; return; }
+  provasCache = data || [];
+  $('pvLista').innerHTML = provasCache.map(p => `
+    <div class="card">
+      <div class="nome">${esc(p.concurso)} ${p.ano}${p.codigo ? ` <span class="badge grey">${esc(p.codigo)}</span>` : ''}</div>
+      <div class="meta">${esc(p.banca)} · ${esc(p.cargo || '')} · edital: ${esc(editais[p.edital_id]?.concurso || '—')}</div>
+      <div class="meta mono">itens: ${p.total_itens ?? '—'} · classificados: ${p.classificados} · importados: ${p.importados}
+        (${p.aprovados} aprovados${p.pendentes_texto ? `, <span style="color:var(--amarelo)">${p.pendentes_texto} pendentes de texto</span>` : ''})
+        · textos-base: ${p.textos}</div>
+      ${p.obs ? `<div class="hint">${esc(p.obs)}</div>` : ''}
+      <div class="acts">
+        <button class="b-ghost" onclick="irPara('itens',{prova:'${p.id}'})">Ver itens</button>
+        ${p.pendentes_texto ? `<button class="b-split" onclick="irPara('itens',{prova:'${p.id}',pend:'1'})">Pendências (${p.pendentes_texto})</button>` : ''}
+      </div>
+    </div>`).join('') || '<div class="card empty">Nenhuma prova cadastrada.</div>';
+}
+function abrirNovaProva() {
+  const b = $('pvForm');
+  b.innerHTML = `<div class="card"><div class="nome" style="margin-bottom:8px">Nova prova</div>
+    <div class="row2"><div><label>Concurso</label><input id="np-conc" placeholder="PRF"></div>
+    <div><label>Ano</label><input id="np-ano" type="number" placeholder="2021"></div>
+    <div><label>Código do caderno</label><input id="np-cod" placeholder="(vazio, ing, esp…)"></div></div>
+    <div class="row2">
+      <div><label>Banca</label><select id="np-banca"></select></div>
+      <div><label>Edital (lente)</label><select id="np-edital">${Object.values(editais).map(e =>
+        `<option value="${e.id}">${esc(e.concurso)} · ${esc(e.cargo || '')}</option>`).join('')}</select></div></div>
+    <label>Gabarito (JSON {"1":"C","2":"E","3":"X"})</label><textarea id="np-gab" placeholder='{"1":"C"}'></textarea>
+    <label>Classificação (JSON {"1":"node_id-do-tópico"})</label><textarea id="np-cls" placeholder='{"1":"uuid"}'></textarea>
+    <label>Fonte (URL do PDF oficial)</label><input id="np-fonte">
+    <button class="b-ok" id="npSalvar">Salvar prova</button></div>`;
+  sb.rpc('fn_admin_bancas_listar').then(({ data }) => {
+    bancasCache = data || [];
+    $('np-banca').innerHTML = bancasCache.map(x => `<option value="${x.id}">${esc(x.nome)}</option>`).join('');
+  });
+  $('npSalvar').onclick = async () => {
+    let gab = {}, cls = {};
+    try { gab = $('np-gab').value.trim() ? JSON.parse($('np-gab').value) : {}; } catch { toast('Gabarito: JSON inválido', false); return; }
+    try { cls = $('np-cls').value.trim() ? JSON.parse($('np-cls').value) : {}; } catch { toast('Classificação: JSON inválido', false); return; }
+    const { error } = await sb.rpc('fn_admin_prova_salvar', { p: {
+      concurso: $('np-conc').value.trim(), ano: +$('np-ano').value, codigo: $('np-cod').value.trim(),
+      banca_id: $('np-banca').value, edital_id: $('np-edital').value,
+      gabarito: gab, classificacao: cls, total_itens: Object.keys(gab).length || null,
+      fonte_url: $('np-fonte').value.trim() || null } });
+    if (error) { toast(error.message, false); return; }
+    toast('Prova salva ✓'); $('pvForm').innerHTML = ''; loadProvas();
+  };
+}
+function abrirRefino() {
+  const b = $('pvRefino');
+  b.innerHTML = `<div class="card"><div class="nome" style="margin-bottom:8px">Refino empírico dos pesos</div>
+    <div class="hint">peso = normalizado(0.4 × professor + 0.6 × frequência real nas provas). Overrides manuais são preservados.</div>
+    <div class="row2"><select id="rf-edital" style="margin:0">${Object.values(editais).map(e =>
+      `<option value="${e.id}">${esc(e.concurso)} · ${esc(e.cargo || '')}</option>`).join('')}</select>
+    <button class="b-ok" id="rfRun">Rodar refino</button></div>
+    <div class="meta" id="rfOut" style="margin-top:8px"></div></div>`;
+  $('rfRun').onclick = async () => {
+    $('rfOut').textContent = 'refinando…';
+    const { data, error } = await sb.rpc('fn_refinar_pesos', { p_edital: $('rf-edital').value });
+    if (error) { $('rfOut').textContent = 'erro: ' + error.message; return; }
+    $('rfOut').textContent = `${data.topicos} tópicos atualizados · ${data.overrides_preservados} overrides preservados · ${data.soma_freq} classificações de ${data.provas_usadas} prova(s)`;
+    toast('Pesos refinados ✓');
+  };
+}
+
+// =====================================================================
+// BANCAS
+// =====================================================================
+async function loadBancas() {
+  const pane = $('pane-bancas');
+  pane.innerHTML = `
+    <div class="pagetitle">B A N C A S</div>
+    <div class="pagesub">Cada banca com seus modelos de questão — o gerador de sondas escreve no estilo dela.</div>
+    <div class="acts" style="margin-bottom:12px"><button class="b-ghost" id="btnNovaBanca">+ Nova banca</button></div>
+    <div id="bcForm"></div><div id="bcLista"><div class="empty">carregando…</div></div>`;
+  $('btnNovaBanca').onclick = () => {
+    $('bcForm').innerHTML = `<div class="card"><label>Nome da banca</label><input id="nb-nome" placeholder="ex.: FGV">
+      <button class="b-ok" id="nbSalvar">Criar</button></div>`;
+    $('nbSalvar').onclick = async () => {
+      const { error } = await sb.rpc('fn_admin_banca_salvar', { p: { nome: $('nb-nome').value.trim() } });
+      if (error) { toast(error.message, false); return; }
+      toast('Banca criada ✓'); $('bcForm').innerHTML = ''; loadBancas();
+    };
+  };
+  const { data, error } = await sb.rpc('fn_admin_bancas_listar');
+  if (error) { $('bcLista').innerHTML = `<div class="card empty">${esc(error.message)}</div>`; return; }
+  bancasCache = data || [];
+  $('bcLista').innerHTML = bancasCache.map(b => `
+    <div class="card">
+      <div class="nome">${esc(b.nome)}</div>
+      <div class="meta mono">${b.editais} edital(is) · ${b.provas} prova(s) · ${(b.modelos || []).length} modelo(s)</div>
+      <div id="mods-${b.id}">${(b.modelos || []).map(m => `
+        <div class="subform" style="margin-top:8px">
+          <div class="row2" style="align-items:center">
+            <b>${esc(m.titulo)}</b>
+            <span class="badge ${m.ativo ? 'edge' : 'grey'}">${m.ativo ? 'ativo' : 'inativo'}</span>
+            <button class="b-ghost" onclick="toggleModelo('${m.id}', ${!m.ativo})">${m.ativo ? 'Desativar' : 'Ativar'}</button>
+            <button class="b-edit" onclick="abrirModelo('${b.id}', ${JSON.stringify(m).replace(/"/g, '&quot;')})">Editar</button>
+          </div>
+          <div class="meta" style="white-space:pre-wrap">${esc(m.instrucoes)}</div>
+          ${(m.exemplos || []).length ? `<details class="det"><summary>${m.exemplos.length} exemplo(s)</summary>${m.exemplos.map(x =>
+            `<div class="evid">${esc(x.enunciado)}<br><span class="gab ${x.gabarito === 'certo' ? 'c' : 'e'}">GABARITO: ${esc(x.gabarito)}</span></div>`).join('')}</details>` : ''}
+        </div>`).join('')}</div>
+      <div class="acts"><button class="b-split" onclick="abrirModelo('${b.id}', null)">+ Modelo de questão</button></div>
+    </div>`).join('') || '<div class="card empty">Nenhuma banca.</div>';
+}
+function abrirModelo(bancaId, m) {
+  const box = $('mods-' + bancaId);
+  const ex = m && m.exemplos ? JSON.stringify(m.exemplos, null, 1) : '[]';
+  box.insertAdjacentHTML('beforeend', `<div class="subform" id="modForm-${bancaId}">
+    <label>Título</label><input id="md-tit" value="${m ? esc(m.titulo) : ''}" placeholder="ex.: Estilo certo/errado Cebraspe">
+    <label>Instruções de estilo (vão para o prompt do gerador)</label>
+    <textarea id="md-ins" rows="4" placeholder="ex.: Proposições curtas, uma tese por item; erro típico = generalização indevida…">${m ? esc(m.instrucoes) : ''}</textarea>
+    <label>Exemplos (JSON [{"enunciado","gabarito","comentario"}])</label>
+    <textarea id="md-ex" rows="4">${esc(ex)}</textarea>
+    <button class="b-ok" id="mdSalvar-${bancaId}">Salvar modelo</button></div>`);
+  $('mdSalvar-' + bancaId).onclick = async () => {
+    let exemplos = [];
+    try { exemplos = JSON.parse($('md-ex').value || '[]'); } catch { toast('Exemplos: JSON inválido', false); return; }
+    const { error } = await sb.rpc('fn_admin_banca_modelo_salvar', {
+      p: { banca_id: bancaId, titulo: $('md-tit').value.trim(), instrucoes: $('md-ins').value.trim(), exemplos },
+      p_id: m ? m.id : null });
+    if (error) { toast(error.message, false); return; }
+    toast('Modelo salvo ✓'); loadBancas();
+  };
+}
+async function toggleModelo(id, ativo) {
+  const { error } = await sb.rpc('fn_admin_banca_modelo_toggle', { p_id: id, p_ativo: ativo });
+  if (error) { toast(error.message, false); return; }
+  loadBancas();
+}
+
+// =====================================================================
+// ITENS
+// =====================================================================
+let listaItens = null;
+async function loadItens() {
+  const pane = $('pane-itens');
+  pane.innerHTML = `
+    <div class="pagetitle">I T E N S</div>
+    <div class="pagesub">Todo o banco de questões — oficiais, sondas IA e pendências.</div>
+    <div class="filters">
+      <select id="fi-origem"><option value="">Origem: todas</option>
+        <option value="prova_oficial">Prova oficial</option><option value="ia_gerada">IA</option><option value="material_aluno">Material de aluno</option></select>
+      <select id="fi-status"><option value="">Status: todos</option>
+        <option value="aprovada">Aprovada</option><option value="gerada_nao_revisada">Pendente</option>
+        <option value="suspensa">Suspensa</option><option value="removida">Removida</option></select>
+      <select id="fi-uso"><option value="">Uso: todos</option>
+        <option value="sonda">Sonda</option><option value="diagnostico">Diagnóstico</option><option value="simulado">Simulado</option><option value="geral">Geral</option></select>
+      <select id="fi-edital"><option value="">Edital: todos</option>${Object.values(editais).map(e =>
+        `<option value="${e.id}">${esc(e.concurso)}</option>`).join('')}</select>
+      <input id="fi-busca" placeholder="buscar no enunciado…" style="flex:1;min-width:180px">
+      <label style="display:flex;align-items:center;gap:6px;margin:0;font-size:11px">
+        <input type="checkbox" id="fi-pend" style="width:auto;margin:0"> só pendências de texto</label>
+    </div>
+    <div class="count" id="itCount"></div>
+    <div id="itLista"></div>
+    <button class="more" style="display:none" id="itMais">Carregar mais</button>`;
+  const filtros = () => ({
+    origem: $('fi-origem').value || null, status: $('fi-status').value || null,
+    uso: $('fi-uso').value || null, edital_id: $('fi-edital').value || null,
+    busca: $('fi-busca').value.trim() || null,
+    prova_id: hashParams.prova || null,
+    pendente_texto: $('fi-pend').checked || null });
+  listaItens = criarLista({
+    mount: 'itLista', countEl: 'itCount',
+    fetch: async (off, lim) => {
+      const { data, error } = await sb.rpc('fn_admin_itens_listar', { p_filtros: filtros(), p_off: off, p_lim: lim });
+      if (error) { toast(error.message, false); return null; }
+      return data;
+    },
+    render: renderItemAdmin });
+  ['fi-origem','fi-status','fi-uso','fi-edital','fi-pend'].forEach(id =>
+    $(id).onchange = () => listaItens.reset().load());
+  let deb; $('fi-busca').oninput = () => { clearTimeout(deb); deb = setTimeout(() => listaItens.reset().load(), 350); };
+  $('itMais').onclick = () => listaItens.load();
+  if (hashParams.pend) $('fi-pend').checked = true;
+  listaItens.reset().load();
+}
+function renderItemAdmin(i) {
+  const stBadge = i.status === 'aprovada' ? 'edge' : i.status === 'suspensa' ? 'red' : 'grey';
+  return `<div class="card" id="item-${i.id}">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:7px">
+      <span class="badge ${i.origem === 'prova_oficial' ? 'ouro' : ''}">${i.origem === 'prova_oficial' ? 'oficial' : i.origem === 'ia_gerada' ? 'ia' : 'aluno'}</span>
+      <span class="badge ${stBadge}">${esc(i.status)}</span>
+      ${i.prova ? `<span class="badge grey">${esc(i.prova)} #${i.numero}</span>` : ''}
+      ${i.texto_base_id ? '<span class="badge edge">texto-base</span>' : ''}
+      ${i.reports_abertos ? `<span class="badge red">${i.reports_abertos} report(s)</span>` : ''}
+      <span class="conf mono">dif ${Math.round((i.dificuldade ?? .5) * 100)}% (n=${i.dificuldade_n})</span>
+    </div>
+    <div class="qenun">${esc(i.enunciado)}</div>
+    <div class="meta"><span class="gab ${i.gabarito === 'certo' ? 'c' : 'e'}">GABARITO: ${esc((i.gabarito || '').toUpperCase())}</span>
+      · ${(i.nodes || []).map(n => esc(n.nome)).join(' · ')}</div>
+    <div class="acts">
+      <button class="b-edit" onclick="abrirItemDetalhe('${i.id}')">Editar / detalhe</button>
+      ${i.status !== 'suspensa' ? `<button class="b-no" onclick="mudarStatusItem('${i.id}','suspensa')">Suspender</button>`
+        : `<button class="b-ok" onclick="mudarStatusItem('${i.id}','aprovada')">Reativar</button>`}
+      ${i.status === 'gerada_nao_revisada' ? `<button class="b-ok" onclick="mudarStatusItem('${i.id}','aprovada')">Aprovar</button>` : ''}
+    </div>
+    <div class="subform" id="itSub-${i.id}" style="display:none"></div>
+  </div>`;
+}
+async function abrirItemDetalhe(id) {
+  const box = $('itSub-' + id);
+  box.style.display = 'block';
+  box.innerHTML = '<div class="empty">carregando…</div>';
+  const { data: d, error } = await sb.rpc('fn_admin_item_detalhe', { p_id: id });
+  if (error) { box.innerHTML = esc(error.message); return; }
+  const it = d.item, tb = d.texto_base;
+  box.innerHTML = `
+    <label>Enunciado</label><textarea id="ie-enun-${id}" rows="4">${esc(it.enunciado)}</textarea>
+    <div class="row2">
+      <div><label>Gabarito</label><select id="ie-gab-${id}">
+        <option ${it.gabarito === 'certo' ? 'selected' : ''}>certo</option>
+        <option ${it.gabarito === 'errado' ? 'selected' : ''}>errado</option></select></div>
+      <div><label>Uso</label><select id="ie-uso-${id}">
+        ${['sonda','diagnostico','simulado','geral'].map(u => `<option ${it.uso === u ? 'selected' : ''}>${u}</option>`).join('')}</select></div>
+    </div>
+    <label>Explicação</label><textarea id="ie-exp-${id}" rows="2">${esc(it.explicacao || '')}</textarea>
+    <label>Texto-base</label>
+    ${tb ? `<div class="evid"><b>${esc(tb.codigo)}</b> (${esc(tb.formato)})<br>
+      <span style="font-size:12px">${esc((tb.conteudo || '').slice(0, 300))}…</span></div>
+      <div class="acts"><button class="b-edit" onclick="abrirTextoEdit('${id}','${tb.id}')">Editar texto</button>
+      <button class="b-no" onclick="desvincularTexto('${id}')">Desvincular</button></div>`
+      : `<div class="hint">sem texto-base</div>
+      <div class="acts"><button class="b-split" onclick="abrirTextoNovo('${id}')">+ Criar e vincular texto-base</button></div>`}
+    <div id="txForm-${id}"></div>
+    <button class="b-ok" style="margin-top:10px" onclick="salvarItemAdmin('${id}')">Salvar item</button>
+    ${(d.reports || []).length ? `<details class="det"><summary>${d.reports.length} report(s)</summary>${d.reports.map(r =>
+      `<div class="evid">${esc(r.motivo)} · ${esc(r.status)} · ${new Date(r.created_at).toLocaleDateString('pt-BR')}
+       ${r.triagem?.detalhe ? '<br>' + esc(r.triagem.detalhe) : ''}</div>`).join('')}</details>` : ''}`;
+}
+async function salvarItemAdmin(id) {
+  const { error } = await sb.rpc('fn_admin_item_atualizar', { p_id: id, p: {
+    enunciado: $(`ie-enun-${id}`).value.trim(), gabarito: $(`ie-gab-${id}`).value,
+    uso: $(`ie-uso-${id}`).value, explicacao: $(`ie-exp-${id}`).value.trim() } });
+  if (error) { toast(error.message, false); return; }
+  toast('Item salvo ✓ (respostas de calibração zeradas se enunciado/gabarito mudou)');
+}
+async function mudarStatusItem(id, st) {
+  const { error } = await sb.rpc('fn_admin_item_status', { p_id: id, p_status: st });
+  if (error) { toast(error.message, false); return; }
+  toast('Status: ' + st + ' ✓');
+  $('item-' + id)?.remove();
+}
+function abrirTextoNovo(itemId) {
+  $('txForm-' + itemId).innerHTML = `
+    <div class="row2"><div><label>Código</label><input id="tx-cod-${itemId}" placeholder="ex.: 2021-premissa-X"></div>
+    <div><label>Formato</label><select id="tx-fmt-${itemId}"><option>texto</option><option>premissa</option></select></div></div>
+    <label>Conteúdo</label><textarea id="tx-con-${itemId}" rows="5"></textarea>
+    <button class="b-ok" onclick="salvarTextoNovo('${itemId}')">Criar texto e vincular</button>`;
+}
+async function salvarTextoNovo(itemId) {
+  const { data: tid, error } = await sb.rpc('fn_admin_texto_salvar', { p: {
+    codigo: $(`tx-cod-${itemId}`).value.trim(), formato: $(`tx-fmt-${itemId}`).value,
+    conteudo: $(`tx-con-${itemId}`).value.trim() } });
+  if (error) { toast(error.message, false); return; }
+  const { error: e2 } = await sb.rpc('fn_admin_item_atualizar', { p_id: itemId, p: { texto_base_id: tid } });
+  if (e2) { toast(e2.message, false); return; }
+  toast('Texto criado e vinculado ✓'); abrirItemDetalhe(itemId);
+}
+async function abrirTextoEdit(itemId, textoId) {
+  const { data: d } = await sb.rpc('fn_admin_item_detalhe', { p_id: itemId });
+  const tb = d.texto_base;
+  $('txForm-' + itemId).innerHTML = `
+    <label>Conteúdo do texto ${esc(tb.codigo)}</label>
+    <textarea id="tx-con-${itemId}" rows="6">${esc(tb.conteudo)}</textarea>
+    <button class="b-ok" onclick="salvarTextoEdit('${itemId}','${textoId}')">Salvar texto</button>`;
+}
+async function salvarTextoEdit(itemId, textoId) {
+  const { error } = await sb.rpc('fn_admin_texto_salvar', { p: { conteudo: $(`tx-con-${itemId}`).value.trim() }, p_id: textoId });
+  if (error) { toast(error.message, false); return; }
+  toast('Texto salvo ✓');
+}
+async function desvincularTexto(itemId) {
+  const { error } = await sb.rpc('fn_admin_item_atualizar', { p_id: itemId, p: { texto_base_id: '' } });
+  if (error) { toast(error.message, false); return; }
+  toast('Desvinculado'); abrirItemDetalhe(itemId);
+}
+
+// =====================================================================
+// QUALIDADE (fila reativa: reports + quarentena + saúde)
+// =====================================================================
+async function loadQualidade() {
+  const pane = $('pane-qualidade');
+  pane.innerHTML = `
+    <div class="pagetitle">Q U A L I D A D E</div>
+    <div class="pagesub">A fila reativa: reports de alunos, itens suspensos e a saúde estatística.</div>
+    <div class="acts" style="margin-bottom:12px"><button class="b-split" id="btnSaude">Rodar saúde agora</button>
+      <span class="meta" id="qlSaudeOut"></span></div>
+    <div id="qlBody"><div class="empty">carregando…</div></div>`;
+  $('btnSaude').onclick = async () => {
+    $('qlSaudeOut').textContent = 'rodando…';
+    const { data, error } = await sb.rpc('fn_admin_saude_executar');
+    if (error) { $('qlSaudeOut').textContent = error.message; return; }
+    $('qlSaudeOut').textContent = `extremos: ${data.suspensos_extremos} · discriminação: ${data.suspensos_discriminacao}`;
+    renderQualidade();
+  };
+  renderQualidade();
+}
+async function renderQualidade() {
+  const { data: d, error } = await sb.rpc('fn_admin_qualidade', { p_off: 0, p_lim: PAGE });
+  if (error) { $('qlBody').innerHTML = `<div class="card empty">${esc(error.message)}</div>`; return; }
+  $('qlBody').innerHTML = `
+    <div class="card">
+      <div class="nome" style="margin-bottom:8px">Reports de alunos <span class="conf">(${d.reports_total})</span></div>
+      ${(d.reports || []).map(r => `
+        <div class="subform" id="qrep-${r.id}" style="margin-bottom:8px">
+          <div class="meta"><span class="badge red">${esc(r.motivo)}</span> · ${new Date(r.created_at).toLocaleString('pt-BR')}
+            · item ${esc(r.origem)} ${r.item_status !== 'aprovada' ? `· <span class="badge grey">${esc(r.item_status)}</span>` : ''}</div>
+          <div class="qenun">${esc(r.enunciado)}</div>
+          <div class="meta"><span class="gab ${r.gabarito === 'certo' ? 'c' : 'e'}">GABARITO: ${esc((r.gabarito || '').toUpperCase())}</span>
+            ${r.explicacao ? ' · ' + esc(r.explicacao) : ''}</div>
+          ${r.triagem?.detalhe ? `<div class="evid">aluno: ${esc(r.triagem.detalhe)}</div>` : ''}
+          <div class="row2"><input id="qnota-${r.id}" placeholder="nota da triagem (opcional)" style="margin:0"></div>
+          <div class="acts">
+            <button class="b-ok" onclick="fecharReportAdmin('${r.id}','resolvido')">Resolvido</button>
+            <button class="b-ghost" onclick="fecharReportAdmin('${r.id}','triado')">Marcar triado</button>
+            <button class="b-no" onclick="fecharReportAdmin('${r.id}','descartado')">Descartar</button>
+            <button class="b-edit" onclick="irPara('itens',{busca:''});" style="display:none"></button>
+            <button class="b-edit" onclick="mudarStatusItem('${r.item_id}','suspensa')">Suspender item</button>
+          </div>
+        </div>`).join('') || '<div class="empty">Nenhum report em aberto.</div>'}
+    </div>
+    <div class="card">
+      <div class="nome" style="margin-bottom:8px">Itens suspensos</div>
+      ${(d.suspensos || []).map(s => `
+        <div class="subform" id="qsus-${s.id}" style="margin-bottom:8px">
+          <div class="meta"><span class="badge red">suspenso por ${s.motivo === 'reports' ? `${s.n_reports} reports` : 'saúde estatística'}</span>
+            · ${esc(s.origem)} · ${new Date(s.updated_at).toLocaleDateString('pt-BR')}</div>
+          <div class="qenun">${esc(s.enunciado)}</div>
+          <div class="meta"><span class="gab ${s.gabarito === 'certo' ? 'c' : 'e'}">GABARITO: ${esc((s.gabarito || '').toUpperCase())}</span></div>
+          <div class="acts">
+            <button class="b-ok" onclick="mudarStatusItem('${s.id}','aprovada');$('qsus-${s.id}')?.remove()">Reativar</button>
+            <button class="b-no" onclick="mudarStatusItem('${s.id}','removida');$('qsus-${s.id}')?.remove()">Remover de vez</button>
+          </div>
+        </div>`).join('') || '<div class="empty">Nenhum item suspenso.</div>'}
+    </div>
+    <div class="card">
+      <div class="nome" style="margin-bottom:8px">Histórico da saúde estatística</div>
+      <div class="hint">Cron diário às 03:00 (Manaus). Suspende: dificuldade extrema (n≥20 fora de 5%-95%) e discriminação invertida (n≥30).</div>
+      <table class="tb"><thead><tr><th>QUANDO</th><th>ORIGEM</th><th>AVALIADOS</th><th>SUSPENSOS</th></tr></thead>
+      <tbody>${(d.historico || []).map(h => `
+        <tr><td>${new Date(h.created_at).toLocaleString('pt-BR')}</td><td>${esc(h.origem)}</td>
+        <td class="mono">${h.avaliados ?? '—'}</td>
+        <td class="mono" style="color:${h.suspensos ? 'var(--vermelho)' : 'var(--verde)'}">${h.suspensos ?? 0}</td></tr>`).join('')
+        || '<tr><td colspan="4" class="empty">nenhuma execução ainda</td></tr>'}</tbody></table>
+    </div>`;
+}
+async function fecharReportAdmin(id, status) {
+  const nota = $('qnota-' + id)?.value.trim() || null;
+  const { error } = await sb.rpc('fn_admin_report_fechar', { p_id: id, p_status: status, p_nota: nota });
+  if (error) { toast(error.message, false); return; }
+  if (status !== 'triado') $('qrep-' + id)?.remove();
+  toast('Report ' + status + ' ✓'); atualizarBadges();
+}
+
+// =====================================================================
+// PROPOSTAS (fila de curadoria — preservada, re-skin)
+// =====================================================================
+let listaProps = null;
+async function loadPropostas() {
+  const pane = $('pane-propostas');
+  pane.innerHTML = `
+    <div class="pagetitle">P R O P O S T A S</div>
+    <div class="pagesub">Fila da pipeline de curadoria — as de menor confiança primeiro.</div>
+    <div class="filters">
+      <select id="fTipo"><option value="">Todos os tipos</option>
+        <option value="node">Tópicos (nós)</option><option value="edge">Conexões</option>
+        <option value="edital_node">Pesos do edital</option><option value="item">Questões</option></select>
+      <select id="fEdital"><option value="">Todos os editais</option>${Object.values(editais).map(e =>
+        `<option value="${e.id}">${esc(e.concurso)} · ${esc(e.cargo || '')}</option>`).join('')}</select>
+    </div>
+    <div class="count" id="propCount"></div>
+    <div id="listaProps"></div>
+    <button class="more" id="maisProps" style="display:none">Carregar mais</button>`;
+  listaProps = criarLista({
+    mount: 'listaProps', countEl: 'propCount',
+    fetch: async (off, lim) => {
+      let q = sb.from('curadoria_propostas').select('*', { count: 'exact' })
+        .eq('status', 'pendente')
+        .order('confianca_ia', { ascending: true, nullsFirst: false })
+        .range(off, off + lim - 1);
+      if ($('fTipo').value) q = q.eq('tipo', $('fTipo').value);
+      if ($('fEdital').value) q = q.eq('edital_id', $('fEdital').value);
+      const { data, count, error } = await q;
+      if (error) { toast(error.message, false); return null; }
+      (data || []).forEach(p => propCache[p.id] = p);
+      return { total: count, rows: data };
+    },
+    render: renderProp });
+  $('fTipo').onchange = () => { propCache = {}; listaProps.reset().load(); };
+  $('fEdital').onchange = () => { propCache = {}; listaProps.reset().load(); };
+  $('maisProps').onclick = () => listaProps.load();
+  propCache = {};
+  listaProps.reset().load();
+}
 function confHtml(c) {
   if (c == null) return '';
-  const pct = Math.round(c * 100);
-  return `<span class="conf ${pct < 60 ? 'baixa' : ''}">confiança da IA: ${pct}%</span>`;
+  const p = Math.round(c * 100);
+  return `<span class="conf ${p < 60 ? 'baixa' : ''}">confiança da IA: ${p}%</span>`;
 }
 function evidHtml(ev) {
   if (!ev) return '';
   const txt = typeof ev === 'string' ? ev : (ev.resumo || JSON.stringify(ev));
   return `<div class="evid">${esc(txt)}</div>`;
 }
-
 function renderProp(p) {
   const pl = p.payload || {};
   let corpo = '';
+  const edLabel = (id) => editais[id] ? `${editais[id].concurso} · ${editais[id].cargo || ''}` : '';
   if (p.tipo === 'node') {
     corpo = `<div class="nome">${esc(pl.nome)}</div>
       <div class="meta">${esc(pl.nivel || '')}${pl.parent_nome ? ' · dentro de: ' + esc(pl.parent_nome) : ''}</div>
@@ -256,41 +918,39 @@ function renderProp(p) {
       <div class="meta">conexão: ${esc(pl.tipo_aresta)} · força ${pl.forca ?? 0.5}</div>`;
   } else if (p.tipo === 'edital_node') {
     corpo = `<div class="nome">${esc(pl.node_nome || pl.node_id)}</div>
-      <div class="meta">${esc(editais[pl.edital_id] || '')} · peso proposto: <b>${Math.round((pl.peso ?? 0.5) * 100)}%</b>
-      · incerteza: ${Math.round((pl.peso_incerteza ?? 1) * 100)}%${pl.sem_historico ? ' · <b style="color:var(--red)">SEM HISTÓRICO — palavra do professor</b>' : ''}</div>`;
+      <div class="meta">${esc(edLabel(pl.edital_id))} · peso proposto: <b>${Math.round((pl.peso ?? 0.5) * 100)}%</b>
+      · incerteza: ${Math.round((pl.peso_incerteza ?? 1) * 100)}%${pl.sem_historico ? ' · <b style="color:var(--vermelho)">SEM HISTÓRICO — palavra do professor</b>' : ''}</div>`;
   } else if (p.tipo === 'item') {
     corpo = `<div class="meta">${esc(pl.tipo_item || 'certo_errado')} · uso: ${esc(pl.uso || 'geral')} · gabarito: <b>${esc(pl.gabarito)}</b></div>
       <div style="font-size:14px">${esc(pl.enunciado)}</div>`;
   }
   const podeNo = p.tipo === 'node';
-  $('listaProps').insertAdjacentHTML('beforeend', `
+  return `
     <div class="card prop" id="prop-${p.id}">
-      <div class="top"><span class="badge ${p.tipo}">${p.tipo === 'node' ? 'tópico' : p.tipo === 'edge' ? 'conexão' : p.tipo === 'edital_node' ? 'peso' : 'questão'}</span>${confHtml(p.confianca_ia)}</div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+        <span class="badge ${p.tipo}">${p.tipo === 'node' ? 'tópico' : p.tipo === 'edge' ? 'conexão' : p.tipo === 'edital_node' ? 'peso' : 'questão'}</span>
+        ${confHtml(p.confianca_ia)}</div>
       ${corpo}
       ${evidHtml(p.evidencia)}
       <div class="acts">
-        <button class="b-ok" onclick="decidir('${p.id}','aprovada')">✓ Aprovar</button>
-        <button class="b-edit" onclick="abrirEditar('${p.id}')">✎ Editar</button>
-        ${podeNo ? `<button class="b-merge" onclick="abrirFundir('${p.id}')">⇄ Fundir</button>
-                    <button class="b-split" onclick="abrirDividir('${p.id}')">⑃ Dividir</button>` : ''}
-        <button class="b-no" onclick="decidir('${p.id}','rejeitada')">✕ Rejeitar</button>
+        <button class="b-ok" onclick="decidir('${p.id}','aprovada')">Aprovar</button>
+        <button class="b-edit" onclick="abrirEditar('${p.id}')">Editar</button>
+        ${podeNo ? `<button class="b-merge" onclick="abrirFundir('${p.id}')">Fundir</button>
+                    <button class="b-split" onclick="abrirDividir('${p.id}')">Dividir</button>` : ''}
+        <button class="b-no" onclick="decidir('${p.id}','rejeitada')">Rejeitar</button>
       </div>
       <div class="subform" id="sub-${p.id}" style="display:none"></div>
-    </div>`);
-  nodeCache[p.id] = p;
+    </div>`;
 }
-
 async function decidir(id, decisao, edicao = null) {
-  const { data, error } = await sb.rpc('fn_decidir_proposta', { p_id: id, p_decisao: decisao, p_edicao: edicao });
+  const { error } = await sb.rpc('fn_decidir_proposta', { p_id: id, p_decisao: decisao, p_edicao: edicao });
   if (error) { toast(error.message, false); return; }
   $('prop-' + id)?.remove();
   toast(decisao === 'rejeitada' ? 'Proposta rejeitada' : 'Decisão aplicada ✓');
-  const n = parseInt(($('nProps').textContent || '(1)').replace(/\D/g, '')) - 1;
-  $('nProps').textContent = `(${Math.max(n, 0)})`;
+  atualizarBadges();
 }
-
 function abrirEditar(id) {
-  const p = nodeCache[id], pl = p.payload || {}, box = $('sub-' + id);
+  const p = propCache[id], pl = p.payload || {}, box = $('sub-' + id);
   box.style.display = 'block';
   if (p.tipo === 'node') {
     box.innerHTML = `<label>Nome do tópico</label><input id="e-nome-${id}" value="${esc(pl.nome)}">
@@ -314,31 +974,30 @@ function abrirEditar(id) {
   }
 }
 function salvarEdicaoNode(id) {
-  const pl = { ...nodeCache[id].payload };
+  const pl = { ...propCache[id].payload };
   pl.nome = $(`e-nome-${id}`).value.trim();
   pl.nivel = $(`e-nivel-${id}`).value;
   pl.sinonimos = $(`e-sin-${id}`).value.split(',').map(s => s.trim()).filter(Boolean);
   decidir(id, 'editada', pl);
 }
 function salvarEdicaoPeso(id) {
-  const pl = { ...nodeCache[id].payload };
+  const pl = { ...propCache[id].payload };
   pl.peso_override = Math.min(100, Math.max(0, +$(`e-peso-${id}`).value)) / 100;
   decidir(id, 'editada', pl);
 }
 function salvarEdicaoEdge(id) {
-  const pl = { ...nodeCache[id].payload };
+  const pl = { ...propCache[id].payload };
   pl.forca = Math.min(100, Math.max(0, +$(`e-forca-${id}`).value)) / 100;
   decidir(id, 'editada', pl);
 }
 function salvarEdicaoItem(id) {
-  const pl = { ...nodeCache[id].payload };
+  const pl = { ...propCache[id].payload };
   pl.enunciado = $(`e-enun-${id}`).value.trim();
   pl.gabarito = $(`e-gab-${id}`).value.trim();
   pl.dificuldade = Math.min(100, Math.max(0, +$(`e-dif-${id}`).value)) / 100;
   pl.explicacao = $(`e-exp-${id}`).value.trim();
   decidir(id, 'editada', pl);
 }
-
 function abrirFundir(id) {
   const box = $('sub-' + id);
   box.style.display = 'block';
@@ -354,9 +1013,8 @@ async function buscarNode(id) {
     `<button class="b-merge" style="margin:3px" onclick="decidir('${id}','fundida',{fundir_em:'${n.id}'})">${esc(n.nome)} (${n.nivel})</button>`
   ).join('') || '<div class="hint">nada encontrado</div>';
 }
-
 function abrirDividir(id) {
-  const p = nodeCache[id], pl = p.payload || {}, box = $('sub-' + id);
+  const p = propCache[id], pl = p.payload || {}, box = $('sub-' + id);
   box.style.display = 'block';
   box.innerHTML = `<div class="hint">Divida "${esc(pl.nome)}" em 2+ tópicos (mesmo nível e pai):</div>
     <div id="d-rows-${id}"></div>
@@ -368,44 +1026,39 @@ function addParte(id) {
   $(`d-rows-${id}`).insertAdjacentHTML('beforeend', `<input class="d-parte-${id}" placeholder="nome da parte">`);
 }
 function salvarDivisao(id) {
-  const p = nodeCache[id], pl = p.payload || {};
+  const p = propCache[id], pl = p.payload || {};
   const partes = [...document.querySelectorAll(`.d-parte-${id}`)].map(i => i.value.trim()).filter(Boolean)
     .map(nome => ({ nome, nivel: pl.nivel || 'topico', parent_id: pl.parent_id || null, parent_proposta_id: pl.parent_proposta_id || null }));
   if (partes.length < 2) { toast('Informe pelo menos 2 partes', false); return; }
   decidir(id, 'dividida', { partes });
 }
 
-// ---------- reports ----------
-function resetReports() { offReports = 0; $('listaReports').innerHTML = ''; }
-async function loadReports() {
-  const { data, count, error } = await sb.from('item_reports')
-    .select('id, motivo, status, created_at, items(enunciado, gabarito)', { count: 'exact' })
-    .in('status', ['aberto', 'triado'])
-    .order('created_at', { ascending: true })
-    .range(offReports, offReports + PAGE - 1);
-  if (error) { toast(error.message, false); return; }
-  $('nReports').textContent = `(${count ?? 0})`;
-  if (!count) $('listaReports').innerHTML = '<div class="card empty">Nenhum report em aberto.</div>';
-  (data || []).forEach(r => {
-    $('listaReports').insertAdjacentHTML('beforeend', `
-      <div class="card" id="rep-${r.id}">
-        <div class="meta">report: <b>${esc(r.motivo)}</b> · ${new Date(r.created_at).toLocaleDateString('pt-BR')}</div>
-        <div style="font-size:14px">${esc(r.items?.enunciado || '(questão removida)')}</div>
-        <div class="meta">gabarito: ${esc(r.items?.gabarito || '-')}</div>
-        <div class="acts">
-          <button class="b-ok" onclick="fecharReport('${r.id}','resolvido')">Resolvido</button>
-          <button class="b-no" onclick="fecharReport('${r.id}','descartado')">Descartar</button>
-        </div>
-      </div>`);
-  });
-  offReports += PAGE;
-  $('maisReports').style.display = (count && offReports < count) ? 'block' : 'none';
+// =====================================================================
+// SOLICITAÇÕES (fila pública de editais)
+// =====================================================================
+async function loadSolicitacoes() {
+  const pane = $('pane-solicitacoes');
+  pane.innerHTML = `
+    <div class="pagetitle">S O L I C I T A Ç Õ E S</div>
+    <div class="pagesub">Editais pedidos pelos alunos — os mais votados primeiro.</div>
+    <div id="solLista"><div class="empty">carregando…</div></div>`;
+  const { data, error } = await sb.rpc('fn_admin_solicitacoes_listar');
+  if (error) { $('solLista').innerHTML = `<div class="card empty">${esc(error.message)}</div>`; return; }
+  $('solLista').innerHTML = (data || []).map(r => `
+    <div class="card" id="sol-${r.id}">
+      <div class="nome">${esc(r.concurso)} <span class="conf mono">${r.votos} voto(s)</span></div>
+      <div class="meta">${esc(r.detalhe || '')} · ${new Date(r.created_at).toLocaleDateString('pt-BR')}
+        · <span class="badge ${r.status === 'aberta' ? 'grey' : r.status === 'atendida' ? 'edge' : ''}">${esc(r.status)}</span></div>
+      <div class="acts">
+        ${['aberta','em_preparacao','atendida','recusada'].map(s =>
+          `<button class="${s === r.status ? 'b-ok' : 'b-ghost'}" onclick="mudarSolicitacao('${r.id}','${s}')">${s.replace('_',' ')}</button>`).join('')}
+      </div>
+    </div>`).join('') || '<div class="card empty">Nenhuma solicitação.</div>';
 }
-$('maisReports').onclick = loadReports;
-async function fecharReport(id, status) {
-  const { error } = await sb.from('item_reports').update({ status }).eq('id', id);
+async function mudarSolicitacao(id, s) {
+  const { error } = await sb.rpc('fn_admin_solicitacao_status', { p_id: id, p_status: s });
   if (error) { toast(error.message, false); return; }
-  $('rep-' + id)?.remove(); toast('Report atualizado ✓');
+  toast('Solicitação: ' + s.replace('_', ' ') + ' ✓'); loadSolicitacoes(); atualizarBadges();
 }
 
 boot();
