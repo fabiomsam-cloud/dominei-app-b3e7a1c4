@@ -190,7 +190,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-08-19f'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-08-19g'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -786,6 +786,7 @@ async function loadBancas() {
 async function abrirCobertura(bancaId) {
   const box = $('cob-' + bancaId);
   if (box.innerHTML) { box.innerHTML = ''; return; }
+  $('impq-' + bancaId).innerHTML = ''; // um painel por vez — sem sobreposição confusa
   box.innerHTML = '<div class="empty">montando o mapa…</div>';
   const { data: d, error } = await sb.rpc('fn_admin_banca_cobertura', { p_banca: bancaId });
   if (error) { box.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
@@ -804,7 +805,9 @@ async function abrirCobertura(bancaId) {
           <span class="meta mono">${disc.topicos_total} tópicos</span>
         </div>
         <div class="body">${(disc.assuntos || []).map(a => `
-          <div class="ass">${esc(a.assunto)}</div>
+          <div class="ass">${esc(a.assunto)}
+            <button class="b-split" style="padding:2px 9px;font-size:9px;margin-left:6px"
+              onclick='abrirImportQuestoes("${bancaId}", "", ${JSON.stringify(esc(a.assunto))}, ${JSON.stringify((a.topicos || []).map(t => esc(t.nome)))})'>+ questões do assunto</button></div>
           ${(a.topicos || []).map(t => `
             <div class="top-row">
               <span style="flex:1">${esc(t.nome)}</span>
@@ -816,26 +819,43 @@ async function abrirCobertura(bancaId) {
         </div>
       </div>`).join('')}`;
 }
-function abrirImportQuestoes(bancaId, topicoPrefill) {
+function abrirImportQuestoes(bancaId, topicoPrefill, assuntoLabel, topicosAssunto) {
   const box = $('impq-' + bancaId);
+  const chave = topicoPrefill || assuntoLabel || '';
+  if (box.dataset.aberto === chave && box.innerHTML) { box.innerHTML = ''; box.dataset.aberto = ''; return; }
+  box.dataset.aberto = chave;
+  const titulo = topicoPrefill ? ' — tópico: ' + esc(topicoPrefill)
+    : assuntoLabel ? ' — assunto: ' + assuntoLabel : '';
   box.innerHTML = `<div class="subform">
-    <div class="nome" style="margin-bottom:6px">Importar questões da banca${topicoPrefill ? ' — ' + esc(topicoPrefill) : ''}</div>
+    <div class="nome" style="margin-bottom:6px">Importar questões da banca${titulo}</div>
+    ${assuntoLabel && (topicosAssunto || []).length ? `<div class="hint">Tópicos deste assunto (use no campo TÓPICO):
+      ${topicosAssunto.map(t => `<span class="mono" style="display:inline-block;background:var(--light);border-radius:5px;padding:1px 7px;margin:2px 3px 0 0">${t}</span>`).join('')}</div>` : ''}
     <div class="hint">Uma ou várias questões, separadas por linha com <span class="mono">---</span>. Campos por questão:<br>
       <span class="mono">TÓPICO: nome do tópico</span> ${topicoPrefill ? '(opcional aqui — já preenchido)' : '(obrigatório)'}<br>
       texto do enunciado (uma ou mais linhas)<br>
-      <span class="mono">GABARITO: C</span> ou <span class="mono">E</span> ·
-      opcionais: <span class="mono">EXPLICACAO:</span>, <span class="mono">ANO:</span>, <span class="mono">CONCURSO:</span></div>
-    <textarea id="qi-txt-${bancaId}" rows="10" placeholder="Conduzir veículo sob influência de álcool constitui crime apenas quando gerar perigo concreto de dano.
+      <b>Certo/errado:</b> <span class="mono">GABARITO: C</span> ou <span class="mono">E</span><br>
+      <b>Múltipla escolha:</b> liste as alternativas em linhas <span class="mono">A) …</span>
+      <span class="mono">B) …</span> (até E) e informe <span class="mono">GABARITO: B</span> (a letra correta)<br>
+      Opcionais: <span class="mono">EXPLICACAO:</span>, <span class="mono">ANO:</span>, <span class="mono">CONCURSO:</span></div>
+    <textarea id="qi-txt-${bancaId}" rows="12" placeholder="Conduzir veículo sob influência de álcool constitui crime apenas quando gerar perigo concreto de dano.
 GABARITO: E
 EXPLICACAO: O art. 306 do CTB é crime de perigo abstrato.
 ---
 TÓPICO: Poder de polícia
-..."></textarea>
+Assinale a alternativa que apresenta um atributo do poder de polícia:
+A) autoexecutoriedade
+B) inércia
+C) pessoalidade
+D) tipicidade fechada
+GABARITO: A
+ANO: 2025"></textarea>
     <div class="acts">
       <button class="b-ghost" id="qiPrev-${bancaId}">Pré-visualizar</button>
       <button class="b-ok" id="qiRun-${bancaId}" style="display:none">Confirmar import</button>
+      <button class="b-ghost" onclick="$('impq-${bancaId}').innerHTML='';$('impq-${bancaId}').dataset.aberto=''">Fechar</button>
     </div>
     <div class="meta" id="qiOut-${bancaId}"></div></div>`;
+  box.scrollIntoView({ behavior: 'smooth', block: 'start' });
   let parsed = null;
   $(`qiPrev-${bancaId}`).onclick = () => {
     const r = parseQuestoes($(`qi-txt-${bancaId}`).value, topicoPrefill);
@@ -844,7 +864,10 @@ TÓPICO: Poder de polícia
       $(`qiRun-${bancaId}`).style.display = 'none'; return;
     }
     parsed = r.questoes;
-    $(`qiOut-${bancaId}`).textContent = `${r.questoes.length} questão(ões) prontas — confira e confirme.`;
+    const nMe = r.questoes.filter(q => q.alternativas).length;
+    $(`qiOut-${bancaId}`).textContent = `${r.questoes.length} questão(ões) prontas` +
+      (nMe ? ` (${nMe} de múltipla escolha, ${r.questoes.length - nMe} certo/errado)` : ' (certo/errado)') +
+      ' — confira e confirme.';
     $(`qiRun-${bancaId}`).style.display = 'inline-block';
   };
   $(`qiRun-${bancaId}`).onclick = async () => {
@@ -863,9 +886,10 @@ function parseQuestoes(txt, topicoPrefill) {
   txt.split(/\n\s*---\s*\n?/).forEach((bloco, bi) => {
     const b = bloco.trim(); if (!b) return;
     const q = { topico: topicoPrefill || '', enunciado: '', gabarito: '', explicacao: '', ano: '', concurso: '' };
-    const linhas = [];
+    const linhas = []; const alts = [];
     b.split('\n').forEach(l => {
       const m = l.match(/^\s*(T[ÓO]PICO|GABARITO|EXPLICA[ÇC][ÃA]O|ANO|CONCURSO)\s*:\s*(.*)$/i);
+      const ma = l.match(/^\s*([A-Ea-e])\)\s*(.+)$/);
       if (m) {
         const k = m[1].toUpperCase().replace('Ó','O').replace('ÇÃ','CA').replace('Ç','C').replace('Ã','A');
         if (k.startsWith('TOPICO')) q.topico = m[2].trim();
@@ -873,12 +897,27 @@ function parseQuestoes(txt, topicoPrefill) {
         else if (k.startsWith('EXPLICA')) q.explicacao = m[2].trim();
         else if (k === 'ANO') q.ano = m[2].trim();
         else if (k === 'CONCURSO') q.concurso = m[2].trim();
+      } else if (ma) {
+        alts.push({ letra: ma[1].toLowerCase(), texto: ma[2].trim() });
       } else linhas.push(l);
     });
     q.enunciado = linhas.join(' ').replace(/\s+/g, ' ').trim();
+    if (alts.length >= 2) {
+      // múltipla escolha: valida sequência A, B, C… e gabarito por letra
+      const esperado = 'abcde'.slice(0, alts.length).split('');
+      if (alts.map(a => a.letra).join('') !== esperado.join(''))
+        erros.push(`questão ${bi + 1}: alternativas fora de ordem (esperado ${esperado.join(', ').toUpperCase()})`);
+      q.alternativas = alts.map(a => a.texto);
+      q.gabarito = q.gabarito.trim().toLowerCase();
+      if (!esperado.includes(q.gabarito))
+        erros.push(`questão ${bi + 1}: GABARITO deve ser a letra de uma alternativa (${esperado.join('/').toUpperCase()})`);
+    } else if (alts.length === 1) {
+      erros.push(`questão ${bi + 1}: múltipla escolha precisa de pelo menos 2 alternativas`);
+    } else if (!/^(c|e|certo|errado)$/i.test(q.gabarito)) {
+      erros.push(`questão ${bi + 1}: GABARITO deve ser C/E (ou liste alternativas A) B) … para múltipla escolha)`);
+    }
     if (!q.topico) erros.push(`questão ${bi + 1}: sem TÓPICO`);
     if (!q.enunciado || q.enunciado.length < 20) erros.push(`questão ${bi + 1}: enunciado vazio/curto`);
-    if (!/^(c|e|certo|errado)$/i.test(q.gabarito)) erros.push(`questão ${bi + 1}: GABARITO deve ser C/E`);
     questoes.push(q);
   });
   if (!questoes.length) erros.push('nenhuma questão encontrada');

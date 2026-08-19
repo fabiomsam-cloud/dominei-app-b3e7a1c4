@@ -554,6 +554,7 @@ body.tabs main { padding-bottom:96px; }
       <button class="abtn" data-r="certo">CERTO</button>
       <button class="abtn" data-r="errado">ERRADO</button>
     </div>
+    <div id="ssAlts" style="display:none;flex-direction:column;gap:8px;margin-top:18px"></div>
     <div class="fb" id="ssFb"><b id="ssFbT"></b><p id="ssFbE"></p><div id="ssRep"></div></div>
     <button class="btn" id="ssContinuar" style="display:none;margin-top:14px">Continuar</button>
     <div class="sess-res" id="ssFim" style="display:none"></div>
@@ -1102,7 +1103,17 @@ function renderItemSessao(data) {
   renderTextoBase('ssTexto', data.item);
   $('ssEnun').textContent = data.item.enunciado;
   $('ssFb').className = 'fb'; $('ssContinuar').style.display = 'none'; $('ssRep').innerHTML = '';
-  $('ssAns').style.display = 'flex';
+  const me = data.item.tipo === 'multipla_escolha';
+  $('ssAns').style.display = me ? 'none' : 'flex';
+  $('ssAlts').style.display = me ? 'flex' : 'none';
+  if (me) {
+    const alts = data.item.alternativas || [];
+    $('ssAlts').innerHTML = alts.map((a, i) => {
+      const letra = String.fromCharCode(97 + i);
+      return `<button class="altbtn" data-r="${letra}"><b>${letra.toUpperCase()})</b> ${esc(typeof a === 'string' ? a : a.texto)}</button>`;
+    }).join('');
+    document.querySelectorAll('#ssAlts .altbtn').forEach(b => b.onclick = () => responderSessao(b.dataset.r, b));
+  }
   document.querySelectorAll('#ssAns .abtn').forEach(b => b.classList.remove('on'));
   sessEstudo.itemAtual = data.item;
 }
@@ -1133,13 +1144,13 @@ function renderReportBtn() { // report reativo: alimenta a fila de Qualidade da 
     };
   };
 }
-document.querySelectorAll('#ssAns .abtn').forEach(b => b.onclick = async () => {
+async function responderSessao(resposta, btn) {
   if (fbAtual) return;
-  b.classList.add('on');
+  btn.classList.add('on');
   const { data, error } = await sb.rpc('fn_sessao_responder', {
     p_sessao: sessEstudo.sessao, p_item: sessEstudo.itemAtual.id,
-    p_resposta: b.dataset.r, p_confianca: null, p_tempo_ms: Date.now() - ssT0 });
-  if (error) { toast(error.message); b.classList.remove('on'); return; }
+    p_resposta: resposta, p_confianca: null, p_tempo_ms: Date.now() - ssT0 });
+  if (error) { toast(error.message); btn.classList.remove('on'); return; }
   fbAtual = data;
   const ok = data.resultado === 'acerto';
   $('ssFb').className = 'fb on ' + (ok ? 'ok' : 'no');
@@ -1147,11 +1158,13 @@ document.querySelectorAll('#ssAns .abtn').forEach(b => b.onclick = async () => {
   $('ssFbE').textContent = data.explicacao || '';
   renderReportBtn();
   $('ssContinuar').style.display = 'block';
-});
+}
+document.querySelectorAll('#ssAns .abtn').forEach(b => b.onclick = () => responderSessao(b.dataset.r, b));
 $('ssContinuar').onclick = () => {
   if (!fbAtual) return;
   if (fbAtual.fim) {
     $('ssAns').style.display = 'none';
+    $('ssAlts').style.display = 'none';
     $('ssTexto').classList.remove('on');
     $('ssFb').className = 'fb'; $('ssContinuar').style.display = 'none';
     $('ssFim').style.display = 'block';
