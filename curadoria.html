@@ -190,7 +190,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-08-19d'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-08-19e'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -418,6 +418,7 @@ async function loadEditais() {
   if (foco) renderEdital(foco);
   else $('edDetalhe').innerHTML = '<div class="empty">Escolha um edital acima para ver a estrutura, os pesos e a cobertura.</div>';
 }
+let quadroAtual = {};
 async function renderEdital(id) {
   const box = $('edDetalhe');
   box.innerHTML = '<div class="empty">carregando estrutura…</div>';
@@ -425,6 +426,13 @@ async function renderEdital(id) {
   if (error) { box.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
   const e = d.edital || {};
   const st = e.status;
+  // quadro do edital: casa as chaves salvas com as disciplinas da lente (case-insensitive)
+  const qSalvo = e.quadro_provas || {};
+  quadroAtual = {};
+  (d.estrutura || []).forEach(disc => {
+    const k = Object.keys(qSalvo).find(x => x.toLowerCase() === disc.disciplina.toLowerCase());
+    quadroAtual[disc.disciplina] = k != null ? Number(qSalvo[k]) : null;
+  });
   box.innerHTML = `
     <div class="acts" style="margin-bottom:10px">
       ${['rascunho','curadoria','publicado','arquivado'].map(s =>
@@ -443,6 +451,11 @@ async function renderEdital(id) {
           <b>${esc(disc.disciplina)}</b>
           <span class="meta mono">${(disc.assuntos || []).reduce((s, a) => s + (a.topicos || []).length, 0)} tópicos</span>
           <span style="flex:1"></span>
+          <span class="meta mono" title="questões desta disciplina no quadro do edital">questões:</span>
+          <input class="ov" type="number" min="0" style="width:58px" placeholder="?"
+            value="${quadroAtual[disc.disciplina] ?? ''}"
+            onclick="event.stopPropagation()"
+            onchange="event.stopPropagation();salvarQuadroDisc('${id}', ${JSON.stringify(esc(disc.disciplina))}, this.value)">
           <button class="b-ghost" style="padding:3px 9px;font-size:10px"
             onclick="event.stopPropagation();renomearNode('${id}','${disc.disciplina_id}','disciplina',this)">renomear</button>
         </div>
@@ -467,6 +480,23 @@ async function renderEdital(id) {
       </div>`).join('')}</div>
     <div class="hint" style="margin-top:8px">Override em % (vazio = usar o peso calculado). O motor usa coalesce(override, peso).
       Renomear é GLOBAL (corrige o nó do grafo em todos os editais); desvincular tira o tópico só desta lente.</div>`;
+}
+async function salvarQuadroDisc(edital, disciplina, valor) {
+  quadroAtual[disciplina] = valor === '' ? null : Math.max(0, parseInt(valor));
+  const faltam = Object.entries(quadroAtual).filter(([, v]) => v == null).map(([k]) => k);
+  if (faltam.length === 0) {
+    // quadro completo → aplica pesos oficiais (e persiste o quadro no edital)
+    const { data, error } = await sb.rpc('fn_admin_pesos_quadro', { p_edital: edital, p_quadro: quadroAtual });
+    if (error) { toast(error.message, false); return; }
+    toast(`Quadro aplicado: ${data.total_questoes} questões → pesos recalculados ✓`);
+    renderEdital(edital);
+  } else {
+    // parcial → só persiste o rascunho do quadro no edital
+    const { error } = await sb.rpc('fn_admin_edital_salvar', { p_id: edital,
+      p: { quadro_provas: Object.fromEntries(Object.entries(quadroAtual).filter(([, v]) => v != null)) } });
+    if (error) { toast(error.message, false); return; }
+    toast(`Salvo — faltam ${faltam.length} disciplina(s) para aplicar os pesos: ${faltam.slice(0, 3).join(', ')}${faltam.length > 3 ? '…' : ''}`);
+  }
 }
 async function renomearNode(edital, nodeId, nivel, btn) {
   const atual = btn.closest('.dh, .ass')?.querySelector('b')?.textContent
