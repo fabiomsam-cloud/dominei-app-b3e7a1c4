@@ -379,14 +379,16 @@ async function loadEditais() {
     <div class="pagesub">A lente de cada concurso: estrutura, pesos e cobertura.</div>
     <div class="card">
       <div class="acts" style="margin:0 0 10px">
-        <select id="edSel" style="flex:1;margin:0">${lista.map(e =>
-          `<option value="${e.id}" ${e.id === foco ? 'selected' : ''}>${esc(e.concurso)} · ${esc(e.cargo || '')} (${e.status})</option>`).join('')}</select>
+        <select id="edSel" style="flex:1;margin:0">
+          <option value="">— escolha um edital para analisar —</option>
+          ${lista.map(e =>
+          `<option value="${e.id}" ${e.id === foco ? 'selected' : ''}>${esc(e.concurso)} · ${esc(e.cargo || '')} (${e.status} · ${e.topicos} tópicos)</option>`).join('')}</select>
         <button class="b-ghost" id="btnNovoEdital">+ Novo edital</button>
       </div>
       <div id="edNovoBox" style="display:none"></div>
       <div id="edDetalhe"></div>
     </div>`;
-  $('edSel').onchange = () => renderEdital($('edSel').value);
+  $('edSel').onchange = () => $('edSel').value ? renderEdital($('edSel').value) : $('edDetalhe').innerHTML = '';
   $('btnNovoEdital').onclick = () => {
     const b = $('edNovoBox'); b.style.display = b.style.display === 'none' ? 'block' : 'none';
     b.innerHTML = `<div class="subform">
@@ -408,8 +410,9 @@ async function loadEditais() {
       loadEditais();
     };
   };
-  const alvo = foco || (lista[0] && lista[0].id);
-  if (alvo) renderEdital(alvo);
+  // só renderiza se veio por deep-link — a aba abre recolhida para escolher
+  if (foco) renderEdital(foco);
+  else $('edDetalhe').innerHTML = '<div class="empty">Escolha um edital acima para ver a estrutura, os pesos e a cobertura.</div>';
 }
 async function renderEdital(id) {
   const box = $('edDetalhe');
@@ -423,8 +426,10 @@ async function renderEdital(id) {
       ${['rascunho','curadoria','publicado','arquivado'].map(s =>
         `<button class="${s === st ? 'b-ok' : 'b-ghost'}" onclick="mudarStatusEdital('${id}','${s}')">${s}</button>`).join('')}
       <span style="flex:1"></span>
+      <button class="b-edit" onclick="abrirImportEstrutura('${id}')">Importar estrutura</button>
       <button class="b-split" onclick="abrirGerarSondas('${id}')">Gerar sondas em lote</button>
     </div>
+    <div id="estBox"></div>
     <div id="gsBox"></div>
     <div id="edArvore">${(d.estrutura || []).map((disc, i) => `
       <div class="disc" id="disc-${i}">
@@ -458,6 +463,78 @@ async function salvarOverride(edital, node, v) {
   const { error } = await sb.rpc('fn_admin_peso_override', { p_edital: edital, p_node: node, p_override: val });
   if (error) { toast(error.message, false); return; }
   toast(val == null ? 'Override removido' : 'Override salvo ✓');
+}
+function abrirImportEstrutura(edital) {
+  const box = $('estBox');
+  box.innerHTML = `<div class="subform">
+    <div class="nome" style="margin-bottom:6px">Importar estrutura (verticalização)</div>
+    <div class="hint">Formato — uma linha por entrada:<br>
+      <span class="mono">Nome da Disciplina</span><br>
+      <span class="mono">&gt; Nome do Assunto</span><br>
+      <span class="mono">- Nome do Tópico | sinônimo 1, sinônimo 2</span> (sinônimos opcionais)<br>
+      Tópicos com o mesmo nome/assunto de outro edital REUSAM o mesmo nó do grafo
+      (é assim que o conhecimento do aluno transfere entre editais). Pesos entram uniformes —
+      cadastre as provas e rode o refino, ou ajuste overrides na árvore.</div>
+    <textarea id="est-txt" rows="12" placeholder="Direito Constitucional
+> Direitos fundamentais
+- Direitos e deveres individuais e coletivos | remédios constitucionais
+- Nacionalidade e cidadania
+Informática
+> Segurança da informação
+- Vírus, worms e pragas virtuais"></textarea>
+    <div class="acts">
+      <button class="b-ghost" id="estPrev">Pré-visualizar</button>
+      <button class="b-ok" id="estRun" style="display:none">Confirmar import</button>
+    </div>
+    <div class="meta" id="estOut"></div></div>`;
+  let estruturaParsed = null;
+  $('estPrev').onclick = () => {
+    const r = parseEstrutura($('est-txt').value);
+    if (r.erros.length) {
+      $('estOut').innerHTML = '<span style="color:var(--vermelho)">' + r.erros.map(esc).join('<br>') + '</span>';
+      $('estRun').style.display = 'none'; return;
+    }
+    estruturaParsed = r.estrutura;
+    $('estOut').textContent = `${r.nd} disciplina(s) · ${r.na} assunto(s) · ${r.nt} tópico(s) — confira e confirme.`;
+    $('estRun').style.display = 'inline-block';
+  };
+  $('estRun').onclick = async () => {
+    $('estOut').textContent = 'importando…';
+    const { data, error } = await sb.rpc('fn_admin_estrutura_importar', { p_edital: edital, p_estrutura: estruturaParsed });
+    if (error) { $('estOut').textContent = 'erro: ' + error.message; return; }
+    $('estOut').textContent = `Vinculados: ${data.vinculados} tópicos (${data.ja_vinculados} já estavam) · nós novos no grafo: ${data.nos_criados} · reaproveitados: ${data.nos_reusados}`;
+    toast('Estrutura importada ✓');
+    renderEdital(edital); carregarEditais();
+  };
+}
+function parseEstrutura(txt) {
+  const estrutura = []; const erros = [];
+  let disc = null, ass = null, nd = 0, na = 0, nt = 0;
+  txt.split('\n').forEach((raw, i) => {
+    const line = raw.trim();
+    if (!line) return;
+    if (line.startsWith('- ')) {
+      if (!ass) { erros.push(`linha ${i + 1}: tópico antes de um assunto (">")`); return; }
+      const [nome, sins] = line.slice(2).split('|');
+      if (!nome.trim()) { erros.push(`linha ${i + 1}: tópico sem nome`); return; }
+      ass.topicos.push({ nome: nome.trim(),
+        sinonimos: (sins || '').split(',').map(s => s.trim()).filter(Boolean) });
+      nt++;
+    } else if (line.startsWith('>')) {
+      if (!disc) { erros.push(`linha ${i + 1}: assunto antes de uma disciplina`); return; }
+      ass = { assunto: line.replace(/^>+\s*/, ''), topicos: [] };
+      disc.assuntos.push(ass); na++;
+    } else {
+      disc = { disciplina: line.replace(/^#+\s*/, ''), assuntos: [] };
+      estrutura.push(disc); ass = null; nd++;
+    }
+  });
+  estrutura.forEach(d => {
+    if (!d.assuntos.length) erros.push(`disciplina "${d.disciplina}" sem assuntos`);
+    d.assuntos.forEach(a => { if (!a.topicos.length) erros.push(`assunto "${a.assunto}" sem tópicos`); });
+  });
+  if (!nt) erros.push('nenhum tópico encontrado');
+  return { estrutura, erros, nd, na, nt };
 }
 async function abrirGerarSondas(edital) {
   const box = $('gsBox');
