@@ -190,7 +190,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-08-19a'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-08-19b'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -440,11 +440,16 @@ async function renderEdital(id) {
         <div class="dh" onclick="$('disc-${i}').classList.toggle('open')">
           <b>${esc(disc.disciplina)}</b>
           <span class="meta mono">${(disc.assuntos || []).reduce((s, a) => s + (a.topicos || []).length, 0)} tópicos</span>
+          <span style="flex:1"></span>
+          <button class="b-ghost" style="padding:3px 9px;font-size:10px"
+            onclick="event.stopPropagation();renomearNode('${id}','${disc.disciplina_id}','disciplina',this)">renomear</button>
         </div>
         <div class="body">${(disc.assuntos || []).map(a => `
-          <div class="ass">${esc(a.assunto)}</div>
+          <div class="ass">${esc(a.assunto)}
+            <button class="b-ghost" style="padding:2px 8px;font-size:9px;margin-left:6px"
+              onclick="renomearNode('${id}','${a.assunto_id}','assunto',this)">renomear</button></div>
           ${(a.topicos || []).map(t => `
-            <div class="top-row">
+            <div class="top-row" id="trow-${t.node_id}">
               ${t.ovo ? '<span class="dot-ouro" title="Ovo de Ouro"></span>' : '<span style="width:8px"></span>'}
               <span style="flex:1">${esc(t.nome)}</span>
               <span class="cov" title="sondas aprovadas / itens oficiais">s:${t.n_sondas} o:${t.n_oficiais}</span>
@@ -452,10 +457,49 @@ async function renderEdital(id) {
               <input class="ov" type="number" min="0" max="100" step="0.1" placeholder="ovr"
                 value="${t.peso_override != null ? pct(t.peso_override) : ''}"
                 onchange="salvarOverride('${id}','${t.node_id}', this.value)">
-            </div>`).join('')}`).join('')}
+              <button class="b-ghost" style="padding:3px 9px;font-size:10px"
+                onclick='abrirEditarTopico("${id}","${t.node_id}",${JSON.stringify(esc(t.nome))},${JSON.stringify((t.sinonimos || []).map(esc).join(", "))})'>editar</button>
+            </div>
+            <div class="subform" id="tedit-${t.node_id}" style="display:none"></div>`).join('')}`).join('')}
         </div>
       </div>`).join('')}</div>
-    <div class="hint" style="margin-top:8px">Override em % (vazio = usar o peso calculado). O motor usa coalesce(override, peso).</div>`;
+    <div class="hint" style="margin-top:8px">Override em % (vazio = usar o peso calculado). O motor usa coalesce(override, peso).
+      Renomear é GLOBAL (corrige o nó do grafo em todos os editais); desvincular tira o tópico só desta lente.</div>`;
+}
+async function renomearNode(edital, nodeId, nivel, btn) {
+  const atual = btn.closest('.dh, .ass')?.querySelector('b')?.textContent
+    ?? btn.parentElement.firstChild.textContent.trim();
+  const novo = prompt(`Novo nome para ${nivel} (renomeia no grafo inteiro — vale para todos os editais):`, atual);
+  if (!novo || novo.trim() === atual) return;
+  const { error } = await sb.rpc('fn_admin_node_renomear', { p_node: nodeId, p_nome: novo.trim() });
+  if (error) { toast(error.message, false); return; }
+  toast('Renomeado ✓'); renderEdital(edital);
+}
+function abrirEditarTopico(edital, nodeId, nome, sins) {
+  const box = $('tedit-' + nodeId);
+  if (box.style.display === 'block') { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  box.innerHTML = `
+    <label>Nome do tópico (global — todos os editais)</label><input id="tn-${nodeId}" value="${nome}">
+    <label>Sinônimos (separados por vírgula)</label><input id="ts-${nodeId}" value="${sins}">
+    <div class="acts">
+      <button class="b-ok" onclick="salvarTopico('${edital}','${nodeId}')">Salvar</button>
+      <button class="b-no" onclick="desvincularTopico('${edital}','${nodeId}')">Desvincular deste edital</button>
+      <button class="b-ghost" onclick="$('tedit-${nodeId}').style.display='none'">Fechar</button>
+    </div>`;
+}
+async function salvarTopico(edital, nodeId) {
+  const sins = $('ts-' + nodeId).value.split(',').map(s => s.trim()).filter(Boolean);
+  const { error } = await sb.rpc('fn_admin_node_renomear', {
+    p_node: nodeId, p_nome: $('tn-' + nodeId).value.trim(), p_sinonimos: sins });
+  if (error) { toast(error.message, false); return; }
+  toast('Tópico atualizado ✓'); renderEdital(edital);
+}
+async function desvincularTopico(edital, nodeId) {
+  if (!confirm('Tirar este tópico da lente DESTE edital? (o nó continua no grafo e nos outros editais)')) return;
+  const { error } = await sb.rpc('fn_admin_edital_desvincular', { p_edital: edital, p_node: nodeId });
+  if (error) { toast(error.message, false); return; }
+  toast('Desvinculado ✓'); renderEdital(edital); carregarEditais();
 }
 async function mudarStatusEdital(id, s) {
   const { error } = await sb.rpc('fn_admin_edital_status', { p_id: id, p_status: s });
