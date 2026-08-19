@@ -190,7 +190,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-08-19c'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-08-19d'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -519,12 +519,12 @@ function abrirImportEstrutura(edital) {
   box.innerHTML = `<div class="subform">
     <div class="nome" style="margin-bottom:6px">Importar estrutura (verticalização)</div>
     <div class="hint">Formato — uma linha por entrada:<br>
-      <span class="mono">Nome da Disciplina</span><br>
+      <span class="mono">Nome da Disciplina | 20 questões</span> (nº do QUADRO do edital — recomendado)<br>
       <span class="mono">&gt; Nome do Assunto</span><br>
       <span class="mono">- Nome do Tópico | sinônimo 1, sinônimo 2</span> (sinônimos opcionais)<br>
-      Tópicos com o mesmo nome/assunto de outro edital REUSAM o mesmo nó do grafo
-      (é assim que o conhecimento do aluno transfere entre editais). Pesos entram uniformes —
-      cadastre as provas e rode o refino, ou ajuste overrides na árvore.</div>
+      Com o quadro completo, os pesos já nascem na proporção oficial do edital
+      (disciplina com mais questões pesa mais). Tópicos com o mesmo nome de outro edital
+      REUSAM o mesmo nó do grafo — o conhecimento do aluno transfere entre editais.</div>
     <textarea id="est-txt" rows="12" placeholder="Direito Constitucional
 > Direitos fundamentais
 - Direitos e deveres individuais e coletivos | remédios constitucionais
@@ -545,14 +545,27 @@ Informática
       $('estRun').style.display = 'none'; return;
     }
     estruturaParsed = r.estrutura;
-    $('estOut').textContent = `${r.nd} disciplina(s) · ${r.na} assunto(s) · ${r.nt} tópico(s) — confira e confirme.`;
+    const comQ = r.estrutura.filter(d => d.questoes != null).length;
+    const quadroTxt = comQ === 0 ? 'sem quadro (pesos uniformes)'
+      : comQ === r.nd ? `quadro completo: ${r.estrutura.reduce((s, d) => s + d.questoes, 0)} questões → pesos por disciplina`
+      : `ATENÇÃO: só ${comQ}/${r.nd} disciplinas com nº de questões — quadro incompleto será ignorado`;
+    $('estOut').textContent = `${r.nd} disciplina(s) · ${r.na} assunto(s) · ${r.nt} tópico(s) · ${quadroTxt} — confira e confirme.`;
     $('estRun').style.display = 'inline-block';
   };
   $('estRun').onclick = async () => {
     $('estOut').textContent = 'importando…';
     const { data, error } = await sb.rpc('fn_admin_estrutura_importar', { p_edital: edital, p_estrutura: estruturaParsed });
     if (error) { $('estOut').textContent = 'erro: ' + error.message; return; }
-    $('estOut').textContent = `Vinculados: ${data.vinculados} tópicos (${data.ja_vinculados} já estavam) · nós novos no grafo: ${data.nos_criados} · reaproveitados: ${data.nos_reusados}`;
+    let msg = `Vinculados: ${data.vinculados} tópicos (${data.ja_vinculados} já estavam) · nós novos no grafo: ${data.nos_criados} · reaproveitados: ${data.topicos_reusados ?? data.nos_reusados}`;
+    // quadro do edital: aplica pesos por disciplina automaticamente quando completo
+    if (estruturaParsed.every(d => d.questoes != null)) {
+      const quadro = {};
+      estruturaParsed.forEach(d => quadro[d.disciplina] = d.questoes);
+      const q = await sb.rpc('fn_admin_pesos_quadro', { p_edital: edital, p_quadro: quadro });
+      msg += q.error ? ` · quadro: ${q.error.message}`
+        : ` · pesos pelo quadro: ${q.data.disciplinas} disciplinas / ${q.data.total_questoes} questões ✓`;
+    }
+    $('estOut').textContent = msg;
     toast('Estrutura importada ✓');
     renderEdital(edital); carregarEditais();
   };
@@ -575,7 +588,10 @@ function parseEstrutura(txt) {
       ass = { assunto: line.replace(/^>+\s*/, ''), topicos: [] };
       disc.assuntos.push(ass); na++;
     } else {
-      disc = { disciplina: line.replace(/^#+\s*/, ''), assuntos: [] };
+      // disciplina, com nº de questões do quadro do edital opcional: "Português | 20" ou "| 20 questões"
+      const m = line.replace(/^#+\s*/, '').match(/^(.*?)(?:\|\s*(\d+)\s*(?:quest(?:õ|o)es?)?\s*)?$/i);
+      disc = { disciplina: (m[1] || '').trim(), assuntos: [],
+               questoes: m[2] ? parseInt(m[2]) : null };
       estrutura.push(disc); ass = null; nd++;
     }
   });
@@ -617,7 +633,8 @@ async function loadProvas() {
   const pane = $('pane-provas');
   pane.innerHTML = `
     <div class="pagetitle">P R O V A S</div>
-    <div class="pagesub">Provas oficiais por edital — gabarito, classificação e refino dos pesos.</div>
+    <div class="pagesub">OPCIONAL — calibração empírica só com provas recentes da MESMA banca (ou pós-prova do próprio concurso).
+      Sem provas confiáveis, a lente usa o quadro do edital + ajustes do professor. Prova de outra banca ou 6+ anos: não cadastrar.</div>
     <div class="acts" style="margin-bottom:12px">
       <button class="b-ghost" id="btnNovaProva">+ Cadastrar prova</button>
       <button class="b-split" id="btnRefino">Rodar refino de pesos</button>
