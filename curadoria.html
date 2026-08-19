@@ -190,7 +190,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-08-19e'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-08-19f'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -246,7 +246,6 @@ const IC = {
 const TABS = [
   { id: 'visao',        label: 'Visão Geral',  ic: 'visao',        load: loadVisao },
   { id: 'editais',      label: 'Editais',      ic: 'editais',      load: loadEditais },
-  { id: 'provas',       label: 'Provas',       ic: 'provas',       load: loadProvas },
   { id: 'bancas',       label: 'Bancas',       ic: 'bancas',       load: loadBancas },
   { id: 'itens',        label: 'Itens',        ic: 'itens',        load: loadItens },
   { id: 'qualidade',    label: 'Qualidade',    ic: 'qualidade',    load: loadQualidade },
@@ -349,7 +348,6 @@ async function loadVisao() {
       <div class="kpi ${d.itens_suspensos ? 'bad' : 'good'}" onclick="irPara('qualidade')"><div class="v">${d.itens_suspensos}</div><div class="k">ITENS SUSPENSOS</div></div>
       <div class="kpi ${d.propostas_pendentes ? 'warn' : 'good'}" onclick="irPara('propostas')"><div class="v">${d.propostas_pendentes}</div><div class="k">PROPOSTAS PENDENTES</div></div>
       <div class="kpi" onclick="irPara('solicitacoes')"><div class="v">${d.solicitacoes_abertas}</div><div class="k">SOLICITAÇÕES</div></div>
-      <div class="kpi" onclick="irPara('provas')"><div class="v">${d.provas}</div><div class="k">PROVAS OFICIAIS</div></div>
       <div class="kpi" onclick="irPara('bancas')"><div class="v">${d.bancas}</div><div class="k">BANCAS</div></div>
     </div>
     <div class="card">
@@ -398,12 +396,13 @@ async function loadEditais() {
     b.innerHTML = `<div class="subform">
       <div class="row2"><div><label>Concurso</label><input id="ne-conc" placeholder="ex.: PF"></div>
       <div><label>Cargo</label><input id="ne-cargo" placeholder="ex.: Agente"></div></div>
-      <div class="row2"><div><label>Banca</label><select id="ne-banca">${bancasCache.map(b2 => `<option value="${b2.id}">${esc(b2.nome)}</option>`).join('')}</select></div>
+      <div class="row2"><div><label>Banca (opcional)</label><select id="ne-banca"><option value="">(sem banca definida)</option>${bancasCache.map(b2 => `<option value="${b2.id}">${esc(b2.nome)}</option>`).join('')}</select></div>
       <div><label>Data da prova (opcional)</label><input id="ne-data" type="date"></div></div>
       <button class="b-ok" id="btnCriarEdital">Criar (rascunho)</button></div>`;
     if (!bancasCache.length) sb.rpc('fn_admin_bancas_listar').then(({ data }) => {
       bancasCache = data || [];
-      $('ne-banca').innerHTML = bancasCache.map(b2 => `<option value="${b2.id}">${esc(b2.nome)}</option>`).join('');
+      $('ne-banca').innerHTML = '<option value="">(sem banca definida)</option>' +
+        bancasCache.map(b2 => `<option value="${b2.id}">${esc(b2.nome)}</option>`).join('');
     });
     $('btnCriarEdital').onclick = async () => {
       const { data, error } = await sb.rpc('fn_admin_edital_salvar', { p: {
@@ -763,6 +762,12 @@ async function loadBancas() {
     <div class="card">
       <div class="nome">${esc(b.nome)}</div>
       <div class="meta mono">${b.editais} edital(is) · ${b.provas} prova(s) · ${(b.modelos || []).length} modelo(s)</div>
+      <div class="acts" style="margin:8px 0">
+        <button class="b-edit" onclick="abrirCobertura('${b.id}')">Mapa de cobertura</button>
+        <button class="b-ok" onclick="abrirImportQuestoes('${b.id}', '')">Importar questões</button>
+      </div>
+      <div id="cob-${b.id}"></div>
+      <div id="impq-${b.id}"></div>
       <div id="mods-${b.id}">${(b.modelos || []).map(m => `
         <div class="subform" style="margin-top:8px">
           <div class="row2" style="align-items:center">
@@ -777,6 +782,107 @@ async function loadBancas() {
         </div>`).join('')}</div>
       <div class="acts"><button class="b-split" onclick="abrirModelo('${b.id}', null)">+ Modelo de questão</button></div>
     </div>`).join('') || '<div class="card empty">Nenhuma banca.</div>';
+}
+async function abrirCobertura(bancaId) {
+  const box = $('cob-' + bancaId);
+  if (box.innerHTML) { box.innerHTML = ''; return; }
+  box.innerHTML = '<div class="empty">montando o mapa…</div>';
+  const { data: d, error } = await sb.rpc('fn_admin_banca_cobertura', { p_banca: bancaId });
+  if (error) { box.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
+  if (!(d.arvore || []).length) {
+    box.innerHTML = '<div class="hint">Nenhum edital vinculado a esta banca ainda — cadastre editais com esta banca para o mapa nascer.</div>';
+    return;
+  }
+  box.innerHTML = `
+    <div class="hint">Cobertura de questões REAIS desta banca por tópico (união dos editais dela:
+      ${(d.editais || []).map(e => esc(e.concurso)).join(', ')}). Gaps em vermelho = fila de trabalho da equipe.</div>
+    ${(d.arvore || []).map((disc, i) => `
+      <div class="disc" id="cobd-${bancaId}-${i}">
+        <div class="dh" onclick="$('cobd-${bancaId}-${i}').classList.toggle('open')">
+          <b>${esc(disc.disciplina)}</b>
+          <span class="badge ${disc.gaps > 0 ? 'red' : 'edge'}">${disc.gaps > 0 ? disc.gaps + ' gap(s)' : 'coberta'}</span>
+          <span class="meta mono">${disc.topicos_total} tópicos</span>
+        </div>
+        <div class="body">${(disc.assuntos || []).map(a => `
+          <div class="ass">${esc(a.assunto)}</div>
+          ${(a.topicos || []).map(t => `
+            <div class="top-row">
+              <span style="flex:1">${esc(t.nome)}</span>
+              <span class="badge ${t.n_banca === 0 ? 'red' : 'edge'}">${t.n_banca} da banca</span>
+              <span class="cov">ia:${t.n_ia}</span>
+              <button class="b-ghost" style="padding:3px 9px;font-size:10px"
+                onclick='abrirImportQuestoes("${bancaId}", ${JSON.stringify(esc(t.nome))})'>+ questões</button>
+            </div>`).join('')}`).join('')}
+        </div>
+      </div>`).join('')}`;
+}
+function abrirImportQuestoes(bancaId, topicoPrefill) {
+  const box = $('impq-' + bancaId);
+  box.innerHTML = `<div class="subform">
+    <div class="nome" style="margin-bottom:6px">Importar questões da banca${topicoPrefill ? ' — ' + esc(topicoPrefill) : ''}</div>
+    <div class="hint">Uma ou várias questões, separadas por linha com <span class="mono">---</span>. Campos por questão:<br>
+      <span class="mono">TÓPICO: nome do tópico</span> ${topicoPrefill ? '(opcional aqui — já preenchido)' : '(obrigatório)'}<br>
+      texto do enunciado (uma ou mais linhas)<br>
+      <span class="mono">GABARITO: C</span> ou <span class="mono">E</span> ·
+      opcionais: <span class="mono">EXPLICACAO:</span>, <span class="mono">ANO:</span>, <span class="mono">CONCURSO:</span></div>
+    <textarea id="qi-txt-${bancaId}" rows="10" placeholder="Conduzir veículo sob influência de álcool constitui crime apenas quando gerar perigo concreto de dano.
+GABARITO: E
+EXPLICACAO: O art. 306 do CTB é crime de perigo abstrato.
+---
+TÓPICO: Poder de polícia
+..."></textarea>
+    <div class="acts">
+      <button class="b-ghost" id="qiPrev-${bancaId}">Pré-visualizar</button>
+      <button class="b-ok" id="qiRun-${bancaId}" style="display:none">Confirmar import</button>
+    </div>
+    <div class="meta" id="qiOut-${bancaId}"></div></div>`;
+  let parsed = null;
+  $(`qiPrev-${bancaId}`).onclick = () => {
+    const r = parseQuestoes($(`qi-txt-${bancaId}`).value, topicoPrefill);
+    if (r.erros.length) {
+      $(`qiOut-${bancaId}`).innerHTML = '<span style="color:var(--vermelho)">' + r.erros.map(esc).join('<br>') + '</span>';
+      $(`qiRun-${bancaId}`).style.display = 'none'; return;
+    }
+    parsed = r.questoes;
+    $(`qiOut-${bancaId}`).textContent = `${r.questoes.length} questão(ões) prontas — confira e confirme.`;
+    $(`qiRun-${bancaId}`).style.display = 'inline-block';
+  };
+  $(`qiRun-${bancaId}`).onclick = async () => {
+    $(`qiOut-${bancaId}`).textContent = 'importando…';
+    const { data, error } = await sb.rpc('fn_admin_questoes_importar', { p_banca: bancaId, p_questoes: parsed });
+    if (error) { $(`qiOut-${bancaId}`).textContent = 'erro: ' + error.message; return; }
+    let msg = `Inseridas: ${data.inseridas} · duplicadas ignoradas: ${data.duplicadas}`;
+    if ((data.erros || []).length) msg += ' · ERROS: ' + data.erros.map(e => `${e.topico || '?'} (${e.erro})`).join('; ');
+    $(`qiOut-${bancaId}`).textContent = msg;
+    toast(data.inseridas + ' questão(ões) no acervo ✓');
+    $('cob-' + bancaId).innerHTML = ''; // força remontar o mapa atualizado
+  };
+}
+function parseQuestoes(txt, topicoPrefill) {
+  const questoes = []; const erros = [];
+  txt.split(/\n\s*---\s*\n?/).forEach((bloco, bi) => {
+    const b = bloco.trim(); if (!b) return;
+    const q = { topico: topicoPrefill || '', enunciado: '', gabarito: '', explicacao: '', ano: '', concurso: '' };
+    const linhas = [];
+    b.split('\n').forEach(l => {
+      const m = l.match(/^\s*(T[ÓO]PICO|GABARITO|EXPLICA[ÇC][ÃA]O|ANO|CONCURSO)\s*:\s*(.*)$/i);
+      if (m) {
+        const k = m[1].toUpperCase().replace('Ó','O').replace('ÇÃ','CA').replace('Ç','C').replace('Ã','A');
+        if (k.startsWith('TOPICO')) q.topico = m[2].trim();
+        else if (k.startsWith('GABARITO')) q.gabarito = m[2].trim();
+        else if (k.startsWith('EXPLICA')) q.explicacao = m[2].trim();
+        else if (k === 'ANO') q.ano = m[2].trim();
+        else if (k === 'CONCURSO') q.concurso = m[2].trim();
+      } else linhas.push(l);
+    });
+    q.enunciado = linhas.join(' ').replace(/\s+/g, ' ').trim();
+    if (!q.topico) erros.push(`questão ${bi + 1}: sem TÓPICO`);
+    if (!q.enunciado || q.enunciado.length < 20) erros.push(`questão ${bi + 1}: enunciado vazio/curto`);
+    if (!/^(c|e|certo|errado)$/i.test(q.gabarito)) erros.push(`questão ${bi + 1}: GABARITO deve ser C/E`);
+    questoes.push(q);
+  });
+  if (!questoes.length) erros.push('nenhuma questão encontrada');
+  return { questoes, erros };
 }
 function abrirModelo(bancaId, m) {
   const box = $('mods-' + bancaId);
