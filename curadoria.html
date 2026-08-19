@@ -190,7 +190,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-08-19b'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-08-19c'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -431,8 +431,10 @@ async function renderEdital(id) {
         `<button class="${s === st ? 'b-ok' : 'b-ghost'}" onclick="mudarStatusEdital('${id}','${s}')">${s}</button>`).join('')}
       <span style="flex:1"></span>
       <button class="b-edit" onclick="abrirImportEstrutura('${id}')">Importar estrutura</button>
-      <button class="b-split" onclick="abrirGerarSondas('${id}')">Gerar sondas em lote</button>
+      <button class="b-split" onclick="abrirGerarSondas('${id}')">Gerar sondas agora</button>
     </div>
+    <div class="hint">Sondas são AUTOMÁTICAS: edital <b>publicado</b> entra na fábrica (a cada 10 min um lote,
+      até cobrir todos os tópicos). O botão acima só acelera.</div>
     <div id="estBox"></div>
     <div id="gsBox"></div>
     <div id="edArvore">${(d.estrutura || []).map((disc, i) => `
