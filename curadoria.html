@@ -160,7 +160,9 @@
     <div class="brand">DOMINE<i>I</i></div>
     <div class="sub">ADMINISTRAÇÃO</div>
     <div id="navBtns"></div>
-    <div class="foot"><span id="who2"></span><br><button id="btnSair2">Sair</button></div>
+    <div class="foot"><span id="who2"></span><br>
+      <span id="buildStamp" style="color:var(--faint)"></span><br>
+      <button id="btnSair2">Sair</button></div>
   </nav>
   <div>
     <div id="mobtabs" style="display:none"></div>
@@ -188,6 +190,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
+const BUILD = '2026-08-19a'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -287,6 +290,7 @@ async function boot() {
   if (!staff) { show('viewNoAccess'); return; }
   $('who2').textContent = session.user.email;
   montarNav();
+  $('buildStamp').textContent = 'build ' + BUILD;
   show('viewApp');
   $('sidenav').style.visibility = 'visible';
   $('mobtabs').style.display = window.innerWidth >= 1024 ? 'none' : 'flex';
