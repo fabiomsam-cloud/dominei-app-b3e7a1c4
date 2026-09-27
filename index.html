@@ -1199,8 +1199,8 @@ function renderReveal() {
   // frase-síntese: o que o teste encontrou, sem nota e sem "% do edital"
   const partes = [`Você respondeu ${plural(reveal.respostas, 'questão', 'questões')} sobre ${plural(reveal.temas || 0, 'tema', 'temas')}.`];
   if (e.atencao > 0) partes.push(e.atencao === 1
-    ? `Um deles precisa de atenção${e.atencao_top ? ` (${e.atencao_top})` : ''} e volta ao seu plano como revisão nos próximos dias.`
-    : `Destes, ${e.atencao} precisam de atenção${e.atencao_top ? `, a começar por ${e.atencao_top}` : ''}; eles voltam ao seu plano como revisão nos próximos dias.`);
+    ? `Um deles precisa de atenção${e.atencao_top ? ` (${e.atencao_top})` : ''} e volta ao seu plano como revisão entre 3 e 7 dias.`
+    : `Destes, ${e.atencao} precisam de atenção${e.atencao_top ? `, a começar por ${e.atencao_top}` : ''}; os mais pesados voltam como revisão entre 3 e 7 dias, poucos por dia.`);
   else if (e.avaliados > 0) partes.push('Nenhum tema avaliado ficou abaixo do esperado.');
   $('rvSintese').textContent = partes.join(' ');
   $('rvStats').innerHTML = `
@@ -1401,7 +1401,7 @@ async function loadHoje() {
   $('hjCards').innerHTML = `
     <div class="minicard"><div class="v">${data.medidos}</div><div class="k">AVALIADOS</div></div>
     <div class="minicard"><div class="v">${data.desenvolvimento}</div><div class="k">EM DESENV.</div></div>
-    ${retorno ? '' : `<div class="minicard"><div class="v">${data.rever}</div><div class="k">PARA REVER</div></div>`}`; // retorno: sem cara de dívida (seção 1.3, dia 12)
+    <div class="minicard"><div class="v">${data.dominados}</div><div class="k">DOMINADOS</div></div>`; // revisão nunca vira contador de pendências
   if (data.acesso === false) {
     const p = (data.prioridades || [])[0];
     $('hjCard').innerHTML = `<div class="acaocard"><div class="k">SUA PRIORIDADE DE HOJE</div>
@@ -1706,8 +1706,8 @@ async function loadMapa() {
   if (error) { toast(humanizar(error.message)); return; }
   const lista = data.mapa || [];
   mapaPorNode = {}; lista.forEach(n => mapaPorNode[n.node_id] = n);
-  const aval = lista.filter(n => (n.n_evidencias || 0) >= 1).length, rever = lista.filter(n => n.rever).length;
-  $('mpSub').textContent = `${editalAtual.concurso} · ${aval} de ${lista.length} temas avaliados${rever ? ` · ${rever} para rever` : ''}`;
+  const aval = lista.filter(n => (n.n_evidencias || 0) >= 1).length;
+  $('mpSub').textContent = `${editalAtual.concurso} · ${aval} de ${lista.length} temas avaliados`;
   $('mpLegenda').innerHTML = LEGENDA_MAPA;
   $('mpMapa').innerHTML = heatmapHtml(mapaPorNode, true);
   animarBarras($('mpMapa'));
@@ -2090,7 +2090,7 @@ async function loadCerebroFull() {
   const medidos = lista.filter(aval);
   const indice = medidos.length ? (medidos.reduce((s, n) => s + desempenho(n), 0) / medidos.length) : 0;
   const verdes = lista.filter(n => n.estado === 'dominado').length;
-  const rever = lista.filter(n => n.rever).length;
+  const atencao = lista.filter(n => n.estado === 'atencao').length;
   const setorOk = estrutura.some(dd => { // disciplina com metade avaliada e desempenho médio ≥ 70
     const tops = dd.assuntos.flatMap(a => a.topicos).map(t => porNode[t.node_id] || {});
     const med = tops.filter(aval);
@@ -2101,7 +2101,7 @@ async function loadCerebroFull() {
   $('cbKpis').innerHTML = `
     <div class="kpi"><div class="v">${medidos.length}<small> /${lista.length}</small></div><div class="k">AVALIADOS</div><div class="d">temas com questão respondida</div></div>
     <div class="kpi"><div class="v" style="color:var(--verde)">${verdes}</div><div class="k">DOMINADOS</div><div class="d">3+ questões e desempenho ≥ 70</div></div>
-    <div class="kpi dourado"><div class="v">${rever}</div><div class="k">PARA REVER</div><div class="d">entram nas suas sessões</div></div>
+    <div class="kpi dourado"><div class="v">${atencao}</div><div class="k">PRECISAM DE ATENÇÃO</div><div class="d">desempenho abaixo de 40</div></div>
     <div class="kpi"><div class="v">${home?.streak ?? 0}</div><div class="k">DIAS SEGUIDOS</div><div class="d">com questão respondida</div></div>`;
   $('cvDoms').innerHTML = estrutura.map((d, di) => {
     const tops = d.assuntos.flatMap(a => a.topicos).map(t => porNode[t.node_id] || { forca: 0, incerteza: 100 });
