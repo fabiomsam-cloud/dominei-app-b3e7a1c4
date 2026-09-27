@@ -104,6 +104,13 @@ label { display:block; font-size:11px; color:var(--dim); margin:0 0 5px 2px; let
 /* ---------- FASE 0 ---------- */
 .f0 h2 { font-size:22px; margin-bottom:6px; }
 .f0 .sub { color:var(--dim); font-size:14px; margin-bottom:18px; }
+.f0-top { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.f0-top h2 { margin:0; }
+.f0-pular { margin:0; white-space:nowrap; }
+.f0-regras { list-style:none; margin:12px 0 22px; padding:14px 16px; border:1px solid var(--line); border-radius:var(--radius); background:var(--glass); }
+.f0-regras li { font-size:13.5px; line-height:1.5; color:var(--dim); padding:4px 0 4px 18px; position:relative; }
+.f0-regras li::before { content:''; position:absolute; left:2px; top:12px; width:6px; height:6px; border-radius:50%; background:var(--verde); }
+.f0-regras b { color:var(--text); font-weight:700; }
 .disc { background:var(--glass); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; margin-bottom:10px; }
 .disc .nome { font-weight:700; font-size:15px; margin-bottom:10px; }
 .chips { display:flex; gap:8px; }
@@ -121,8 +128,8 @@ label { display:block; font-size:11px; color:var(--dim); margin:0 0 5px 2px; let
 .prog .lbl { font-size:10px; letter-spacing:.18em; color:var(--dim); margin-bottom:6px; }
 .prog .lbl b { color:var(--verde); }
 .dots { display:flex; flex-wrap:wrap; gap:3px; }
-.dot { width:6px; height:6px; border-radius:2px; background:var(--card2); transition:background .4s; }
-.dot.fill { background:#3A5AA6; }
+.dot { width:8px; height:8px; border-radius:2px; background:var(--card2); transition:background .4s, box-shadow .4s; }
+.dot.fill { background:#7F9BD8; box-shadow:0 0 6px rgba(127,155,216,.5); } /* neutro: acende por assunto visto, nunca certo/errado (J7) */
 
 .qcard {
   background:var(--glass); border:1px solid var(--line); border-radius:18px;
@@ -385,6 +392,21 @@ body.tabs main { padding-bottom:96px; }
 .legend .lg-n::before { background:var(--nd); }
 
 .sharebar { position:sticky; bottom:0; padding:14px 0 8px; background:linear-gradient(transparent, var(--ink) 40%); }
+.rv-hero { min-height:calc(100dvh - 120px); display:flex; flex-direction:column; justify-content:center; }
+.rv-hero #rvCerebro svg { max-height:64dvh; }
+.rv-hero .legend { justify-content:center; }
+.rv-sintese { font-size:16px; line-height:1.55; margin:18px 0 16px; }
+.rv-prior { list-style:none; counter-reset:pr; margin:10px 0 16px; padding:0; }
+.rv-prior li { counter-increment:pr; position:relative; padding:13px 14px 13px 48px; margin-bottom:8px; border:1px solid var(--line); border-radius:13px; background:var(--glass); }
+.rv-prior li::before { content:counter(pr); position:absolute; left:14px; top:13px; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:12px; font-weight:700; color:var(--dim); border:1px solid var(--line); }
+.rv-prior li.p1 { border-color:rgba(47,224,141,.4); background:var(--verde-dim); }
+.rv-prior li.p1::before { color:var(--ink); background:var(--verde); border-color:var(--verde); }
+.rv-prior .pn { font-weight:700; font-size:15px; line-height:1.35; }
+.rv-prior .pm { color:var(--dim); font-size:13px; line-height:1.45; margin-top:3px; }
+.rv-nota { font-size:12.5px; color:var(--dim); text-align:center; margin:0 0 8px; }
+.rv-mapa { margin:14px 0 6px; border-top:1px solid var(--line); padding-top:6px; }
+.rv-mapa summary { cursor:pointer; min-height:44px; display:flex; align-items:center; color:var(--dim); font-size:14px; }
+.rv-mapa summary:hover { color:var(--text); }
 .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(10,18,34,.95); border:1px solid var(--line); color:var(--text); padding:11px 18px; border-radius:11px; font-size:13px; display:none; z-index:60; backdrop-filter:blur(8px); }
 
 /* ============ DESKTOP ============ */
@@ -468,6 +490,8 @@ body.tabs main { padding-bottom:96px; }
 
   <!-- HOME -->
   <section class="view" id="vHome">
+    <div id="homeRetomar"></div>
+    <div id="homeAlvo">
     <div class="hero" style="padding-top:4vh">
       <h2 style="font-size:26px">Qual é o seu alvo?</h2>
       <p class="lead" style="font-size:14px">Escolha o concurso — o teste se adapta a você em tempo real.</p>
@@ -476,6 +500,7 @@ body.tabs main { padding-bottom:96px; }
     <select id="selEdital"></select>
     <button class="btn" id="btnComecar" style="margin-top:8px">Descobrir meu mapa</button>
     <div class="msg" id="homeMsg"></div>
+    </div>
     <div class="card" style="margin-top:26px">
       <div class="imp-k">NÃO ACHOU SEU CONCURSO?</div>
       <p style="font-size:13px;color:var(--dim);margin-bottom:10px">Peça aqui — os mais votados entram primeiro na fila de curadoria.</p>
@@ -489,8 +514,15 @@ body.tabs main { padding-bottom:96px; }
 
   <!-- FASE 0 -->
   <section class="view f0" id="vFase0">
-    <h2>Antes de começar…</h2>
-    <p class="sub">Como você se sente em cada disciplina? Sinceridade pinta seu mapa mais rápido — a gente confere depois.</p>
+    <div class="f0-top"><h2>Antes do teste</h2><button class="ss-link f0-pular" id="btnPular" type="button">Pular e começar</button></div>
+    <ul class="f0-regras">
+      <li><b>Até 20 questões.</b> O teste se adapta às suas respostas.</li>
+      <li><b>Sem correção durante o teste.</b> Você não vê certo ou errado enquanto responde.</li>
+      <li><b>Resultado completo no fim:</b> seu mapa e suas três prioridades.</li>
+      <li>Não estudou um assunto? Toque em <b>Ainda não estudei isso</b>. Não conta contra você.</li>
+    </ul>
+    <div class="k-lbl" style="color:var(--dim)">OPCIONAL · AS 6 DISCIPLINAS QUE MAIS PESAM</div>
+    <p class="sub" style="margin-top:6px">Como você se sente em cada uma? Isso só ajuda a escolher as primeiras questões; quem pinta o mapa são as suas respostas.</p>
     <div id="listaDisc"></div>
     <button class="btn" id="btnIniciarTeste" style="margin-top:10px">Começar o teste</button>
   </section>
@@ -499,7 +531,7 @@ body.tabs main { padding-bottom:96px; }
   <section class="view" id="vTeste">
     <div class="topbar">
       <div class="prog">
-        <div class="lbl">MAPA <b id="pgPct">0%</b> COBERTO</div>
+        <div class="lbl" id="pgLbl">QUESTÃO <b>1</b> · DE ATÉ 20</div>
         <div class="dots" id="pgDots"></div>
       </div>
     </div>
@@ -513,7 +545,7 @@ body.tabs main { padding-bottom:96px; }
       <button class="abtn" data-r="certo">CERTO</button>
       <button class="abtn" data-r="errado">ERRADO</button>
     </div>
-    <button class="nuncavi" id="btnNuncaVi"><u>Nunca vi isso</u><small>sem penalidade — pinta o mapa mais rápido</small></button>
+    <button class="nuncavi" id="btnNuncaVi"><u>Ainda não estudei isso</u><small>não conta contra você</small></button>
     <div class="confbox" id="confbox">
       <div class="lbl">QUÃO CONFIANTE VOCÊ ESTÁ?</div>
       <div class="confs">
@@ -534,22 +566,21 @@ body.tabs main { padding-bottom:96px; }
 
   <!-- REVELAÇÃO -->
   <section class="view rv" id="vReveal">
-    <div class="head">
-      <h2 class="disp">O mapa do seu cérebro</h2>
-      <p id="rvSub"></p>
+    <div class="rv-hero">
+      <div class="head">
+        <h2 class="disp">O mapa do seu cérebro</h2>
+        <p id="rvSub"></p>
+      </div>
+      <div id="rvCerebro"></div>
+      <div class="legend" id="rvLegenda"></div>
     </div>
-    <div id="rvCerebro"></div>
+    <p class="rv-sintese" id="rvSintese"></p>
     <div class="stats" id="rvStats"></div>
+    <div class="k-lbl">SUAS PRIORIDADES</div>
+    <ol class="rv-prior" id="rvPrior"></ol>
     <div id="rvInsights"></div>
-    <div class="legend">
-      <span class="lg-v">domínio</span><span class="lg-a">no caminho</span>
-      <span class="lg-r">risco</span><span class="lg-n">ainda não medido</span>
-    </div>
-    <div id="rvMapa"></div>
-    <div class="sharebar">
-      <button class="btn" id="btnShare">Compartilhar meu mapa</button>
-      <button class="btn ghost" id="btnIrHoje" style="margin-top:8px">Começar a estudar agora →</button>
-    </div>
+    <details class="rv-mapa"><summary>Ver o mapa por disciplina</summary><div id="rvMapa"></div></details>
+    <div class="sharebar" id="rvBarra"></div>
   </section>
 
   <!-- HOJE (F5) -->
@@ -567,7 +598,7 @@ body.tabs main { padding-bottom:96px; }
     <div class="pbar"><i id="ssBar"></i></div>
     <div id="ssCorpo">
       <div class="txbase" id="ssTexto" style="margin-top:10px"></div>
-      <div class="qcard" style="margin-top:10px">
+      <div class="qcard" id="ssCard" style="margin-top:10px">
         <div class="tipo" id="ssTipo">JULGUE O ITEM</div>
         <div class="enun" id="ssEnun"></div>
       </div>
@@ -756,8 +787,34 @@ async function boot() {
     entrarModoAluno();
     return;
   }
+  await mostrarHome();
+}
+async function mostrarHome() {
+  $('homeRetomar').innerHTML = ''; $('homeAlvo').style.display = 'block';
   show('vHome');
   loadSolicitados();
+  const { data: ativas } = await sb.from('diag_sessoes').select('id, edital_id, respostas').eq('status', 'ativa').range(0, 0);
+  const a = ativas && ativas[0];
+  const ed = a && editais.find(e => e.id === a.edital_id);
+  if (!ed) return;
+  $('homeAlvo').style.display = 'none';
+  $('homeRetomar').innerHTML = `<div class="acaocard" style="margin-top:4vh"><div class="k">RETOMAR · DIAGNÓSTICO ${esc(ed.concurso)}</div>
+    <div class="n">Questão ${a.respostas + 1}</div>
+    <div class="m">Você parou na questão ${a.respostas + 1}. As respostas que você já deu ficaram guardadas.</div>
+    <button class="btn" id="btnRetomarDiag">Continuar o teste</button></div>`;
+  $('btnRetomarDiag').onclick = async () => {
+    $('btnRetomarDiag').disabled = true;
+    editalAtual = ed;
+    if (!(await carregarEstrutura())) { $('btnRetomarDiag').disabled = false; return; }
+    await iniciarTeste();
+  };
+}
+async function carregarEstrutura() {
+  const { data: est, error } = await sb.rpc('fn_edital_estrutura', { p_edital: editalAtual.id });
+  if (error) { toast(humanizar(error.message)); return false; }
+  estrutura = est || [];
+  totalTopicos = estrutura.reduce((s, d) => s + d.assuntos.reduce((s2, a) => s2 + a.topicos.length, 0), 0);
+  return true;
 }
 $('lnkModo').onclick = (e) => { e.preventDefault(); modoCadastro = !modoCadastro;
   $('btnEntrar').textContent = modoCadastro ? 'Criar conta' : 'Entrar';
@@ -784,10 +841,7 @@ async function carregarEditais() {
 $('btnComecar').onclick = async () => {
   editalAtual = editais.find(e => e.id === $('selEdital').value);
   if (!editalAtual) { $('homeMsg').textContent = 'Nenhum edital disponível.'; return; }
-  const { data: est, error } = await sb.rpc('fn_edital_estrutura', { p_edital: editalAtual.id });
-  if (error) { $('homeMsg').textContent = error.message; return; }
-  estrutura = est || [];
-  totalTopicos = estrutura.reduce((s, d) => s + d.assuntos.reduce((s2, a) => s2 + a.topicos.length, 0), 0);
+  if (!(await carregarEstrutura())) return;
   // sessão ativa? retoma direto, sem fase 0
   const { data: ativas } = await sb.from('diag_sessoes').select('id').eq('status', 'ativa').eq('edital_id', editalAtual.id).range(0, 0);
   if (ativas && ativas.length) { await iniciarTeste(); return; }
@@ -798,7 +852,8 @@ $('btnComecar').onclick = async () => {
 // ---------- fase 0 ----------
 function montarFase0() {
   declaracoes = {};
-  $('listaDisc').innerHTML = estrutura.map((d, i) => `
+  const top6 = estrutura.map((d, i) => ({ d, i })).sort((x, y) => (y.d.peso_total || 0) - (x.d.peso_total || 0)).slice(0, 6);
+  $('listaDisc').innerHTML = top6.map(({ d, i }) => `
     <div class="disc">
       <div class="nome">${esc(d.disciplina)}</div>
       <div class="chips" data-i="${i}">
@@ -815,6 +870,7 @@ function montarFase0() {
     });
   });
 }
+$('btnPular').onclick = async () => { tele('autoavaliacao_pulada'); declaracoes = {}; $('btnPular').disabled = true; await iniciarTeste(); $('btnPular').disabled = false; };
 $('btnIniciarTeste').onclick = async () => {
   $('btnIniciarTeste').disabled = true;
   const decl = [];
@@ -836,22 +892,31 @@ async function iniciarTeste() {
   if (error) { toast(error.message); show('vHome'); return; }
   sessao = data.sessao;
   montarDots();
+  if (data.retomada) { toast(`Você parou na questão ${(data.respostas || 0) + 1}. Seguimos daqui.`); tele('diagnostico_retomado', { respostas: data.respostas }); }
+  else tele('diagnostico_iniciado', { autoavaliacao: Object.keys(declaracoes).length });
   tratarResposta(data);
   show('vTeste');
 }
+// mapa neutro (J7): um ponto por assunto, que acende quando uma questão dele já foi respondida — nunca certo/errado
+let assuntoDoTopico = {};
 function montarDots() {
-  const n = Math.min(totalTopicos || 40, 120);
-  $('pgDots').innerHTML = Array.from({ length: n }, () => '<div class="dot"></div>').join('');
+  assuntoDoTopico = {};
+  const html = [];
+  estrutura.forEach(d => d.assuntos.forEach(a => {
+    a.topicos.forEach(t => assuntoDoTopico[t.node_id] = a.assunto_id);
+    html.push(`<div class="dot" data-a="${a.assunto_id}"></div>`);
+  }));
+  $('pgDots').innerHTML = html.join('');
 }
-function setProgresso(p) {
-  $('pgPct').textContent = Math.round((p || 0) * 100) + '%';
-  const dots = document.querySelectorAll('.dot');
-  const fill = Math.round((p || 0) * dots.length);
-  dots.forEach((d, i) => d.classList.toggle('fill', i < fill));
+function setProgresso(data) {
+  const n = (data.respostas || 0) + 1, teto = data.teto || 20;
+  $('pgLbl').innerHTML = `QUESTÃO <b>${Math.min(n, teto)}</b> · DE ATÉ ${teto}`;
+  const acesos = new Set((data.vistos || []).map(id => assuntoDoTopico[id]).filter(Boolean));
+  document.querySelectorAll('#pgDots .dot').forEach(d => d.classList.toggle('fill', acesos.has(d.dataset.a)));
 }
 function tratarResposta(data) {
-  if (data.fim) { reveal = data; tele('diagnostico_concluido', { respostas: data.respostas }); $('preSub').textContent = `${data.respostas} itens analisados contra o edital inteiro.`; show('vPre'); return; }
-  setProgresso(parseFloat(data.progresso));
+  if (data.fim) { reveal = data; tele('diagnostico_concluido', { respostas: data.respostas, temas: data.temas }); $('preSub').textContent = `${plural(data.respostas, 'resposta', 'respostas')} em ${plural(data.temas || 0, 'tema', 'temas')}, cruzadas com o edital inteiro.`; show('vPre'); return; }
+  setProgresso(data);
   renderItem(data.item);
 }
 function renderTextoBase(elId, item) { // texto de apoio acima do enunciado (LP/RLM/Física…)
@@ -863,34 +928,39 @@ function renderTextoBase(elId, item) { // texto de apoio acima do enunciado (LP/
     <div class="tc">${esc(tb.conteudo)}</div>`;
   el.classList.add('on'); el.scrollTop = 0;
 }
+// renderizador único de questão (2.5/3.4): o diagnóstico e a sessão usam o mesmo componente, cada um com seus ids
+const Q_DIAG = { card: 'qcard', texto: 'qTexto', tipo: 'qTipo', enun: 'qEnun', ce: 'ansCE', alts: 'qAlts', conf: 'confbox', nunca: 'btnNuncaVi' };
+const Q_SESS = { card: 'ssCard', texto: 'ssTexto', tipo: 'ssTipo', enun: 'ssEnun', ce: 'ssAns', alts: 'ssAlts', conf: 'ssConf', nunca: 'ssNunca' };
+function renderQuestao(ids, item, onPick) {
+  const card = $(ids.card);
+  card.style.animation = 'none'; void card.offsetWidth; card.style.animation = '';
+  renderTextoBase(ids.texto, item);
+  $(ids.enun).textContent = item.enunciado;
+  const me = item.tipo === 'multipla_escolha';
+  $(ids.tipo).textContent = me ? 'MARQUE A ALTERNATIVA' : 'JULGUE O ITEM';
+  $(ids.ce).style.display = me ? 'none' : 'flex';
+  $(ids.alts).style.display = me ? 'flex' : 'none';
+  $(ids.alts).innerHTML = me ? (item.alternativas || []).map((a, i) => {
+    const letra = String.fromCharCode(97 + i);
+    return `<button class="altbtn" data-r="${letra}"><b>${letra.toUpperCase()})</b> ${esc(typeof a === 'string' ? a : a.texto)}</button>`;
+  }).join('') : '';
+  $(ids.conf).classList.remove('on');
+  $(ids.nunca).style.display = 'block';
+  const botoes = () => document.querySelectorAll(`#${ids.ce} .abtn, #${ids.alts} .altbtn`);
+  botoes().forEach(b => {
+    b.classList.remove('on');
+    b.onclick = () => {
+      if (onPick(b.dataset.r) === false) return;
+      botoes().forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      $(ids.conf).classList.add('on');
+      $(ids.conf).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+  });
+}
 function renderItem(item) {
   itemAtual = item; respostaEscolhida = null; t0 = Date.now();
-  $('confbox').classList.remove('on');
-  document.querySelectorAll('.abtn').forEach(b => b.classList.remove('on'));
-  const card = $('qcard');
-  card.style.animation = 'none'; void card.offsetWidth; card.style.animation = '';
-  renderTextoBase('qTexto', item);
-  $('qEnun').textContent = item.enunciado;
-  const me = item.tipo === 'multipla_escolha';
-  $('qTipo').textContent = me ? 'MARQUE A ALTERNATIVA' : 'JULGUE O ITEM';
-  $('ansCE').style.display = me ? 'none' : 'flex';
-  $('qAlts').style.display = me ? 'flex' : 'none';
-  if (me) {
-    const alts = item.alternativas || [];
-    $('qAlts').innerHTML = alts.map((a, i) => {
-      const letra = String.fromCharCode(97 + i);
-      return `<button class="altbtn" data-r="${letra}"><b>${letra.toUpperCase()})</b> ${esc(typeof a === 'string' ? a : a.texto)}</button>`;
-    }).join('');
-    $('qAlts').querySelectorAll('.altbtn').forEach(b => b.onclick = () => escolher(b));
-  }
-}
-document.querySelectorAll('#ansCE .abtn').forEach(b => b.onclick = () => escolher(b));
-function escolher(btn) {
-  document.querySelectorAll('.abtn, .altbtn').forEach(x => x.classList.remove('on'));
-  btn.classList.add('on');
-  respostaEscolhida = btn.dataset.r;
-  $('confbox').classList.add('on');
-  $('confbox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  renderQuestao(Q_DIAG, item, r => { respostaEscolhida = r; });
 }
 document.querySelectorAll('#confbox .confs button').forEach(b => b.onclick = () => enviar(respostaEscolhida, b.dataset.c));
 $('btnNuncaVi').onclick = () => enviar('nunca_vi', null);
@@ -911,7 +981,10 @@ async function enviar(resposta, confianca) {
 // ---------- revelação ----------
 $('btnRevelar').onclick = () => { renderReveal(); show('vReveal'); };
 
+// cor = estado do servidor (seção 3.2: cor congelada no último desempenho observado); sem estado, a regra antiga
+const COR_ESTADO = { dominado: 'verde', desenvolvimento: 'amarelo', atencao: 'vermelho', nao_avaliado: 'nd', nao_estudei: 'nd' };
 function corDe(n) {
+  if (n.estado) return COR_ESTADO[n.estado] || 'nd';
   if (n.incerteza >= 85) return 'nd';
   if (n.forca >= 70) return 'verde';
   if (n.forca >= 40) return 'amarelo';
@@ -924,7 +997,7 @@ function nodeSvg(x, y, r, cor, i) {
   return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${COR_HEX[cor]}" ${glow} class="cn ${cor === 'nd' ? 'nd' : ''}" style="--d:${250 + i * 70}ms"/>`;
 }
 function corMedia(tops) {
-  const med = tops.filter(t => t.incerteza < 85);
+  const med = tops.filter(t => t.estado ? COR_ESTADO[t.estado] !== 'nd' : t.incerteza < 85);
   if (!med.length) return 'nd';
   return corDe({ forca: med.reduce((s, t) => s + t.forca, 0) / med.length, incerteza: 0 });
 }
@@ -973,9 +1046,9 @@ function renderCerebro(porNode, alvo = 'rvCerebro') {
 
 function heatmapHtml(porNode) {
   let html = ''; let idx = 0;
-  estrutura.forEach(d => {
+  [...estrutura].sort((x, y) => (y.peso_total || 0) - (x.peso_total || 0)).forEach(d => {
     const tops = d.assuntos.flatMap(a => a.topicos);
-    html += `<div class="dsec"><h3>${esc(d.disciplina)} <small>${Math.round((d.peso_total || 0) * 100)} pts de peso</small></h3>`;
+    html += `<div class="dsec"><h3>${esc(d.disciplina)} <small>peso ${Math.round((d.peso_total || 0) * 100)}%</small></h3>`;
     tops.forEach(t => {
       const n = porNode[t.node_id] || { forca: 0, incerteza: 100 };
       const cor = corDe(n);
@@ -995,37 +1068,60 @@ function animarBarras(container) {
     container.querySelectorAll('.bar i').forEach(i => i.style.width = i.dataset.w + '%'), 80));
 }
 
+const LEGENDA_ESTADOS = `<span class="lg-v">Dominado</span><span class="lg-a">Em desenvolvimento</span>
+  <span class="lg-r">Precisa de atenção</span><span class="lg-n">Ainda não avaliado</span>`;
 function renderReveal() {
   const mapa = reveal.mapa || [];
   const porNode = {}; mapa.forEach(n => porNode[n.node_id] = n);
   renderCerebro(porNode);
-  const medidos = mapa.filter(n => n.incerteza < 85);
-  const verdes = medidos.filter(n => n.forca >= 70).length;
+  $('rvLegenda').innerHTML = LEGENDA_ESTADOS;
+  const e = reveal.estados || {};
+  $('rvSub').textContent = `${editalAtual.concurso} · ${plural(reveal.respostas, 'resposta', 'respostas')}`;
 
-  $('rvSub').textContent = `${editalAtual.concurso} · ${reveal.respostas} itens respondidos`;
+  // frase-síntese: o que o teste encontrou, sem nota e sem "% do edital"
+  const partes = [`Você respondeu ${plural(reveal.respostas, 'questão', 'questões')} sobre ${plural(reveal.temas || 0, 'tema', 'temas')}.`];
+  if (e.atencao > 0) partes.push(e.atencao === 1
+    ? `Um deles precisa de atenção${e.atencao_top ? ` (${e.atencao_top})` : ''} e volta ao seu plano como revisão nos próximos dias.`
+    : `Destes, ${e.atencao} precisam de atenção${e.atencao_top ? `, a começar por ${e.atencao_top}` : ''}; eles voltam ao seu plano como revisão nos próximos dias.`);
+  else if (e.avaliados > 0) partes.push('Nenhum tema avaliado ficou abaixo do esperado.');
+  $('rvSintese').textContent = partes.join(' ');
   $('rvStats').innerHTML = `
-    <div class="stat"><div class="v">${Math.round(parseFloat(reveal.progresso) * 100)}%</div><div class="k">DO EDITAL MAPEADO</div></div>
-    <div class="stat"><div class="v">${verdes}</div><div class="k">TÓPICOS DOMINADOS</div></div>
-    <div class="stat"><div class="v">${mapa.length - medidos.length}</div><div class="k">A DESCOBRIR</div></div>`;
+    <div class="stat"><div class="v">${e.avaliados || 0}</div><div class="k">AVALIADOS</div></div>
+    <div class="stat"><div class="v">${e.atencao || 0}</div><div class="k">PRECISAM DE ATENÇÃO</div></div>
+    <div class="stat"><div class="v">${e.dominado || 0}</div><div class="k">DOMINADOS</div></div>`;
+
+  // a mesma lista de três prioridades da HOJE (fn_prioridades)
+  const pri = reveal.prioridades || [];
+  $('rvPrior').innerHTML = pri.length ? pri.map((a, i) => `<li${i === 0 ? ' class="p1"' : ''}>
+      <div class="pn">${esc(a.nome)}</div><div class="pm">${esc(montarMotivo(a))}</div></li>`).join('')
+    : '<li><div class="pm">Seu plano aparece na aba Hoje.</div></li>';
 
   let ins = '';
-  if (reveal.maior_risco) {
-    const r = reveal.maior_risco;
-    ins += `<div class="insight risco"><b>SEU MAIOR RISCO</b>${esc(r.nome)} — peso ${Math.round(r.peso * 100)}% no edital e domínio de apenas ${Math.round(r.forca)}%.</div>`;
-  }
   if (reveal.ponto_forte) {
-    ins += `<div class="insight forte"><b>SEU PONTO FORTE</b>${esc(reveal.ponto_forte.nome)} — ${Math.round(reveal.ponto_forte.forca)}% de domínio demonstrado. Isso é território conquistado.</div>`;
+    ins += `<div class="insight forte"><b>SEU PONTO FORTE</b>${esc(reveal.ponto_forte.nome)}: ${chip(reveal.ponto_forte.estado || 'desenvolvimento')}</div>`;
   }
-  if (reveal.calibracao_media !== null && reveal.calibracao_media < 0.5) {
-    ins += `<div class="insight ilusao"><b>SINAL DE ILUSÃO DE SABER</b>Você teve certeza em itens que errou. Não é falta de estudo — é revisão do jeito errado. O plano certo corrige isso.</div>`;
-  }
-  if (reveal.primeira_acao) {
-    ins += `<div class="insight acao"><b>SUA PRIMEIRA AÇÃO JÁ ESTÁ DECIDIDA</b>Começar por <b style="display:inline;letter-spacing:0">${esc(reveal.primeira_acao.nome)}</b> — é onde cada hora de estudo vale mais pontos na sua prova.</div>`;
+  if ((reveal.certeza_erro || 0) >= 2) {
+    ins += `<div class="insight ilusao"><b>CERTEZA COM ERRO</b>Você errou ${reveal.certeza_erro} itens em que marcou certeza. Vamos conferir esses pontos.</div>`;
   }
   $('rvInsights').innerHTML = ins;
 
-  $('rvMapa').innerHTML = heatmapHtml(porNode);
-  animarBarras($('rvMapa'));
+  // barra fixa: botão principal condicional, sempre sobre a prioridade nº 1
+  const p1 = pri[0];
+  const estudar = p1 && p1.motivo_cod === 'nunca_estudou';
+  $('rvBarra').innerHTML = !p1 ? `<button class="btn" id="rvIr">Ir para Hoje</button>`
+    : estudar ? `${p1.tem_resumo ? '<button class="btn" id="rvResumo">Ler o resumo</button>'
+          : '<p class="rv-nota">Ainda não temos resumo deste tema. Estude pela sua fonte; volto a perguntar em 3 dias.</p>'}
+        <button class="btn${p1.tem_resumo ? ' ghost' : ''}" id="rvConferir"${p1.tem_resumo ? ' style="margin-top:8px"' : ''}>Já estudei, quero conferir</button>
+        <button class="ss-link" id="rvIr" type="button" style="margin-top:4px">Ver o plano de hoje</button>`
+    : `<button class="btn" id="rvComecar">Começar minha primeira sessão</button>`;
+  if ($('rvIr')) $('rvIr').onclick = () => revelacaoAgir('hoje');
+  if ($('rvComecar')) $('rvComecar').onclick = () => revelacaoAgir('comecar');
+  if ($('rvResumo')) $('rvResumo').onclick = () => revelacaoAgir('resumo');
+  if ($('rvConferir')) $('rvConferir').onclick = () => revelacaoAgir('conferir');
+
+  $('rvMapa').innerHTML = `<div class="legend">${LEGENDA_ESTADOS}</div>` + heatmapHtml(porNode);
+  document.querySelector('#vReveal details').ontoggle = (ev) => { if (ev.target.open) animarBarras($('rvMapa')); };
+  tele('revelacao_vista', { p1: p1 && p1.node_id, modo: estudar ? 'estudar_primeiro' : 'praticar', avaliados: e.avaliados });
 }
 
 // ==================== F5 · DIA A DIA ====================
@@ -1113,11 +1209,25 @@ $('btnSolicitar').onclick = async () => {
   toast('Pedido registrado — avisaremos quando entrar.');
   loadSolicitados();
 };
-$('btnIrHoje').onclick = async () => {
+// Revelação → a prioridade nº 1 que a tela mostrou (3.2): começa a sessão, abre o resumo ou confere o estudo
+async function revelacaoAgir(modo) {
+  const p1 = (reveal.prioridades || [])[0];
   const { data: est } = await sb.rpc('fn_edital_estrutura', { p_edital: editalAtual.id });
   estrutura = est || estrutura;
-  entrarModoAluno();
-};
+  tele('revelacao_botao', { modo, node_id: p1 && p1.node_id });
+  document.body.classList.add('tabs');
+  $('snEdital').textContent = `${editalAtual.concurso} — ${editalAtual.cargo || ''}`;
+  $('btnSair').textContent = 'conta';
+  $('btnSair').onclick = abrirConta;
+  const { data, error } = await sb.rpc('fn_home', { p_edital: editalAtual.id });
+  if (error || !data || data.acesso === false || !data.plano || !p1) { entrarModoAluno(); return; }
+  home = data; planoAtual = data.plano;
+  if (modo === 'resumo') { abrirResumo(p1.node_id, p1.nome, 'estudo'); return; }
+  if (modo === 'conferir') { await conferirEstudo(); return; }
+  const b = (planoAtual.blocos || [])[planoAtual.posicao];
+  if (!b || b.node_id !== p1.node_id) { tele('revelacao_divergencia', { p1: p1.node_id, bloco: b && b.node_id }); entrarModoAluno(); return; }
+  await continuarPlano();
+}
 
 // ---------- HOJE (Fase 2: plano do dia) ----------
 let home = null, planoAtual = null;
@@ -1357,34 +1467,11 @@ function renderItemSessao(data) {
     $('ssTitulo').textContent = `${esc(sessEstudo.nome).toUpperCase()} · ${n} DE ${sessEstudo.total}`;
     $('ssBar').style.width = Math.round(100 * (n - 1) / Math.max(sessEstudo.total, 1)) + '%';
   }
-  renderTextoBase('ssTexto', data.item);
-  $('ssEnun').textContent = data.item.enunciado;
   $('ssFb').className = 'fb'; $('ssContinuar').style.display = 'none'; $('ssRep').innerHTML = ''; $('ssFbX').innerHTML = '';
-  $('ssConf').classList.remove('on'); $('ssNunca').style.display = 'block';
-  const me = data.item.tipo === 'multipla_escolha';
-  $('ssTipo').textContent = me ? 'MARQUE A ALTERNATIVA' : 'JULGUE O ITEM';
-  $('ssAns').style.display = me ? 'none' : 'flex';
-  $('ssAlts').style.display = me ? 'flex' : 'none';
-  if (me) {
-    const alts = data.item.alternativas || [];
-    $('ssAlts').innerHTML = alts.map((a, i) => {
-      const letra = String.fromCharCode(97 + i);
-      return `<button class="altbtn" data-r="${letra}"><b>${letra.toUpperCase()})</b> ${esc(typeof a === 'string' ? a : a.texto)}</button>`;
-    }).join('');
-    document.querySelectorAll('#ssAlts .altbtn').forEach(b => b.onclick = () => escolherSessao(b));
-  }
-  document.querySelectorAll('#ssAns .abtn, #ssAlts .altbtn').forEach(b => b.classList.remove('on'));
+  renderQuestao(Q_SESS, data.item, r => { if (fbAtual) return false; ssResp = r; });
   sessEstudo.itemAtual = data.item;
 }
 let ssResp = null;
-function escolherSessao(btn) {
-  if (fbAtual) return;
-  document.querySelectorAll('#ssAns .abtn, #ssAlts .altbtn').forEach(x => x.classList.remove('on'));
-  btn.classList.add('on'); ssResp = btn.dataset.r;
-  $('ssConf').classList.add('on');
-  $('ssConf').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-document.querySelectorAll('#ssAns .abtn').forEach(b => b.onclick = () => escolherSessao(b));
 document.querySelectorAll('#ssConf .confs button').forEach(b => b.onclick = () => responderSessao(ssResp, b.dataset.c));
 function renderReportBtn() { // report reativo: alimenta a fila de Qualidade da equipe
   const itemId = sessEstudo.itemAtual?.id;
@@ -2068,12 +2155,7 @@ async function loadImportar() {
     : '<div class="card" style="text-align:center;color:var(--dim)">Nada importado ainda. Seu caderno vale evidência — envie a primeira foto.</div>';
 }
 
-$('btnShare').onclick = async () => {
-  const pct = Math.round(parseFloat(reveal.progresso) * 100);
-  const texto = `Revelei o mapa do meu cérebro para ${editalAtual.concurso} no DOMINEI 🧠 ${pct}% do edital mapeado — e minha primeira ação de estudo já está decidida. dominei.app`;
-  if (navigator.share) { try { await navigator.share({ text: texto }); } catch (e) {} }
-  else { await navigator.clipboard.writeText(texto); toast('Copiado! Cole onde quiser.'); }
-};
+// compartilhar da Revelação: escondido até a 3.10 (imagem do cérebro, sem "% do edital mapeado")
 
 boot();
 </script>
