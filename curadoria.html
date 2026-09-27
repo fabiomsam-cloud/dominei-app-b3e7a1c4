@@ -190,7 +190,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-09-27a'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-09-27b'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -635,8 +635,9 @@ async function abrirGerarSondas(edital) {
   const box = $('gsBox');
   box.innerHTML = `<div class="subform">
     <div class="row2">
-      <div><label>Sondas por tópico (piso)</label><input id="gs-min" type="number" min="1" max="3" value="1"></div>
+      <div><label>Sondas por tópico (piso)</label><input id="gs-min" type="number" min="1" max="5" value="3"></div>
       <div><label>Tópicos por rodada</label><input id="gs-lote" type="number" min="1" max="10" value="6"></div>
+      <div><label>Só a trilha (50% do peso)</label><select id="gs-trilha"><option value="1">sim</option><option value="0">não, edital inteiro</option></select></div>
     </div>
     <button class="b-ok" id="gsRun">Rodar geração agora</button>
     <div class="meta" id="gsOut" style="margin-top:8px"></div></div>`;
@@ -646,10 +647,11 @@ async function abrirGerarSondas(edital) {
       const token = (await sb.rpc('fn_admin_jobs_token')).data;
       const r = await fetch(EDGE_SONDAS, { method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-jobs-token': token },
-        body: JSON.stringify({ edital_id: edital, por_topico: +$('gs-min').value, lote: +$('gs-lote').value }) });
+        body: JSON.stringify({ edital_id: edital, por_topico: +$('gs-min').value, lote: +$('gs-lote').value, apenas_trilha: $('gs-trilha').value === '1', origem: 'painel' }) });
       const j = await r.json();
       if (j.status === 'completo') { $('gsOut').textContent = 'Cobertura completa neste piso — nada a gerar.'; return; }
-      $('gsOut').textContent = `Publicadas: ${j.publicados} · reprovadas pelo verificador: ${j.reprovados_pelo_verificador} · tópicos ainda pendentes: ${j.topicos_ainda_pendentes}`;
+      if (j.status === 'teto_diario') { $('gsOut').textContent = `Teto de gasto do dia atingido (US$ ${j.gasto_hoje_usd} de ${j.teto_usd}).`; return; }
+      $('gsOut').textContent = `Publicadas: ${j.publicados} · aprovadas: ${j.aprovados} (excedentes ${j.excedentes}) · reprovadas: ${j.reprovados_pelo_verificador} · custo US$ ${j.custo_usd} · tópicos ainda pendentes: ${j.topicos_ainda_pendentes}`;
       renderEdital(edital);
     } catch (e) { $('gsOut').textContent = 'erro: ' + e.message; }
   };
