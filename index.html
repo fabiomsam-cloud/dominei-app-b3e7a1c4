@@ -8,13 +8,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Archivo+Black&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 <style>
 :root {
   --ink:#030710; --card:#0A1322; --card2:#0E1A2E;
   --glass:linear-gradient(168deg, rgba(15,26,45,.88), rgba(7,13,24,.94));
   --line:rgba(132,170,214,.13); --line-v:rgba(47,224,141,.28);
-  --text:#EAF2EC; --dim:#7E8CA0; --faint:#4C5870;
+  --text:#EAF2EC; --dim:#7E8CA0; --faint:#6E7C94; /* --faint: 2,8:1 → 4,6:1 sobre --ink (Fase 0.8) */
   --verde:#2FE08D; --verde2:#57F2AE; --verde-dim:rgba(47,224,141,.13);
   --amarelo:#F2B33D; --vermelho:#ED5A5A; --nd:#39435C; --ouro:#F5C542;
   --radius:14px;
@@ -171,8 +171,9 @@ label { display:block; font-size:11px; color:var(--dim); margin:0 0 5px 2px; let
   background:rgba(5,10,20,.92); backdrop-filter:blur(16px); border-top:1px solid var(--line);
   padding:9px 4px calc(9px + env(safe-area-inset-bottom)); z-index:40; }
 .tabbar.on { display:flex; }
-.tabbar button { background:none; border:none; color:var(--dim); font-size:9px; font-weight:700;
-  display:flex; flex-direction:column; align-items:center; gap:4px; letter-spacing:.08em; font-family:var(--mono); }
+.tabbar button { background:none; border:none; color:var(--dim); font-size:10px; font-weight:700;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; letter-spacing:.06em; font-family:var(--mono);
+  flex:1; min-height:44px; padding:2px 0; cursor:pointer; }
 .tabbar button.on { color:var(--verde); }
 .tabbar button.on svg { filter:drop-shadow(0 0 6px rgba(47,224,141,.7)); }
 body.tabs main { padding-bottom:96px; }
@@ -222,7 +223,7 @@ body.tabs main { padding-bottom:96px; }
 .revrow .rn { flex:1; font-size:14px; }
 .revrow .rd { font-size:11px; color:var(--amarelo); display:block; margin-top:2px; }
 .revrow button { background:var(--verde-dim); color:var(--verde); border:1px solid rgba(47,224,141,.4);
-  border-radius:9px; padding:8px 13px; font-size:11.5px; font-weight:800; font-family:var(--mono); letter-spacing:.04em; }
+  border-radius:9px; padding:8px 13px; min-height:44px; font-size:11.5px; font-weight:800; font-family:var(--mono); letter-spacing:.04em; }
 .sess-res { text-align:center; padding:5vh 0; }
 .sess-res .big { font-size:46px; color:var(--verde); font-family:'Archivo'; font-variation-settings:'wdth' 78,'wght' 800;
   text-shadow:0 0 34px rgba(47,224,141,.4); }
@@ -260,7 +261,7 @@ body.tabs main { padding-bottom:96px; }
 .cv-wrap canvas { width:100%; height:100%; display:block; touch-action:none; cursor:grab; }
 .cv-wrap canvas:active { cursor:grabbing; }
 .cv-controls { position:absolute; left:12px; bottom:12px; display:flex; flex-direction:column; gap:6px; }
-.cv-controls button { width:34px; height:34px; border-radius:9px; background:rgba(9,16,30,.85);
+.cv-controls button { width:44px; height:44px; border-radius:9px; background:rgba(9,16,30,.85);
   border:1px solid var(--line); color:var(--dim); font-size:16px; font-family:var(--mono);
   backdrop-filter:blur(8px); }
 .cv-controls button:hover { color:var(--verde); border-color:var(--line-v); }
@@ -296,7 +297,7 @@ body.tabs main { padding-bottom:96px; }
 .cv-info .st { display:flex; gap:14px; margin-top:8px; font-size:12px; color:var(--dim); }
 .cv-info .st b { font-family:var(--mono); font-size:13px; }
 .cv-info .est { margin-top:12px; width:auto; padding:10px 18px; font-size:13px; border-radius:9px; }
-.cv-info .fech { position:absolute; top:8px; right:12px; background:none; border:none; color:var(--faint); font-size:16px; }
+.cv-info .fech { position:absolute; top:0; right:0; background:none; border:none; color:var(--dim); font-size:18px; min-width:44px; min-height:44px; cursor:pointer; }
 .cv-panel { margin-top:14px; }
 .cv-pk { font-family:var(--mono); font-size:9.5px; letter-spacing:.22em; color:var(--dim); margin-bottom:10px; }
 .dom { display:flex; align-items:center; gap:12px; padding:10px 2px; border-bottom:1px solid rgba(132,170,214,.07); cursor:pointer; }
@@ -660,6 +661,39 @@ const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const sb = supabase.createClient(SB_URL, SB_KEY);
 const $ = (id) => document.getElementById(id);
 
+// ---- telemetria mínima (Fase 0.7): erros de JS + eventos de jornada, em lote, só do próprio aluno
+const BUILD = (document.querySelector('meta[name="build"]') || {}).content || '';
+const tele = (() => {
+  let fila = [], timer = null;
+  async function flush() {
+    timer = null;
+    if (!fila.length) return;
+    const lote = fila.splice(0, 200);
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return;                                   // sem login não há evento de jornada
+      await sb.rpc('fn_ui_eventos_gravar', { p_lote: lote });
+    } catch (e) { /* telemetria nunca quebra o app */ }
+  }
+  function tele(evento, dados, tela) {
+    fila.push({ evento, tela: tela || (document.querySelector('.view.on') || {}).id || null,
+                dados: dados || {}, build: BUILD, ts: new Date().toISOString() });
+    if (!timer) timer = setTimeout(flush, 1500);
+  }
+  tele.flush = flush;
+  window.addEventListener('pagehide', flush);
+  return tele;
+})();
+function registrarErro(msg, stack) {
+  // o builder do supabase-js só dispara a requisição quando é aguardado (.then)
+  try { sb.rpc('fn_app_erro_gravar', { p_mensagem: String(msg || 'erro'), p_stack: stack ? String(stack) : null,
+        p_url: location.href, p_build: BUILD, p_user_agent: navigator.userAgent }).then(() => {}, () => {}); } catch (e) {}
+}
+window.addEventListener('error', (e) => registrarErro(e.message, e.error && e.error.stack));
+window.addEventListener('unhandledrejection', (e) => {
+  const r = e.reason || {}; registrarErro(r.message || String(r), r.stack);
+});
+
 let modoCadastro = false;
 let editais = [], editalAtual = null, estrutura = [];
 let sessao = null, itemAtual = null, respostaEscolhida = null, t0 = null;
@@ -702,7 +736,7 @@ $('btnEntrar').onclick = async () => {
     ? await sb.auth.signUp({ email, password })
     : await sb.auth.signInWithPassword({ email, password });
   if (error) { $('authMsg').textContent = error.message; return; }
-  if (modoCadastro) { $('authMsg').textContent = 'Conta criada! Confirme pelo e-mail e entre.'; modoCadastro = false; return; }
+  if (modoCadastro) { tele('cadastro'); $('authMsg').textContent = 'Conta criada! Confirme pelo e-mail e entre.'; modoCadastro = false; return; }
   boot();
 };
 $('btnSair').onclick = async () => { await sb.auth.signOut(); location.reload(); };
@@ -783,7 +817,7 @@ function setProgresso(p) {
   dots.forEach((d, i) => d.classList.toggle('fill', i < fill));
 }
 function tratarResposta(data) {
-  if (data.fim) { reveal = data; $('preSub').textContent = `${data.respostas} itens analisados contra o edital inteiro.`; show('vPre'); return; }
+  if (data.fim) { reveal = data; tele('diagnostico_concluido', { respostas: data.respostas }); $('preSub').textContent = `${data.respostas} itens analisados contra o edital inteiro.`; show('vPre'); return; }
   setProgresso(parseFloat(data.progresso));
   renderItem(data.item);
 }
@@ -1092,6 +1126,7 @@ async function iniciarSessaoEstudo(node, tipo) {
   if (data.erro === 'sem_itens') { toast('Ainda não há questões para este tópico.'); return; }
   if (data.acao === 'descanso') { toast(data.motivo); return; }
   sessEstudo = data;
+  tele('sessao_iniciada', { sessao: data.sessao, tipo: data.tipo, node_id: data.node_id || node, retomada: !!data.retomada, total: data.total, repetidos: data.repetidos || 0 });
   $('tabbar').classList.remove('on');
   $('ssFim').style.display = 'none';
   renderItemSessao(data);
@@ -1163,6 +1198,7 @@ document.querySelectorAll('#ssAns .abtn').forEach(b => b.onclick = () => respond
 $('ssContinuar').onclick = () => {
   if (!fbAtual) return;
   if (fbAtual.fim) {
+    tele('sessao_concluida', { sessao: sessEstudo && sessEstudo.sessao, acertos: fbAtual.acertos, total: fbAtual.total });
     $('ssAns').style.display = 'none';
     $('ssAlts').style.display = 'none';
     $('ssTexto').classList.remove('on');
@@ -1477,7 +1513,7 @@ const CerebroVivo = {
       if (n.nivel === 'topico' && this.cam.z >= 1.4) {
         const alfa = Math.min(1, (this.cam.z - 1.35) * 1.8) * (n.ovo ? .95 : n.cor === 'nd' ? .4 : .85);
         ctx.globalAlpha = alfa;
-        ctx.font = `${n.ovo ? '700 ' : ''}${9.5 / this.cam.z}px 'Atkinson Hyperlegible', sans-serif`;
+        ctx.font = `${n.ovo ? '700 ' : ''}${11 / (this.fit * this.cam.z)}px 'Atkinson Hyperlegible', sans-serif`;
         ctx.textAlign = 'left';
         ctx.fillStyle = n.ovo ? OURO : '#BECDE1';
         const nome = n.nome.length > 26 ? n.nome.slice(0, 25) + '…' : n.nome;
@@ -1489,12 +1525,12 @@ const CerebroVivo = {
         const alt = parseInt(n.id.slice(1), 10) % 2;
         const lr = 122 + alt * 34;
         const lx = Math.cos(n.ang) * lr, ly = Math.sin(n.ang) * lr;
-        ctx.font = `700 ${9.5 / this.cam.z}px Archivo, sans-serif`;
+        ctx.font = `700 ${11 / (this.fit * this.cam.z)}px Archivo, sans-serif`;
         ctx.textAlign = Math.cos(n.ang) > .3 ? 'left' : Math.cos(n.ang) < -.3 ? 'right' : 'center';
         ctx.fillStyle = 'rgba(190,205,225,.78)';
         const rot = n.nome.length > 24 ? n.nome.toUpperCase().slice(0, 23) + '…' : n.nome.toUpperCase();
         ctx.fillText(rot, lx, ly);
-        if (n.pct != null) { ctx.fillStyle = cor; ctx.font = `700 ${9.5 / this.cam.z}px Menlo, monospace`;
+        if (n.pct != null) { ctx.fillStyle = cor; ctx.font = `700 ${11 / (this.fit * this.cam.z)}px Menlo, monospace`;
           ctx.fillText(n.pct + '%', lx, ly + 12 / this.cam.z); }
       }
     });
