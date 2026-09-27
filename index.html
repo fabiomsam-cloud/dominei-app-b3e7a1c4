@@ -67,7 +67,7 @@ button { font-family:inherit; cursor:pointer; border:none; }
 
 /* ---------- CABEÇALHO DE PÁGINA ---------- */
 .pagetitle { font-family:'Archivo', sans-serif; font-variation-settings:'wdth' 82,'wght' 700;
-  font-size:19px; letter-spacing:.42em; color:var(--text); }
+  font-size:22px; letter-spacing:.01em; color:var(--text); }
 .pagesub { color:var(--dim); font-size:13px; margin-top:5px; }
 
 /* ---------- SIDEBAR (desktop) ---------- */
@@ -100,6 +100,20 @@ label { display:block; font-size:11px; color:var(--dim); margin:0 0 5px 2px; let
 .msg { min-height:20px; font-size:13px; color:var(--vermelho); margin-top:8px; }
 .alt { text-align:center; margin-top:14px; font-size:13px; color:var(--dim); }
 .alt a { color:var(--verde); text-decoration:none; }
+/* entrada (4.1) */
+.au-top { display:flex; justify-content:flex-end; }
+.au-top .ss-link { margin:0; }
+.hero p.au-promessa { color:var(--text); font-size:20px; line-height:1.4; font-weight:700; max-width:28ch; }
+.au-alvo { border:1px solid var(--line-v); background:var(--verde-dim); border-radius:13px; padding:12px 14px; margin-top:6px; }
+.au-alvo .k-lbl { margin-top:0; }
+.au-alvo-n { font-weight:800; font-size:16px; margin-top:4px; }
+.au-alvo-v { color:var(--dim); font-size:12.5px; margin-top:2px; }
+.au-passos { list-style:none; counter-reset:ps; margin:10px 0 14px; padding:0; }
+.au-passos li { counter-increment:ps; position:relative; padding:6px 0 6px 34px; color:var(--dim); font-size:14px; line-height:1.45; }
+.au-passos li::before { content:counter(ps); position:absolute; left:0; top:6px; width:22px; height:22px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:11px; color:var(--text); }
+.au-passos b { color:var(--text); }
+.au-regra { font-size:12.5px; color:var(--dim); line-height:1.5; margin:0 0 14px; padding:10px 12px; border-left:2px solid var(--line-v); }
+.au-form-t { font-weight:800; font-size:18px; margin-bottom:8px; }
 
 /* ---------- FASE 0 ---------- */
 .f0 h2 { font-size:22px; margin-bottom:6px; }
@@ -299,8 +313,13 @@ body.tabs main { padding-bottom:96px; }
   border:1px solid var(--line); color:var(--dim); font-size:16px; font-family:var(--mono);
   backdrop-filter:blur(8px); }
 .cv-controls button:hover { color:var(--verde); border-color:var(--line-v); }
-.cv-legend { position:absolute; top:12px; right:12px; background:rgba(7,12,24,.82); border:1px solid var(--line);
-  border-radius:11px; padding:11px 14px; backdrop-filter:blur(8px); }
+.cv-col { position:relative; min-width:0; }
+/* celular: legenda FORA do canvas, em linha abaixo do grafo (5.1); desktop: sobreposta no canto */
+.cv-legend { position:static; margin-top:10px; background:rgba(7,12,24,.82); border:1px solid var(--line);
+  border-radius:11px; padding:10px 12px; display:flex; flex-wrap:wrap; gap:2px 14px; }
+.cv-legend .t { flex-basis:100%; }
+.cv-legend .lg { min-height:32px; }
+.cv-legend .lg-ne::before { background:transparent; border:1px dashed var(--dim); width:7px; height:7px; }
 .cv-legend .t { font-family:var(--mono); font-size:8.5px; letter-spacing:.2em; color:var(--dim); margin-bottom:8px; }
 .cv-legend .lg { display:flex; align-items:center; gap:8px; font-size:11px; color:var(--dim); padding:2.5px 0;
   cursor:pointer; border-radius:7px; transition:opacity .2s, color .2s; user-select:none; }
@@ -376,13 +395,22 @@ body.tabs main { padding-bottom:96px; }
 .dsec h3 { font-size:15px; letter-spacing:.03em; margin-bottom:10px; display:flex; justify-content:space-between; align-items:baseline; }
 .dsec h3 small { color:var(--dim); font-weight:400; font-size:11px; font-family:var(--mono); }
 .trow { display:flex; align-items:center; gap:10px; margin-bottom:7px; opacity:0; animation:enter .4s both; animation-delay:var(--d, 0ms); }
-.trow .tn { flex:1; font-size:13px; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.trow .tn { flex:1; font-size:13px; color:var(--text); overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; line-height:1.3; }
+.trow.clk { cursor:pointer; min-height:40px; border-radius:8px; }
+.trow.clk:hover .tn, .trow.clk.aberto .tn { color:var(--verde); }
+.trow .mk { font-size:11px; color:var(--amarelo); margin-left:4px; white-space:nowrap; font-family:var(--mono); }
+.trow.visto .bar { outline:1px solid rgba(132,170,214,.25); }
+.trow.v-ne .bar { background:transparent; border:1px dashed rgba(126,140,160,.5); }
+.tdet { margin:-2px 0 10px; padding:12px 14px; border:1px solid var(--line); border-radius:11px; background:var(--glass); font-size:13px; color:var(--dim); line-height:1.5; animation:enter .25s both; }
+.tdet .l { margin:6px 0 10px; }
+.tdet .btn { padding:11px 16px; font-size:14px; }
+.mp-dica { font-size:12px; color:var(--faint); margin:2px 0 4px; }
 .trow .bar { flex:1.1; height:8px; border-radius:5px; background:var(--card2); overflow:hidden; }
 .trow .bar i { display:block; height:100%; width:0; border-radius:5px; transition:width 1s cubic-bezier(.2,.8,.2,1); }
 .trow.v-verde .bar i { background:linear-gradient(90deg, #1FBF77, var(--verde)); box-shadow:0 0 10px rgba(47,224,141,.5); }
 .trow.v-amarelo .bar i { background:var(--amarelo); }
 .trow.v-vermelho .bar i { background:var(--vermelho); }
-.trow.v-nd .bar i { background:var(--nd); width:100% !important; opacity:.4; }
+.trow.v-nd .bar i { width:0 !important; } /* seção 3.2: ainda não avaliado = barra vazia */
 .trow.v-nd .tn { color:var(--dim); }
 .legend { display:flex; gap:14px; margin:14px 0 4px; font-size:11px; color:var(--dim); flex-wrap:wrap; }
 .legend span::before { content:''; display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
@@ -390,6 +418,10 @@ body.tabs main { padding-bottom:96px; }
 .legend .lg-a::before { background:var(--amarelo); }
 .legend .lg-r::before { background:var(--vermelho); }
 .legend .lg-n::before { background:var(--nd); }
+.legend .lg-ne::before { background:transparent; border:1px dashed var(--dim); width:6px; height:6px; }
+.legend .lg-rv::before, .legend .lg-vi::before { display:none; }
+.legend .lg-rv { color:var(--amarelo); }
+.legend .lg-vi { border:1px solid rgba(132,170,214,.35); border-radius:5px; padding:0 5px; }
 
 .sharebar { position:sticky; bottom:0; padding:14px 0 8px; background:linear-gradient(transparent, var(--ink) 40%); }
 .rv-hero { min-height:calc(100dvh - 120px); display:flex; flex-direction:column; justify-content:center; }
@@ -444,6 +476,8 @@ body.tabs main { padding-bottom:96px; }
   .cv-wrap { height:600px; }
   .cv-panel { margin-top:0; background:var(--glass); border:1px solid var(--line); border-radius:16px; padding:20px; }
   .cv-info { left:auto; right:12px; width:340px; }
+  .cv-legend { position:absolute; top:12px; right:12px; margin:0; display:block; padding:11px 14px; backdrop-filter:blur(8px); }
+  .cv-legend .lg { min-height:0; }
 
   /* Teste/sessão centrados no desktop */
   #vTeste, #vSessao, #vReveal, #vPre { max-width:640px; margin:0 auto; }
@@ -474,17 +508,29 @@ body.tabs main { padding-bottom:96px; }
 <main>
   <!-- AUTH -->
   <section class="view" id="vAuth">
-    <div class="hero">
-      <div class="brand" style="font-size:40px">DOMINE<i>I</i></div>
-      <p class="lead">Descubra <b>o mapa do seu cérebro</b> para o concurso — o que você já domina, o que só acha que sabe, e por onde começar.</p>
-      <p class="lead" style="font-size:13px">≈ 15 minutos · grátis</p>
+    <div class="au-top"><button class="ss-link" id="lnkEntrarTopo" type="button">Já tenho conta · Entrar</button></div>
+    <div id="auLanding">
+      <div class="hero" style="padding:3vh 0 14px">
+        <p class="lead au-promessa" style="margin-top:0">Saiba o que estudar hoje, entenda seus erros e revise o que precisa consolidar.</p>
+      </div>
+      <div class="au-alvo" id="auAlvo"><div class="k-lbl">SEU CONCURSO</div><div class="au-alvo-n">PRF · Policial Rodoviário Federal</div><div class="au-alvo-v"></div></div>
+      <div class="k-lbl" style="color:var(--dim);margin-top:18px">O QUE ACONTECE AGORA</div>
+      <ol class="au-passos">
+        <li><b>Você cria sua conta.</b> Nome, e-mail e senha.</li>
+        <li><b>Faz um teste de até 20 questões.</b> Sem correção durante o teste.</li>
+        <li><b>Vê o mapa do seu cérebro</b> e suas três prioridades, com o motivo de cada uma.</li>
+      </ol>
+      <p class="au-regra">O diagnóstico é grátis. O dia a dia (sessões guiadas, explicações e revisões na hora certa) faz parte do convite do beta.</p>
+      <button class="btn" id="btnQuero">Descobrir meu mapa</button>
     </div>
-    <div class="card">
-      <label>E-mail</label><input id="email" type="email" autocomplete="username" placeholder="voce@email.com">
-      <label>Senha</label><input id="senha" type="password" autocomplete="current-password" placeholder="••••••••">
-      <button class="btn" id="btnEntrar">Entrar</button>
-      <div class="msg" id="authMsg"></div>
-      <div class="alt">Primeira vez aqui? <a href="#" id="lnkModo">Criar minha conta</a></div>
+    <div class="card" id="auForm" style="display:none">
+      <div class="au-form-t" id="auTitulo">Criar minha conta</div>
+      <div id="auNomeBox"><label for="nome">Seu nome</label><input id="nome" type="text" autocomplete="name" placeholder="Como quer ser chamado(a)"></div>
+      <label for="email">E-mail</label><input id="email" type="email" autocomplete="username" placeholder="voce@email.com">
+      <label for="senha">Senha</label><input id="senha" type="password" autocomplete="new-password" placeholder="mínimo de 6 caracteres">
+      <button class="btn" id="btnEntrar">Criar conta e começar</button>
+      <div class="msg" id="authMsg" role="alert"></div>
+      <div class="alt" id="auAlt"></div>
     </div>
   </section>
 
@@ -629,38 +675,39 @@ body.tabs main { padding-bottom:96px; }
 
   <!-- MAPA (F5) -->
   <section class="view" id="vMapa">
-    <div class="hj-hello">Seu mapa</div>
+    <div class="hj-hello">Meu edital</div>
     <div class="hj-sub" id="mpSub"></div>
-    <div class="legend">
-      <span class="lg-v">domínio</span><span class="lg-a">no caminho</span>
-      <span class="lg-r">risco</span><span class="lg-n">ainda não medido</span>
-    </div>
+    <div class="legend" id="mpLegenda"></div>
+    <p class="mp-dica">Toque num tema para ver o estado e praticar.</p>
     <div id="mpMapa"></div>
   </section>
 
   <!-- CÉREBRO (F5 · vivo desde o redesign) -->
   <section class="view" id="vCerebroFull">
-    <div class="pagetitle">C É R E B R O</div>
+    <div class="pagetitle">Cérebro</div>
     <div class="pagesub">Seu sistema de conhecimento. Cada evidência acende um nó.</div>
     <div class="kpis" id="cbKpis"></div>
     <div class="cv-grid">
+      <div class="cv-col">
       <div class="cv-wrap">
         <canvas id="cvCanvas"></canvas>
-        <div class="cv-legend" id="cvLegenda">
-          <div class="t">LEGENDA · CLIQUE PARA ISOLAR</div>
-          <div class="lg lg-v" data-f="verde">Dominado</div>
-          <div class="lg lg-a" data-f="amarelo">No caminho</div>
-          <div class="lg lg-r" data-f="vermelho">Lacuna</div>
-          <div class="lg lg-e" data-f="esq">Esquecendo</div>
-          <div class="lg lg-n" data-f="nd">Não medido</div>
-          <div class="lg lg-o" data-f="ovo">Ovo de Ouro · favorito da banca</div>
-        </div>
         <div class="cv-controls">
           <button id="cvZin">+</button>
           <button id="cvZout">−</button>
           <button id="cvReset">⤾</button>
         </div>
         <div class="cv-info" id="cvInfo"></div>
+      </div>
+        <div class="cv-legend" id="cvLegenda">
+          <div class="t">LEGENDA · TOQUE PARA ISOLAR</div>
+          <div class="lg lg-v" data-f="verde" role="button" tabindex="0">Dominado</div>
+          <div class="lg lg-a" data-f="amarelo" role="button" tabindex="0">Em desenvolvimento</div>
+          <div class="lg lg-r" data-f="vermelho" role="button" tabindex="0">Precisa de atenção</div>
+          <div class="lg lg-n" data-f="nd" role="button" tabindex="0">Ainda não avaliado</div>
+          <div class="lg lg-ne" data-f="ne" role="button" tabindex="0">Ainda não estudei</div>
+          <div class="lg lg-e" data-f="rever" role="button" tabindex="0">Rever</div>
+          <div class="lg lg-o" data-f="ovo" role="button" tabindex="0">Ovo de Ouro · cai muito nas provas</div>
+        </div>
       </div>
       <aside class="cv-panel">
         <div class="cv-pk">DOMÍNIOS</div>
@@ -681,7 +728,7 @@ body.tabs main { padding-bottom:96px; }
 
   <!-- CONTA (F7) -->
   <section class="view" id="vConta">
-    <div class="pagetitle">C O N T A</div>
+    <div class="pagetitle">Conta</div>
     <div class="pagesub" id="ctEmail"></div>
     <div class="card" id="ctAssin" style="margin-top:16px"></div>
     <div class="card" style="margin-top:12px">
@@ -758,7 +805,6 @@ window.addEventListener('unhandledrejection', (e) => {
   const r = e.reason || {}; registrarErro(r.message || String(r), r.stack);
 });
 
-let modoCadastro = false;
 let editais = [], editalAtual = null, estrutura = [];
 let sessao = null, itemAtual = null, respostaEscolhida = null, t0 = null;
 let totalTopicos = 0, reveal = null, declaracoes = {};
@@ -774,7 +820,7 @@ const esc = (s) => (s ?? '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','
 // ---------- auth ----------
 async function boot() {
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) { show('vAuth'); return; }
+  if (!session) { mostrarEntrada(); return; }
   $('btnSair').style.display = 'block';
   await carregarEditais();
   const { data: prof } = await sb.from('profiles').select('edital_ativo, nome').eq('id', session.user.id).single();
@@ -789,6 +835,54 @@ async function boot() {
   }
   await mostrarHome();
 }
+// ---------- entrada (4.1/4.2): promessa → o que acontece → regra → conta ----------
+let modoAuth = 'cadastro';
+async function mostrarEntrada() {
+  show('vAuth');
+  const { data } = await sb.from('editais').select('id, concurso, cargo, metadata').eq('status', 'publicado').range(0, 9);
+  const e = data && data.length === 1 ? data[0] : null; // com um edital só, ele já vem escolhido
+  $('auAlvo').style.display = e ? 'block' : 'none';
+  if (e) {
+    $('auAlvo').querySelector('.au-alvo-n').textContent = `${e.concurso} · ${e.cargo || ''}`;
+    $('auAlvo').querySelector('.au-alvo-v').textContent = (e.metadata && e.metadata.versao) || '';
+  }
+}
+function abrirForm(modo) {
+  modoAuth = modo;
+  const cad = modo === 'cadastro';
+  $('auLanding').style.display = cad ? 'block' : 'none';
+  $('btnQuero').style.display = 'none';
+  $('lnkEntrarTopo').style.display = cad ? 'block' : 'none';
+  $('auForm').style.display = 'block';
+  $('auTitulo').textContent = cad ? 'Criar minha conta' : 'Entrar';
+  $('auNomeBox').style.display = cad ? 'block' : 'none';
+  $('senha').setAttribute('autocomplete', cad ? 'new-password' : 'current-password');
+  $('senha').placeholder = cad ? 'mínimo de 6 caracteres' : '••••••••';
+  $('btnEntrar').textContent = cad ? 'Criar conta e começar' : 'Entrar';
+  $('authMsg').textContent = ''; $('authMsg').style.color = '';
+  $('auAlt').innerHTML = cad ? 'Já tem conta? <a href="#" id="lnkModo">Entrar</a>' : 'Primeira vez aqui? <a href="#" id="lnkModo">Criar minha conta</a>';
+  $('lnkModo').onclick = (ev) => { ev.preventDefault(); abrirForm(cad ? 'login' : 'cadastro'); };
+  (cad ? $('nome') : $('email')).focus();
+  $('auForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+$('btnQuero').onclick = () => { tele('entrada_quero'); abrirForm('cadastro'); };
+$('lnkEntrarTopo').onclick = () => abrirForm('login');
+// dicionário humano para os erros do Auth (nunca a mensagem crua do Supabase)
+function humanizarAuth(err) {
+  const m = String((err && err.message) || err || '');
+  const d = [
+    [/invalid login credentials/i, 'E-mail ou senha incorretos.'],
+    [/email not confirmed/i, 'Falta confirmar seu e-mail: abra o link que enviamos (veja também o spam).'],
+    [/already registered|already been registered|user already exists/i, 'Este e-mail já tem conta. Toque em "Entrar".'],
+    [/password should be at least|password.*(short|length)|weak password/i, 'A senha precisa ter pelo menos 6 caracteres.'],
+    [/invalid format|valid email|email address.*invalid/i, 'Confira o e-mail digitado.'],
+    [/rate limit|for security purposes|too many/i, 'Muitas tentativas seguidas. Espere um minuto e tente de novo.'],
+    [/signups not allowed|signup.*disabled/i, 'O cadastro está fechado no momento. Peça seu convite à equipe.'],
+    [/failed to fetch|network|load failed/i, 'Sem conexão. Confira sua internet e tente de novo.'],
+  ];
+  const hit = d.find(([re]) => re.test(m));
+  return hit ? hit[1] : 'Não consegui concluir agora. Tente de novo em instantes.';
+}
 async function mostrarHome() {
   $('homeRetomar').innerHTML = ''; $('homeAlvo').style.display = 'block';
   show('vHome');
@@ -796,7 +890,13 @@ async function mostrarHome() {
   const { data: ativas } = await sb.from('diag_sessoes').select('id, edital_id, respostas').eq('status', 'ativa').range(0, 0);
   const a = ativas && ativas[0];
   const ed = a && editais.find(e => e.id === a.edital_id);
-  if (!ed) return;
+  if (!ed) {
+    if (editais.length === 1) { // 4.1: a tela "Qual é o seu alvo?" some enquanto houver um edital só
+      editalAtual = editais[0];
+      if (await carregarEstrutura()) { montarFase0(); show('vFase0'); }
+    }
+    return;
+  }
   $('homeAlvo').style.display = 'none';
   $('homeRetomar').innerHTML = `<div class="acaocard" style="margin-top:4vh"><div class="k">RETOMAR · DIAGNÓSTICO ${esc(ed.concurso)}</div>
     <div class="n">Questão ${a.respostas + 1}</div>
@@ -816,17 +916,28 @@ async function carregarEstrutura() {
   totalTopicos = estrutura.reduce((s, d) => s + d.assuntos.reduce((s2, a) => s2 + a.topicos.length, 0), 0);
   return true;
 }
-$('lnkModo').onclick = (e) => { e.preventDefault(); modoCadastro = !modoCadastro;
-  $('btnEntrar').textContent = modoCadastro ? 'Criar conta' : 'Entrar';
-  $('lnkModo').textContent = modoCadastro ? 'Já tenho conta' : 'Criar minha conta'; };
 $('btnEntrar').onclick = async () => {
-  $('authMsg').textContent = '';
-  const email = $('email').value.trim(), password = $('senha').value;
-  const { error } = modoCadastro
-    ? await sb.auth.signUp({ email, password })
+  const msg = $('authMsg'); msg.textContent = ''; msg.style.color = '';
+  const cad = modoAuth === 'cadastro';
+  const nome = $('nome').value.trim().replace(/\s+/g, ' '), email = $('email').value.trim(), password = $('senha').value;
+  if (cad && nome.length < 2) { msg.textContent = 'Escreva seu nome.'; $('nome').focus(); return; }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = 'Confira o e-mail digitado.'; $('email').focus(); return; }
+  if (password.length < 6) { msg.textContent = 'A senha precisa ter pelo menos 6 caracteres.'; $('senha').focus(); return; }
+  $('btnEntrar').disabled = true;
+  const { data, error } = cad
+    ? await sb.auth.signUp({ email, password, options: { data: { nome } } })
     : await sb.auth.signInWithPassword({ email, password });
-  if (error) { $('authMsg').textContent = error.message; return; }
-  if (modoCadastro) { tele('cadastro'); $('authMsg').textContent = 'Conta criada! Confirme pelo e-mail e entre.'; modoCadastro = false; return; }
+  $('btnEntrar').disabled = false;
+  if (error) { msg.textContent = humanizarAuth(error); tele(cad ? 'cadastro_erro' : 'login_erro', { motivo: humanizarAuth(error) }); return; }
+  if (cad) {
+    tele('cadastro');
+    if (!data || !data.session) { // confirmação por e-mail ligada: sem sessão ainda
+      abrirForm('login'); $('email').value = email;
+      $('authMsg').style.color = 'var(--verde)';
+      $('authMsg').textContent = `Conta criada. Enviamos um link para ${email}: abra, confirme e entre aqui.`;
+      return;
+    }
+  }
   boot();
 };
 $('btnSair').onclick = async () => { await sb.auth.signOut(); location.reload(); };
@@ -880,7 +991,7 @@ $('btnIniciarTeste').onclick = async () => {
   });
   if (decl.length) {
     const { error } = await sb.rpc('fn_diag_autoavaliacao', { p_edital: editalAtual.id, p_decl: decl });
-    if (error) { toast(error.message); }
+    if (error) { toast(humanizar(error.message)); }
   }
   await iniciarTeste();
   $('btnIniciarTeste').disabled = false;
@@ -889,7 +1000,7 @@ $('btnIniciarTeste').onclick = async () => {
 // ---------- teste ----------
 async function iniciarTeste() {
   const { data, error } = await sb.rpc('fn_diag_iniciar', { p_edital: editalAtual.id });
-  if (error) { toast(error.message); show('vHome'); return; }
+  if (error) { toast(humanizar(error.message)); show('vHome'); return; }
   sessao = data.sessao;
   montarDots();
   if (data.retomada) { toast(`Você parou na questão ${(data.respostas || 0) + 1}. Seguimos daqui.`); tele('diagnostico_retomado', { respostas: data.respostas }); }
@@ -974,7 +1085,7 @@ async function enviar(resposta, confianca) {
     p_confianca: confianca, p_tempo_ms: Date.now() - t0
   });
   enviando = false;
-  if (error) { toast(error.message); return; }
+  if (error) { toast(humanizar(error.message)); return; }
   tratarResposta(data);
 }
 
@@ -1044,17 +1155,21 @@ function renderCerebro(porNode, alvo = 'rvCerebro') {
     <div class="cbcap">Seu cérebro para ${esc(editalAtual.concurso)} — ele cresce e acende conforme você domina.</div>`;
 }
 
-function heatmapHtml(porNode) {
+function heatmapHtml(porNode, clicavel = false) {
   let html = ''; let idx = 0;
   [...estrutura].sort((x, y) => (y.peso_total || 0) - (x.peso_total || 0)).forEach(d => {
     const tops = d.assuntos.flatMap(a => a.topicos);
-    html += `<div class="dsec"><h3>${esc(d.disciplina)} <small>peso ${Math.round((d.peso_total || 0) * 100)}%</small></h3>`;
+    const aval = tops.filter(t => ((porNode[t.node_id] || {}).n_evidencias || 0) >= 1).length;
+    html += `<div class="dsec"><h3>${esc(d.disciplina)} <small>peso ${Math.round((d.peso_total || 0) * 100)}% · ${aval}/${tops.length} avaliados</small></h3>`;
     tops.forEach(t => {
-      const n = porNode[t.node_id] || { forca: 0, incerteza: 100 };
+      const n = porNode[t.node_id] || { forca: 0, incerteza: 100, estado: 'nao_avaliado' };
       const cor = corDe(n);
-      const w = cor === 'nd' ? 100 : Math.max(4, Math.round(n.forca));
-      html += `<div class="trow v-${cor}" style="--d:${idx * 45}ms">
-        <div class="tn">${esc(t.nome)}</div>
+      const avaliado = n.estado ? (n.n_evidencias || 0) >= 1 : cor !== 'nd';
+      const w = avaliado ? Math.max(4, Math.round(n.forca_obs ?? n.forca ?? 0)) : 0; // cor e barra congeladas no último desempenho
+      const cls = `v-${n.estado === 'nao_estudei' ? 'ne' : cor}${n.visto ? ' visto' : ''}${clicavel ? ' clk' : ''}`;
+      const mk = n.rever ? '<span class="mk" title="Rever">⏱ rever</span>' : '';
+      html += `<div class="trow ${cls}" style="--d:${idx * 30}ms" data-n="${t.node_id}"${clicavel ? ' role="button" tabindex="0"' : ''}>
+        <div class="tn">${esc(t.nome)}${mk}</div>
         <div class="bar"><i data-w="${w}"></i></div>
       </div>`;
       idx++;
@@ -1063,6 +1178,8 @@ function heatmapHtml(porNode) {
   });
   return html;
 }
+const LEGENDA_MAPA = `<span class="lg-v">Dominado</span><span class="lg-a">Em desenvolvimento</span><span class="lg-r">Precisa de atenção</span>
+  <span class="lg-n">Ainda não avaliado</span><span class="lg-ne">Ainda não estudei</span><span class="lg-rv">⏱ Rever</span><span class="lg-vi">Visto (estudo fora)</span>`;
 function animarBarras(container) {
   requestAnimationFrame(() => setTimeout(() =>
     container.querySelectorAll('.bar i').forEach(i => i.style.width = i.dataset.w + '%'), 80));
@@ -1119,7 +1236,7 @@ function renderReveal() {
   if ($('rvResumo')) $('rvResumo').onclick = () => revelacaoAgir('resumo');
   if ($('rvConferir')) $('rvConferir').onclick = () => revelacaoAgir('conferir');
 
-  $('rvMapa').innerHTML = `<div class="legend">${LEGENDA_ESTADOS}</div>` + heatmapHtml(porNode);
+  $('rvMapa').innerHTML = `<div class="legend">${LEGENDA_MAPA}</div>` + heatmapHtml(porNode);
   document.querySelector('#vReveal details').ontoggle = (ev) => { if (ev.target.open) animarBarras($('rvMapa')); };
   tele('revelacao_vista', { p1: p1 && p1.node_id, modo: estudar ? 'estudar_primeiro' : 'praticar', avaliados: e.avaliados });
 }
@@ -1159,7 +1276,7 @@ async function loadConta() {
   const { data: { session } } = await sb.auth.getSession();
   $('ctEmail').textContent = session.user.email;
   const { data, error } = await sb.rpc('fn_minha_conta');
-  if (error) { toast(error.message); return; }
+  if (error) { toast(humanizar(error.message)); return; }
   const a = data.assinatura;
   $('ctAssin').innerHTML = a
     ? `<div class="imp-k">ASSINATURA</div>
@@ -1175,7 +1292,7 @@ async function loadConta() {
 }
 $('btnExportar').onclick = async () => {
   const { data, error } = await sb.rpc('fn_exportar_meus_dados');
-  if (error) { toast(error.message); return; }
+  if (error) { toast(humanizar(error.message)); return; }
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = 'meus-dados-dominei.json';
@@ -1197,14 +1314,14 @@ async function loadSolicitados() {
 }
 async function votarEdital(id) {
   const { error } = await sb.rpc('fn_edital_votar', { p_request: id });
-  if (error) { toast(error.message); return; }
+  if (error) { toast(humanizar(error.message)); return; }
   loadSolicitados();
 }
 $('btnSolicitar').onclick = async () => {
   const v = $('reqConcurso').value.trim();
   if (v.length < 3) { toast('Escreva o nome do concurso.'); return; }
   const { error } = await sb.rpc('fn_edital_solicitar', { p_concurso: v, p_detalhe: null });
-  if (error) { toast(error.message); return; }
+  if (error) { toast(humanizar(error.message)); return; }
   $('reqConcurso').value = '';
   toast('Pedido registrado — avisaremos quando entrar.');
   loadSolicitados();
@@ -1235,9 +1352,16 @@ const ESTADO_ROT = { nao_avaliado:'Ainda não avaliado', nao_estudei:'Ainda não
 const ESTADO_CLS = { nao_avaliado:'e-na', nao_estudei:'e-ne', atencao:'e-at', desenvolvimento:'e-de', dominado:'e-do' };
 const chip = (e) => `<span class="estado ${ESTADO_CLS[e] || 'e-na'}">${ESTADO_ROT[e] || esc(e || '')}</span>`;
 const plural = (n, s, p) => `${n} ${n === 1 ? s : p}`;
-function humanizar(msg) {
-  const m = { assinatura_necessaria: 'O dia a dia faz parte do convite do beta.', 'Aluno não identificado': 'Entre de novo para continuar.' };
-  return m[msg] || 'Não consegui carregar. Tente de novo.';
+function humanizar(msg) { // erros de RPC → frase humana (4.2); nunca a mensagem técnica na tela
+  const m = String(msg || '');
+  const d = [
+    [/assinatura_necessaria/i, 'O dia a dia faz parte do convite do beta.'],
+    [/aluno não identificado|jwt|not authenticated|expired/i, 'Sua sessão expirou. Entre de novo para continuar.'],
+    [/sem itens/i, 'Ainda não há questões para este tema.'],
+    [/failed to fetch|network|load failed/i, 'Sem conexão. Confira sua internet e tente de novo.'],
+  ];
+  const hit = d.find(([re]) => re.test(m));
+  return hit ? hit[1] : 'Não consegui carregar. Tente de novo.';
 }
 function montarMotivo(a) {
   if (!a) return '';
@@ -1445,8 +1569,8 @@ function renderFechamento(f) {
 // entrada avulsa (Cérebro / lista): sessão de um tema, fora do plano
 async function iniciarSessaoEstudo(node, tipo) {
   const { data, error } = await sb.rpc('fn_sessao_iniciar', { p_edital: editalAtual.id, p_tipo: tipo, p_node: node });
-  if (error) { toast(humanizar(error.message)); return; }
-  if (data.erro === 'sem_itens') { toast('Ainda não há questões para este tema.'); return; }
+  if (error) { toast(humanizar(error.message)); return error.message; }
+  if (data.erro === 'sem_itens') { toast('Ainda não há questões para este tema.'); return 'sem_itens'; }
   if (data.acao === 'descanso') { toast(data.motivo); return; }
   sessEstudo = data; sessEstudo.plano = null;
   tele('sessao_iniciada', { sessao: data.sessao, tipo: data.tipo, node_id: data.node_id || node, retomada: !!data.retomada, total: data.total, repetidos: data.repetidos || 0 });
@@ -1575,14 +1699,58 @@ $('ssSheetCont').onclick = () => $('ssSheet').classList.remove('on');
 $('ssSheetSair').onclick = () => { $('ssSheet').classList.remove('on'); tele('sessao_guardada', { sessao: sessEstudo && sessEstudo.sessao }); voltarHoje(); };
 function voltarHoje() { $('ssSheet').classList.remove('on'); $('tabbar').classList.add('on'); irTab('vHoje'); }
 
+let mapaPorNode = {};
 async function loadMapa() {
   const { data, error } = await sb.rpc('fn_meu_mapa', { p_edital: editalAtual.id });
-  if (error) { toast(error.message); return; }
-  const porNode = {}; (data.mapa || []).forEach(n => porNode[n.node_id] = n);
-  const med = (data.mapa || []).filter(n => n.incerteza < 85).length;
-  $('mpSub').textContent = `${editalAtual.concurso} · ${med} de ${(data.mapa || []).length} tópicos medidos`;
-  $('mpMapa').innerHTML = heatmapHtml(porNode);
+  if (error) { toast(humanizar(error.message)); return; }
+  const lista = data.mapa || [];
+  mapaPorNode = {}; lista.forEach(n => mapaPorNode[n.node_id] = n);
+  const aval = lista.filter(n => (n.n_evidencias || 0) >= 1).length, rever = lista.filter(n => n.rever).length;
+  $('mpSub').textContent = `${editalAtual.concurso} · ${aval} de ${lista.length} temas avaliados${rever ? ` · ${rever} para rever` : ''}`;
+  $('mpLegenda').innerHTML = LEGENDA_MAPA;
+  $('mpMapa').innerHTML = heatmapHtml(mapaPorNode, true);
   animarBarras($('mpMapa'));
+  $('mpMapa').querySelectorAll('.trow.clk').forEach(r => {
+    r.onclick = () => abrirDetalheTema(r);
+    r.onkeydown = (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); abrirDetalheTema(r); } };
+  });
+}
+// 5.1: a linha do tema abre o estado e a prática (o detalhe completo com evidências é a 5.3)
+function abrirDetalheTema(row) {
+  const aberto = row.classList.contains('aberto');
+  $('mpMapa').querySelectorAll('.tdet').forEach(x => x.remove());
+  $('mpMapa').querySelectorAll('.trow.aberto').forEach(x => x.classList.remove('aberto'));
+  if (aberto) return;
+  const id = row.dataset.n, n = mapaPorNode[id] || { estado: 'nao_avaliado' };
+  const t = estrutura.flatMap(d => d.assuntos.flatMap(a => a.topicos)).find(x => x.node_id === id) || {};
+  const linhas = [];
+  if ((n.n_evidencias || 0) >= 1) linhas.push(`${plural(n.n_evidencias, 'questão respondida', 'questões respondidas')} · desempenho ${n.forca_obs ?? Math.round(n.forca || 0)}`);
+  if (n.rever) {
+    const dias = n.ultima_evidencia ? Math.floor((Date.now() - new Date(n.ultima_evidencia)) / 86400000) : null;
+    linhas.push(dias != null && dias > 0 ? `Rever: faz ${plural(dias, 'dia', 'dias')} que você não vê isto.` : 'Rever: está na hora de reforçar.');
+  }
+  if (n.visto) linhas.push('Você registrou estudo fora. Só uma questão respondida acende o tema.');
+  const freq = n.provas_freq || t.provas_freq || 0;
+  if (freq > 0) linhas.push(`${freq >= 3 ? 'Ovo de Ouro · caiu' : 'Caiu'} ${plural(freq, 'vez', 'vezes')} nas provas analisadas.`);
+  const tipo = (n.n_evidencias || 0) >= 1 ? 'estudar' : 'sondar';
+  const det = document.createElement('div');
+  det.className = 'tdet';
+  det.innerHTML = `${chip(n.estado || 'nao_avaliado')}${linhas.length ? `<div class="l">${linhas.map(esc).join('<br>')}</div>` : '<div class="l"></div>'}
+    <button class="btn" type="button">${(n.n_evidencias || 0) >= 1 ? 'Praticar este tema' : 'Conferir o que você sabe'}</button>`;
+  row.after(det); row.classList.add('aberto');
+  const btn = det.querySelector('.btn');
+  btn.onclick = async () => {
+    btn.disabled = true;
+    tele('meu_edital_praticar', { node_id: id, estado: n.estado });
+    const erro = await iniciarSessaoEstudo(id, tipo);
+    btn.disabled = false;
+    if (erro && /assinatura_necessaria/i.test(erro)) {
+      btn.textContent = 'Pedir convite';
+      btn.onclick = async () => { const { error } = await sb.rpc('fn_lista_espera_entrar'); btn.disabled = true;
+        btn.textContent = error ? 'Tente de novo' : 'Pedido registrado'; if (!error) tele('convite_pedido', { origem: 'meu_edital' }); };
+      det.querySelector('.l').insertAdjacentHTML('beforeend', '<br>O diagnóstico foi por nossa conta. A prática do dia a dia faz parte do convite do beta.');
+    }
+  };
 }
 // ============ CÉREBRO VIVO (canvas, F5 redesign) ============
 const CerebroVivo = {
@@ -1600,11 +1768,11 @@ const CerebroVivo = {
     estrutura.forEach((d, di) => {
       const angD = -Math.PI / 2 + setor * (di + 0.5);
       const topsD = d.assuntos.flatMap(a => a.topicos).map(t => porNode[t.node_id] || { forca: 0, incerteza: 100 });
-      const medD = topsD.filter(t => t.incerteza < 85);
+      const medD = topsD.filter(t => t.estado ? (t.n_evidencias || 0) >= 1 : t.incerteza < 85); // avaliados por evidência direta
       const nd = { id: 'd' + di, nome: d.disciplina, nivel: 'disciplina',
         x: Math.cos(angD) * 90, y: Math.sin(angD) * 90, r: 8.5,
         cor: corMedia(topsD), ph: Math.random() * 7, ang: angD, filhos: [],
-        pct: medD.length ? Math.round(medD.reduce((s, t) => s + t.forca, 0) / medD.length) : null };
+        pct: medD.length ? Math.round(medD.reduce((s, t) => s + (t.forca_obs ?? t.forca), 0) / medD.length) : null };
       this.nodes.push(nd); this.edges.push([core, nd]);
       d.assuntos.forEach((a, ai) => {
         const na = d.assuntos.length;
@@ -1626,8 +1794,9 @@ const CerebroVivo = {
             x: Math.cos(angT) * (238 + jit), y: Math.sin(angT) * (238 + jit),
             r: 3.4 + Math.min((t.peso || 0.003) * 55, 3.4), cor: corDe(st),
             ph: Math.random() * 7, forca: st.forca, incerteza: st.incerteza,
+            estado: st.estado || null, n_ev: st.n_evidencias || 0, forca_obs: st.forca_obs, visto: !!st.visto,
             freq, ovo: freq >= 3,
-            atraso, esq: atraso != null && atraso >= 0,
+            atraso, esq: st.estado ? !!st.rever : (atraso != null && atraso >= 0),
             disc: d.disciplina, assunto: a.assunto };
           this.nodes.push(nT); this.edges.push([nA, nT]); nA.filhos.push(nT);
         });
@@ -1697,7 +1866,9 @@ const CerebroVivo = {
     if (!this.filtro) return true;
     if (n.nivel !== 'topico') return this.aceso(n);
     if (this.filtro === 'ovo') return !!n.ovo;
-    if (this.filtro === 'esq') return !!n.esq;
+    if (this.filtro === 'esq' || this.filtro === 'rever') return !!n.esq;
+    if (this.filtro === 'ne') return n.estado === 'nao_estudei';
+    if (this.filtro === 'nd' && n.estado) return n.estado === 'nao_avaliado';
     return n.cor === this.filtro;
   },
   aceso(n) { // disciplina/assunto acendem se algum descendente passa
@@ -1743,26 +1914,26 @@ const CerebroVivo = {
     const box = $('cvInfo');
     if (!n) { box.classList.remove('on'); return; }
     if (n.nivel === 'disciplina') this.focar(n, 1.9);
-    const corTxt = { verde: 'DOMINADO', amarelo: 'NO CAMINHO', vermelho: 'LACUNA', nd: 'NÃO MEDIDO' }[n.cor] || '';
+    const corTxt = n.estado ? (ESTADO_ROT[n.estado] || '').toUpperCase()
+      : ({ verde: 'DOMINADO', amarelo: 'EM DESENVOLVIMENTO', vermelho: 'PRECISA DE ATENÇÃO', nd: 'AINDA NÃO AVALIADO' }[n.cor] || '');
     const bc = n.nivel === 'topico' ? `${esc(n.disc)} · ${esc(n.assunto)}`
              : n.nivel === 'assunto' ? esc(n.disc) : 'DISCIPLINA';
     const stats = n.nivel === 'topico'
-      ? `<div class="st"><span>força <b style="color:${COR_HEX[n.cor]}">${n.incerteza >= 85 ? '—' : Math.round(n.forca)}</b></span>
-         <span>incerteza <b>${Math.round(n.incerteza)}%</b></span>
-         <span><b style="color:${COR_HEX[n.cor]}">${corTxt}</b></span>
-         ${n.esq ? `<span><b style="color:${COR_HEX.amarelo}">${n.atraso === 0 ? 'revisão vence hoje' : `esquecendo — revisão vencida há ${n.atraso}d`}</b></span>` : ''}
-         ${n.freq > 0 ? `<span>cobrado <b style="color:${OURO}">${n.freq}×</b> nas últimas 3 provas</span>` : ''}</div>`
-      : n.pct != null ? `<div class="st"><span>domínio médio <b style="color:${COR_HEX[n.cor]}">${n.pct}%</b></span></div>`
+      ? `<div class="st"><span><b style="color:${COR_HEX[n.cor]}">${corTxt}</b></span>
+         ${n.n_ev >= 1 ? `<span>desempenho <b style="color:${COR_HEX[n.cor]}">${n.forca_obs ?? Math.round(n.forca)}</b> · ${plural(n.n_ev, 'questão', 'questões')}</span>` : ''}
+         ${n.esq ? `<span><b style="color:${COR_HEX.amarelo}">⏱ Rever${n.atraso > 0 ? ` · faz ${plural(n.atraso, 'dia', 'dias')}` : ''}</b></span>` : ''}
+         ${n.freq > 0 ? `<span>caiu <b style="color:${OURO}">${n.freq}×</b> nas provas analisadas</span>` : ''}</div>`
+      : n.pct != null ? `<div class="st"><span>desempenho nos avaliados <b style="color:${COR_HEX[n.cor]}">${n.pct}</b></span></div>`
       : `<div class="st"><span><b style="color:${COR_HEX[n.cor]}">${corTxt}</b></span></div>`;
     box.innerHTML = `<button class="fech" id="cvFech">×</button>
-      ${n.ovo ? `<div class="ovo">OVO DE OURO · FAVORITO DA BANCA</div>` : ''}
+      ${n.ovo ? `<div class="ovo">OVO DE OURO · CAIU ${n.freq}× NAS PROVAS</div>` : ''}
       <div class="bc">${bc.toUpperCase()}</div>
       <div class="nm">${esc(n.nome)}</div>${stats}
-      ${n.nivel === 'topico' ? `<button class="btn est" id="cvEstudar">Estudar este tópico agora</button>` : ''}`;
+      ${n.nivel === 'topico' ? `<button class="btn est" id="cvEstudar">${n.n_ev >= 1 ? 'Praticar este tema' : 'Conferir o que você sabe'}</button>` : ''}`;
     box.classList.add('on');
     $('cvFech').onclick = () => this.selecionar(null);
     const be = $('cvEstudar');
-    if (be) be.onclick = () => iniciarSessaoEstudo(n.id, n.incerteza >= 60 ? 'sondar' : 'estudar');
+    if (be) be.onclick = () => iniciarSessaoEstudo(n.id, n.estado ? (n.n_ev >= 1 ? 'estudar' : 'sondar') : (n.incerteza >= 60 ? 'sondar' : 'estudar'));
   },
 
   loop() {
@@ -1893,7 +2064,7 @@ const CerebroVivo = {
         const rot = n.nome.length > 24 ? n.nome.toUpperCase().slice(0, 23) + '…' : n.nome.toUpperCase();
         ctx.fillText(rot, lx, ly);
         if (n.pct != null) { ctx.fillStyle = cor; ctx.font = `700 ${11 / (this.fit * this.cam.z)}px Menlo, monospace`;
-          ctx.fillText(n.pct + '%', lx, ly + 12 / this.cam.z); }
+          ctx.fillText(String(n.pct), lx, ly + 12 / this.cam.z); }
       }
     });
   },
@@ -1909,33 +2080,37 @@ async function loadCerebroFull() {
     sb.rpc('fn_meu_mapa', { p_edital: editalAtual.id }),
     sb.rpc('fn_home', { p_edital: editalAtual.id })
   ]);
-  if (e1) { toast(e1.message); return; }
+  if (e1) { toast(humanizar(e1.message)); return; }
   const lista = mapa.mapa || [];
   const porNode = {}; lista.forEach(n => porNode[n.node_id] = n);
-  const medidos = lista.filter(n => n.incerteza < 85);
-  const indice = medidos.length ? (medidos.reduce((s, n) => s + n.forca, 0) / medidos.length) : 0;
-  const verdes = medidos.filter(n => n.forca >= 70).length;
-  const setorOk = estrutura.some(dd => {
-    const tops = dd.assuntos.flatMap(a => a.topicos).map(t => porNode[t.node_id] || { forca: 0, incerteza: 100 });
-    const med = tops.filter(t => t.incerteza < 85);
-    return med.length > 0 && med.reduce((s, t) => s + t.forca, 0) / med.length >= 70;
+  // "avaliado" = ao menos uma questão respondida (evidência direta); desempenho = força armazenada (congelada)
+  const aval = (n) => (n.n_evidencias || 0) >= 1;
+  const desempenho = (n) => n.forca_obs ?? n.forca ?? 0;
+  const medidos = lista.filter(aval);
+  const indice = medidos.length ? (medidos.reduce((s, n) => s + desempenho(n), 0) / medidos.length) : 0;
+  const verdes = lista.filter(n => n.estado === 'dominado').length;
+  const rever = lista.filter(n => n.rever).length;
+  const setorOk = estrutura.some(dd => { // disciplina com metade avaliada e desempenho médio ≥ 70
+    const tops = dd.assuntos.flatMap(a => a.topicos).map(t => porNode[t.node_id] || {});
+    const med = tops.filter(aval);
+    return med.length >= Math.max(2, tops.length / 2) && med.reduce((s, t) => s + desempenho(t), 0) / med.length >= 70;
   });
   cbDados = { indice, verdes, medidos: medidos.length, total: lista.length,
     streak: home?.streak ?? 0, setorOk };
   $('cbKpis').innerHTML = `
-    <div class="kpi"><div class="v">${indice.toFixed(1)}<small> /100</small></div><div class="k">ÍNDICE DE DOMÍNIO</div><div class="d">média dos tópicos medidos</div></div>
-    <div class="kpi"><div class="v" style="color:var(--verde)">${verdes}</div><div class="k">NÓS DOMINADOS</div><div class="d">brilhando no grafo</div></div>
-    <div class="kpi dourado"><div class="v">${home?.revisoes ?? 0}</div><div class="k">REVISÕES DE HOJE</div><div class="d">antes que a memória apague</div></div>
-    <div class="kpi"><div class="v">${home?.streak ?? 0}</div><div class="k">DIAS SEGUIDOS</div><div class="d">sequência de estudo</div></div>`;
+    <div class="kpi"><div class="v">${medidos.length}<small> /${lista.length}</small></div><div class="k">AVALIADOS</div><div class="d">temas com questão respondida</div></div>
+    <div class="kpi"><div class="v" style="color:var(--verde)">${verdes}</div><div class="k">DOMINADOS</div><div class="d">3+ questões e desempenho ≥ 70</div></div>
+    <div class="kpi dourado"><div class="v">${rever}</div><div class="k">PARA REVER</div><div class="d">entram nas suas sessões</div></div>
+    <div class="kpi"><div class="v">${home?.streak ?? 0}</div><div class="k">DIAS SEGUIDOS</div><div class="d">com questão respondida</div></div>`;
   $('cvDoms').innerHTML = estrutura.map((d, di) => {
     const tops = d.assuntos.flatMap(a => a.topicos).map(t => porNode[t.node_id] || { forca: 0, incerteza: 100 });
-    const med = tops.filter(t => t.incerteza < 85);
-    const pct = med.length ? Math.round(med.reduce((s, t) => s + t.forca, 0) / med.length) : null;
+    const med = tops.filter(aval);
+    const pct = med.length ? Math.round(med.reduce((s, t) => s + desempenho(t), 0) / med.length) : null;
     const cor = COR_HEX[corMedia(tops)];
     return `<div class="dom" data-d="${di}">
-      <div class="dn">${esc(d.disciplina)}<small>${med.length}/${tops.length} medidos</small></div>
+      <div class="dn">${esc(d.disciplina)}<small>${med.length}/${tops.length} avaliados</small></div>
       <div class="db"><i style="width:${pct ?? 0}%;background:${cor};box-shadow:0 0 8px ${cor}"></i></div>
-      <div class="dv" style="color:${cor}">${pct != null ? pct + '%' : '—'}</div>
+      <div class="dv" style="color:${cor}">${pct != null ? pct : '—'}</div>
     </div>`;
   }).join('');
   $('cbSub').textContent = `Seu cérebro para ${editalAtual.concurso} cresce conforme você domina os assuntos.`;
@@ -1948,7 +2123,7 @@ async function loadCerebroFull() {
 }
 async function loadRevisoes() {
   const { data, error } = await sb.rpc('fn_revisoes_hoje', { p_edital: editalAtual.id });
-  if (error) { toast(error.message); return; }
+  if (error) { toast(humanizar(error.message)); return; }
   $('rvList').innerHTML = (data && data.length)
     ? data.map(r => `<div class="revrow"><div class="rn">${esc(r.nome)}<span class="rd">vencida há ${r.dias_vencida} dia(s) · força ${r.forca}%</span></div>
         <button onclick="iniciarSessaoEstudo('${r.node_id}','revisao')">Revisar</button></div>`).join('')
@@ -1957,12 +2132,12 @@ async function loadRevisoes() {
 // ---------- CÉREBRO v2: conquistas + compartilhar como imagem ----------
 let cbDados = null;
 const CONQUISTAS = [
-  { id: 'primeira_luz', nome: 'Primeira Luz', desc: '1º tópico medido', cond: d => d.medidos >= 1 },
-  { id: 'primeiro_dominio', nome: 'Primeiro Domínio', desc: '1º nó verde aceso', cond: d => d.verdes >= 1 },
-  { id: 'constelacao', nome: 'Constelação', desc: '5 nós dominados', cond: d => d.verdes >= 5 },
-  { id: 'setor_dominado', nome: 'Setor Dominado', desc: 'disciplina com média ≥ 70', cond: d => d.setorOk },
-  { id: 'cartografo', nome: 'Cartógrafo', desc: 'metade do edital medida', cond: d => d.total > 0 && d.medidos / d.total >= .5 },
-  { id: 'mapa_total', nome: 'Mapa Total', desc: '100% do edital medido', cond: d => d.total > 0 && d.medidos >= d.total },
+  { id: 'primeira_luz', nome: 'Primeira Luz', desc: '1º tema avaliado', cond: d => d.medidos >= 1 },
+  { id: 'primeiro_dominio', nome: 'Primeiro Domínio', desc: '1º tema dominado', cond: d => d.verdes >= 1 },
+  { id: 'constelacao', nome: 'Constelação', desc: '5 temas dominados', cond: d => d.verdes >= 5 },
+  { id: 'setor_dominado', nome: 'Setor Dominado', desc: 'metade de uma disciplina avaliada, média ≥ 70', cond: d => d.setorOk },
+  { id: 'cartografo', nome: 'Cartógrafo', desc: 'metade do edital avaliada', cond: d => d.total > 0 && d.medidos / d.total >= .5 },
+  { id: 'mapa_total', nome: 'Mapa Total', desc: 'edital inteiro avaliado', cond: d => d.total > 0 && d.medidos >= d.total },
   { id: 'semana_fogo', nome: 'Semana de Fogo', desc: '7 dias seguidos', cond: d => d.streak >= 7 },
   { id: 'maratonista', nome: 'Maratonista', desc: '30 dias seguidos', cond: d => d.streak >= 30 },
 ];
@@ -2045,14 +2220,14 @@ async function compartilharCerebro() {
       x.font = "700 26px 'Archivo', sans-serif"; x.fillStyle = 'rgba(190,205,225,.85)';
       x.fillText(n.nome.toUpperCase().slice(0, 28), cx + n.x * esc * 1.62, cy + n.y * esc * 1.62);
       if (n.pct != null) { x.fillStyle = cor; x.font = '700 24px Menlo, monospace';
-        x.fillText(n.pct + '%', cx + n.x * esc * 1.62, cy + n.y * esc * 1.62 + 32); }
+        x.fillText(String(n.pct), cx + n.x * esc * 1.62, cy + n.y * esc * 1.62 + 32); }
     }
   });
   // stats
   const d = cbDados;
   const stats = [
-    [d.indice.toFixed(1), 'ÍNDICE DE DOMÍNIO'],
-    [`${d.verdes}`, 'NÓS DOMINADOS'],
+    [`${d.medidos}/${d.total}`, 'AVALIADOS'],
+    [`${d.verdes}`, 'DOMINADOS'],
     [`${Math.round(d.medidos / Math.max(d.total, 1) * 100)}%`, 'DO EDITAL MAPEADO'],
   ];
   stats.forEach(([v, k], i) => {
@@ -2139,7 +2314,7 @@ const IMP_TIPO_LABEL = { caderno_foto: 'Caderno', resumo: 'Resumo', pdf: 'PDF',
   print_qc: 'Questões', print_tec: 'Questões', print_desempenho: 'Desempenho', outro: 'Material' };
 async function loadImportar() {
   const { data, error } = await sb.rpc('fn_meus_materiais');
-  if (error) { toast(error.message); return; }
+  if (error) { toast(humanizar(error.message)); return; }
   $('impList').innerHTML = (data && data.length)
     ? data.map(m => {
         const badge = m.status === 'processado' ? '<span class="imp-badge ok">MAPEADO</span>'
