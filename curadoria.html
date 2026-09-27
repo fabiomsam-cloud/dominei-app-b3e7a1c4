@@ -190,7 +190,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-09-27e'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-09-27f'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -239,6 +239,8 @@ const IC = {
   itens: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6l1.5 1.5L7 5M3 12l1.5 1.5L7 11M3 18l1.5 1.5L7 17"/></svg>',
   qualidade: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>',
   propostas: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+  auditoria: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5M8.5 11l2 2 3.5-3.5"/></svg>',
+  beta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>',
   solicitacoes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-8M12 12l-3 3M12 12l3 3"/><path d="M4 4h16M4 8h16"/></svg>',
 };
 
@@ -251,6 +253,8 @@ const TABS = [
   { id: 'qualidade',    label: 'Qualidade',    ic: 'qualidade',    load: loadQualidade },
   { id: 'propostas',    label: 'Propostas',    ic: 'propostas',    load: loadPropostas },
   { id: 'solicitacoes', label: 'Solicitações', ic: 'solicitacoes', load: loadSolicitacoes },
+  { id: 'auditoria',    label: 'Auditoria',    ic: 'auditoria',    load: loadAuditoria },
+  { id: 'beta',         label: 'Beta',         ic: 'beta',         load: loadBeta },
 ];
 let abaAtual = null, hashParams = {};
 
@@ -1357,6 +1361,131 @@ function salvarDivisao(id) {
 // =====================================================================
 // SOLICITAÇÕES (fila pública de editais)
 // =====================================================================
+// ---------- AUDITORIA ÚNICA (1.4 · J3): 1 questão de IA por tema da trilha + os resumos; veredito fica registrado ----------
+const MOTIVOS_AUD = {
+  item: [['gabarito_errado', 'Gabarito errado'], ['artigo_errado', 'Artigo/lei citado errado'], ['explicacao_errada', 'Explicação errada'],
+         ['ambiguo', 'Enunciado ambíguo'], ['fora_do_edital', 'Fora do edital'], ['outro', 'Outro']],
+  resumo: [['fato_errado', 'Informação errada'], ['artigo_errado', 'Artigo/lei citado errado'], ['incompleto', 'Falta o essencial'], ['outro', 'Outro']],
+};
+let audDados = null, audFiltro = 'pendentes';
+async function loadAuditoria() {
+  const pane = $('pane-auditoria');
+  pane.innerHTML = `<div class="pagetitle">Auditoria</div>
+    <div class="pagesub">Leitura única de calibração (item 1.4): uma questão gerada por IA de cada tema da trilha e os resumos.
+      "Erro" tira a questão das sessões (vai para Qualidade) e despublica o resumo (o aluno vê o texto de reserva).</div>
+    <div id="audResumo" class="card meta">carregando…</div>
+    <div class="acts" id="audFiltros" style="margin:0 0 12px;gap:8px"></div>
+    <div id="audLista"></div>`;
+  const { data, error } = await sb.rpc('fn_admin_auditoria_fila');
+  if (error) { $('audLista').innerHTML = `<div class="card empty">${esc(error.message)}</div>`; return; }
+  audDados = data; desenharAuditoria();
+}
+function desenharAuditoria() {
+  const todos = [...(audDados.itens || []).map(x => ({ ...x, _t: 'item' })), ...(audDados.resumos || []).map(x => ({ ...x, _t: 'resumo' }))];
+  const feitos = todos.filter(x => x.veredito).length, erros = todos.filter(x => x.veredito === 'erro').length;
+  $('audResumo').innerHTML = `<b>${feitos} de ${todos.length}</b> lidos · ${erros} com erro · ${(audDados.itens || []).length} questões e ${(audDados.resumos || []).length} resumos`;
+  $('audFiltros').innerHTML = [['pendentes', 'Pendentes'], ['erro', 'Com erro'], ['todos', 'Todos']]
+    .map(([k, l]) => `<button class="${k === audFiltro ? 'b-ok' : 'b-ghost'}" onclick="audFiltro='${k}';desenharAuditoria()">${l}</button>`).join('');
+  const vis = todos.filter(x => audFiltro === 'todos' || (audFiltro === 'erro' ? x.veredito === 'erro' : !x.veredito));
+  $('audLista').innerHTML = vis.map(x => x._t === 'item' ? `
+    <div class="card" id="aud-${x.id}">
+      <div class="meta"><span class="badge item">questão IA</span> ${esc(x.topico)} ${x.veredito ? `<span class="badge ${x.veredito === 'ok' ? 'edge' : 'red'}">${x.veredito}${x.motivo ? ' · ' + esc(x.motivo) : ''}</span>` : ''}</div>
+      ${x.texto_base ? `<div class="meta" style="white-space:pre-wrap;margin-top:8px;max-height:160px;overflow:auto">${esc(x.texto_base)}</div>` : ''}
+      <div class="nome" style="margin-top:8px;font-weight:600;line-height:1.45">${esc(x.enunciado)}</div>
+      ${x.tipo === 'multipla_escolha' ? `<ol type="a" class="meta" style="margin:6px 0 0 18px">${(x.alternativas || []).map(a => `<li>${esc(typeof a === 'string' ? a : a.texto)}</li>`).join('')}</ol>` : ''}
+      <div style="margin-top:8px"><b>Gabarito: ${esc(String(x.gabarito || '').toUpperCase())}</b></div>
+      <div class="meta" style="margin-top:6px;white-space:pre-wrap">${esc(x.explicacao || '(sem explicação)')}</div>
+      ${x.verificacao ? `<div class="meta" style="margin-top:6px;opacity:.8">Verificador: ${esc(x.verificacao)}</div>` : ''}
+      ${botoesAud(x)}
+    </div>` : `
+    <div class="card" id="aud-${x.id}">
+      <div class="meta"><span class="badge edital_node">resumo</span> ${esc(x.topico)} ${x.veredito ? `<span class="badge ${x.veredito === 'ok' ? 'edge' : 'red'}">${x.veredito}${x.motivo ? ' · ' + esc(x.motivo) : ''}</span>` : ''}</div>
+      <div style="margin-top:8px;white-space:pre-wrap;line-height:1.5">${esc(x.texto)}</div>
+      ${x.fonte ? `<div class="meta" style="margin-top:6px">Fontes: ${esc(x.fonte)}</div>` : ''}
+      ${botoesAud(x)}
+    </div>`).join('') || `<div class="card empty">${audFiltro === 'pendentes' ? 'Tudo lido. Obrigado!' : 'Nada aqui.'}</div>`;
+}
+function botoesAud(x) {
+  return `<div class="acts" style="gap:8px;margin-top:12px;flex-wrap:wrap">
+    <button class="b-ok" onclick="registrarAud('${x._t}','${x.id}','ok')">Está certo</button>
+    <select id="audM-${x.id}">${MOTIVOS_AUD[x._t].map(([k, l]) => `<option value="${k}"${x.motivo === k ? ' selected' : ''}>${l}</option>`).join('')}</select>
+    <input id="audN-${x.id}" placeholder="O que está errado (opcional)" value="${esc(x.nota || '')}" style="flex:1;min-width:180px">
+    <button class="b-ghost" style="color:var(--vermelho);border-color:rgba(237,90,90,.4)" onclick="registrarAud('${x._t}','${x.id}','erro')">Tem erro</button></div>`;
+}
+async function registrarAud(tipo, id, veredito) {
+  const motivo = veredito === 'erro' ? $('audM-' + id).value : null, nota = $('audN-' + id).value;
+  const { error } = await sb.rpc('fn_admin_auditoria_registrar', { p_tipo: tipo, p_id: id, p_veredito: veredito, p_motivo: motivo, p_nota: nota });
+  if (error) { toast(error.message, false); return; }
+  const lista = tipo === 'item' ? audDados.itens : audDados.resumos;
+  const x = lista.find(y => y.id === id); if (x) Object.assign(x, { veredito, motivo, nota });
+  toast(veredito === 'ok' ? 'Registrado como certo.' : (tipo === 'item' ? 'Questão suspensa: saiu das sessões.' : 'Resumo despublicado.'));
+  desenharAuditoria();
+}
+
+// ---------- BETA (etapa 5 · 0.7): funil, dias com sessão, lista de espera + convite, eventos e erros ----------
+const quando = (t) => new Date(t).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+async function loadBeta() {
+  const pane = $('pane-beta');
+  pane.innerHTML = `
+    <div class="pagetitle">Beta</div>
+    <div class="pagesub">Jornada dos alunos nos últimos 30 dias (sem demo e sem equipe), convites e erros do app.</div>
+    <div id="btFunil"><div class="empty">carregando…</div></div>
+    <div class="card"><div class="nome">Convidar para o beta</div>
+      <div class="meta">Cria a assinatura "beta" (90 dias). Se a pessoa ainda não tem conta, ativa sozinha quando ela se cadastrar com este e-mail.</div>
+      <div class="acts" style="gap:8px"><input id="btEmail" type="email" placeholder="email@aluno.com" style="flex:1;min-width:200px">
+        <button class="b-ok" onclick="convidarBeta($('btEmail').value)">Convidar</button></div></div>
+    <div class="card"><div class="nome">Lista de espera</div><div id="btEspera" class="meta">carregando…</div></div>
+    <div class="card"><div class="nome">Eventos recentes
+        <select id="btFiltro" style="margin-left:10px" onchange="carregarEventos(true)"><option value="">todos</option>
+          ${['cadastro','entrada_quero','diagnostico_iniciado','diagnostico_retomado','diagnostico_concluido','revelacao_vista','revelacao_botao','revelacao_divergencia','sessao_iniciada','resposta','ainda_nao_estudei','resumo_aberto','sessao_guardada','sessao_concluida','plano_concluido','meu_edital_praticar','convite_pedido','autoavaliacao_pulada']
+            .map(e => `<option>${e}</option>`).join('')}</select></div>
+      <table class="tb"><thead><tr><th>QUANDO</th><th>ALUNO</th><th>EVENTO</th><th>TELA</th><th>DADOS</th></tr></thead><tbody id="btEventos"></tbody></table>
+      <button class="b-ghost more" id="btMais" style="display:none;margin-top:10px" onclick="carregarEventos(false)">Carregar mais</button></div>
+    <div class="card"><div class="nome">Erros do app</div>
+      <table class="tb"><thead><tr><th>QUANDO</th><th>MENSAGEM</th><th>BUILD</th><th>ONDE</th></tr></thead><tbody id="btErros"></tbody></table></div>`;
+  const [{ data: f, error }, { data: esp }] = await Promise.all([sb.rpc('fn_admin_funil_beta'), sb.rpc('fn_admin_lista_espera', { p_off: 0, p_lim: 100 })]);
+  if (error) { $('btFunil').innerHTML = `<div class="card empty">${esc(error.message)}</div>`; return; }
+  const topo = Math.max(1, ...(f.passos || []).map(p => p.alunos));
+  $('btFunil').innerHTML = `<div class="card"><div class="nome">Funil da jornada <span class="conf mono">alunos distintos</span></div>
+    ${(f.passos || []).map(p => `<div style="display:flex;align-items:center;gap:10px;margin:6px 0">
+      <div style="flex:0 0 230px;font-size:13px">${esc(p.rotulo)}</div>
+      <div style="flex:1;height:8px;border-radius:5px;background:var(--card2,#0E1A2E);overflow:hidden"><i style="display:block;height:100%;width:${Math.round(100 * p.alunos / topo)}%;background:var(--verde)"></i></div>
+      <div class="mono" style="width:34px;text-align:right">${p.alunos}</div></div>`).join('')}
+    <div class="meta" style="margin-top:10px">Erros nos últimos 7 dias: <b>${f.erros_7d}</b> · lista de espera aberta: <b>${f.lista_espera_aberta}</b></div></div>
+    <div class="card"><div class="nome">Dias com sessão concluída <span class="conf mono">métrica principal do beta</span></div>
+      ${(f.dias_com_sessao || []).length ? `<table class="tb"><tbody>${f.dias_com_sessao.map(d => `<tr><td>${esc(d.email || d.student_id)}</td><td class="mono">${d.dias} dia(s)</td></tr>`).join('')}</tbody></table>` : '<div class="meta">Ninguém concluiu sessão ainda.</div>'}</div>`;
+  $('btEspera').innerHTML = (esp || []).length ? `<table class="tb"><tbody>${esp.map(e => `<tr><td>${esc(e.email)}</td><td>${quando(e.created_at)}</td>
+      <td>${e.atendido_em ? `<span class="badge edge">convidado ${quando(e.atendido_em)}</span>` : `<button class="b-ok" onclick="convidarBeta('${esc(e.email)}')">Convidar</button>`}</td></tr>`).join('')}</tbody></table>`
+    : 'Ninguém pediu convite ainda.';
+  carregarEventos(true);
+  const { data: er } = await sb.rpc('fn_admin_erros_listar', { p_off: 0, p_lim: 50 });
+  $('btErros').innerHTML = (er || []).map(e => `<tr><td>${quando(e.created_at)}</td><td>${esc(e.mensagem)}</td><td class="mono">${esc(e.build || '')}</td>
+      <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.url || '')}</td></tr>`).join('')
+    || '<tr><td colspan="4" class="meta">Nenhum erro registrado.</td></tr>';
+}
+let btOff = 0;
+async function carregarEventos(reset) {
+  if (reset) { btOff = 0; $('btEventos').innerHTML = ''; }
+  const { data, error } = await sb.rpc('fn_admin_eventos_listar', { p_evento: $('btFiltro').value || null, p_off: btOff, p_lim: PAGE });
+  if (error) { toast(error.message, false); return; }
+  $('btEventos').insertAdjacentHTML('beforeend', (data || []).map(e => `<tr><td>${quando(e.created_at)}</td>
+    <td>${esc(e.email || e.student_id)}${e.is_demo ? ' <span class="badge">demo</span>' : ''}${e.is_staff ? ' <span class="badge">equipe</span>' : ''}</td>
+    <td class="mono">${esc(e.evento)}</td><td class="mono">${esc(e.tela || '')}</td>
+    <td class="mono" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(JSON.stringify(e.dados || {}))}</td></tr>`).join('')
+    || (btOff === 0 ? '<tr><td colspan="5" class="meta">Nenhum evento ainda.</td></tr>' : ''));
+  btOff += PAGE;
+  $('btMais').style.display = (data || []).length === PAGE ? 'block' : 'none';
+}
+async function convidarBeta(email) {
+  email = (email || '').trim();
+  if (!email) { toast('Escreva o e-mail.', false); return; }
+  if (!confirm(`Convidar ${email} para o beta (90 dias de acesso)?`)) return;
+  const { data, error } = await sb.rpc('fn_admin_convite_beta', { p_email: email });
+  if (error) { toast(error.message, false); return; }
+  toast(data.status === 'ativa' ? `Acesso liberado para ${email}.` : `Convite criado: ativa quando ${email} se cadastrar.`);
+  loadBeta();
+}
+
 async function loadSolicitacoes() {
   const pane = $('pane-solicitacoes');
   pane.innerHTML = `

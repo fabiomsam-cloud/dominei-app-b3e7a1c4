@@ -782,7 +782,7 @@ const tele = (() => {
     const lote = fila.splice(0, 200);
     try {
       const { data: { session } } = await sb.auth.getSession();
-      if (!session) return;                                   // sem login não há evento de jornada
+      if (!session) { fila = lote.concat(fila).slice(0, 200); return; } // antes do login: guarda e envia depois do cadastro
       await sb.rpc('fn_ui_eventos_gravar', { p_lote: lote });
     } catch (e) { /* telemetria nunca quebra o app */ }
   }
@@ -821,6 +821,7 @@ const esc = (s) => (s ?? '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','
 async function boot() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { mostrarEntrada(); return; }
+  tele.flush();
   $('btnSair').style.display = 'block';
   await carregarEditais();
   const { data: prof } = await sb.from('profiles').select('edital_ativo, nome').eq('id', session.user.id).single();
@@ -1400,7 +1401,7 @@ async function loadHoje() {
   $('hjCards').innerHTML = `
     <div class="minicard"><div class="v">${data.medidos}</div><div class="k">AVALIADOS</div></div>
     <div class="minicard"><div class="v">${data.desenvolvimento}</div><div class="k">EM DESENV.</div></div>
-    <div class="minicard"><div class="v">${data.rever}</div><div class="k">PARA REVER</div></div>`;
+    ${retorno ? '' : `<div class="minicard"><div class="v">${data.rever}</div><div class="k">PARA REVER</div></div>`}`; // retorno: sem cara de dívida (seção 1.3, dia 12)
   if (data.acesso === false) {
     const p = (data.prioridades || [])[0];
     $('hjCard').innerHTML = `<div class="acaocard"><div class="k">SUA PRIORIDADE DE HOJE</div>
