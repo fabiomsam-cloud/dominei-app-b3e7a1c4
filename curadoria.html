@@ -190,7 +190,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-09-27k'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-09-28a'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -1370,6 +1370,7 @@ const MOTIVOS_AUD = {
 let audDados = null, audFiltro = 'pendentes', audModo = 'conteudo';
 async function loadAuditoria() {
   if (audModo === 'ligacoes') return loadLigacoes();
+  if (audModo === 'rotulos') return loadRotulos();
   const pane = $('pane-auditoria');
   pane.innerHTML = `<div class="pagetitle">Auditoria</div>${abasAud()}
     <div class="pagesub">Leitura única de calibração (item 1.4): uma questão gerada por IA de cada tema da trilha e os resumos.
@@ -1424,7 +1425,7 @@ async function registrarAud(tipo, id, veredito) {
 }
 
 function abasAud() {
-  return `<div class="acts" style="margin:0 0 14px;gap:8px">${[['conteudo', 'Questões e resumos'], ['ligacoes', 'Ligações do Cérebro']]
+  return `<div class="acts" style="margin:0 0 14px;gap:8px">${[['conteudo', 'Questões e resumos'], ['ligacoes', 'Ligações do Cérebro'], ['rotulos', 'Nomes curtos']]
     .map(([k, l]) => `<button class="${k === audModo ? 'b-ok' : 'b-ghost'}" onclick="audModo='${k}';loadAuditoria()">${l}</button>`).join('')}</div>`;
 }
 
@@ -1471,6 +1472,46 @@ async function decidirLigacao(id, status) {
   const x = ligDados.find(y => y.id === id); if (x) Object.assign(x, { status, revisado_em: new Date().toISOString(), revisado_por: 'você' });
   toast(status === 'removido' ? 'Removida: sumiu do Cérebro dos alunos.' : 'Marcada como revisada.');
   desenharLigacoes();
+}
+
+// ---------- NOMES CURTOS DO CÉREBRO: a IA propôs, já estão no ar; a equipe confirma ou corrige ----------
+let rotDados = null, rotFiltro = 'pendentes';
+async function loadRotulos() {
+  const pane = $('pane-auditoria');
+  pane.innerHTML = `<div class="pagetitle">Auditoria</div>${abasAud()}
+    <div class="pagesub">Nome curto de cada tema, que aparece ao lado da estrela quando o aluno abre uma disciplina no Cérebro (até 28 caracteres).
+      Foram propostos pela IA e já estão no ar. Leia se o nome se explica sozinho: "Confirmar" salva o texto da caixa (igual ou corrigido).</div>
+    <div id="rotResumo" class="card meta">carregando…</div>
+    <div class="acts" id="rotFiltros" style="margin:0 0 12px;gap:8px"></div>
+    <div id="rotLista"></div>`;
+  const { data, error } = await sb.rpc('fn_admin_rotulos_listar', {});
+  if (error) { $('rotLista').innerHTML = `<div class="card empty">${esc(error.message)}</div>`; return; }
+  rotDados = data || []; desenharRotulos();
+}
+function desenharRotulos() {
+  const rev = rotDados.filter(x => x.revisado_em).length;
+  $('rotResumo').innerHTML = `<b>${rev} de ${rotDados.length}</b> revisados · ${rotDados.filter(x => x.origem === 'equipe').length} corrigidos pela equipe`;
+  $('rotFiltros').innerHTML = [['pendentes', 'Não revisados'], ['revisados', 'Revisados'], ['todos', 'Todos']]
+    .map(([k, l]) => `<button class="${k === rotFiltro ? 'b-ok' : 'b-ghost'}" onclick="rotFiltro='${k}';desenharRotulos()">${l}</button>`).join('');
+  const vis = rotDados.filter(x => rotFiltro === 'todos' || (rotFiltro === 'revisados' ? x.revisado_em : !x.revisado_em));
+  $('rotLista').innerHTML = vis.slice(0, 120).map(x => `
+    <div class="card" id="rot-${x.id}">
+      <div class="meta">${esc(x.disciplina)} · ${esc(x.assunto)} ${x.revisado_em ? `<span class="badge edge">revisado · ${esc(x.revisado_por || '')}</span>` : ''}</div>
+      <div style="margin-top:6px;font-weight:600;line-height:1.4">${esc(x.nome)}</div>
+      <div class="acts" style="gap:8px;margin-top:10px;flex-wrap:wrap">
+        <input id="rotI-${x.id}" value="${esc(x.rotulo || '')}" maxlength="28" style="flex:1;min-width:180px" aria-label="Nome curto">
+        <button class="b-ok" onclick="salvarRotulo('${x.id}')">Confirmar</button>
+      </div>
+    </div>`).join('') + (vis.length > 120 ? `<div class="card meta">Mostrando 120 de ${vis.length}. Revise estes e os próximos aparecem.</div>` : '')
+    || `<div class="card empty">${rotFiltro === 'pendentes' ? 'Todos revisados. Obrigado!' : 'Nada aqui.'}</div>`;
+}
+async function salvarRotulo(id) {
+  const v = $('rotI-' + id).value.trim();
+  const { data, error } = await sb.rpc('fn_admin_rotulo_salvar', { p_node: id, p_rotulo: v });
+  if (error) { toast(error.message, false); return; }
+  const x = rotDados.find(y => y.id === id);
+  if (x) Object.assign(x, { origem: x.rotulo !== data.rotulo ? 'equipe' : (x.origem || 'equipe'), rotulo: data.rotulo, revisado_em: new Date().toISOString(), revisado_por: 'você' });
+  toast('Salvo. O aluno vê o nome novo ao abrir o Cérebro.'); desenharRotulos();
 }
 
 // ---------- BETA (etapa 5 · 0.7): funil, dias com sessão, lista de espera + convite, eventos e erros ----------
