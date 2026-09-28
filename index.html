@@ -266,6 +266,23 @@ body.tabs main { padding-bottom:96px; }
 .rg-fontes { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .rg-fontes button { min-height:48px; border-radius:11px; border:1px solid var(--line-v); background:var(--verde-dim); color:var(--text); font-weight:700; font-size:13.5px; font-family:inherit; cursor:pointer; }
 .rg-fontes button:disabled { opacity:.5; }
+.rg-ass { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 8px 2px; }
+.rg-ass .an { font-size:12.5px; font-weight:700; color:var(--dim); line-height:1.35; }
+.rg-ass button { background:none; border:none; color:var(--verde); font-size:12px; font-weight:700; min-height:44px; padding:0 4px; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.rg-ass + .rg-row, .rg-ass ~ .rg-row.sub { padding-left:14px; }
+.rg-row.sel { background:var(--verde-dim); }
+.rg-row.sel .ck { background:var(--verde); border-color:var(--verde); }
+.rg-row.sel .ck::after { content:''; width:9px; height:5px; border-left:2px solid #030710; border-bottom:2px solid #030710; transform:rotate(-45deg) translate(1px,-1px); }
+.rg-star { color:var(--ouro); font-weight:700; }
+.rg-row .an .cap { display:block; color:var(--faint); font-size:11px; margin-bottom:1px; }
+.rg-barra { display:none; position:fixed; left:0; right:0; bottom:calc(64px + env(safe-area-inset-bottom)); z-index:45; padding:0 12px; }
+.rg-barra.on { display:block; animation:enter .2s both; }
+.rg-barra-in { display:flex; align-items:center; gap:10px; background:#0E1A2E; border:1px solid var(--line-v); border-radius:14px; padding:8px 8px 8px 14px; box-shadow:0 -10px 40px rgba(0,0,0,.45); }
+.rg-barra-in #rgBarraN { flex:1; font-weight:700; font-size:14px; }
+.rg-barra-in .ss-link { margin:0; }
+.rg-barra-in .btn { width:auto; padding:12px 18px; margin:0; }
+body.rg-barra-on main { padding-bottom:170px; }
+.rg-lista-nomes { color:var(--text); font-size:13px; line-height:1.45; margin:6px 0 2px; }
 .rg-rec { display:flex; align-items:center; gap:10px; padding:8px 4px; border-bottom:1px solid rgba(132,170,214,.07); font-size:13px; }
 .rg-rec .an { flex:1; min-width:0; } .rg-rec .an small { display:block; color:var(--dim); font-size:11.5px; }
 .rg-rec button { background:none; border:none; color:var(--dim); text-decoration:underline; font-size:12px; min-height:44px; cursor:pointer; font-family:inherit; }
@@ -521,6 +538,7 @@ body.tabs main { padding-bottom:96px; }
   #vRevisoes, #vRegistrar { max-width:780px; }
   #vRevisoes .hj-hello, #vRegistrar .hj-hello { font-size:30px; }
   #rgSheet { left:calc(50% - 260px + 121px); right:auto; width:520px; } /* centrado na área de conteúdo (sidebar 242px) */
+  .rg-barra { left:282px; right:auto; width:min(780px, calc(100vw - 330px)); bottom:20px; padding:0; }
 }
 </style>
 </head>
@@ -779,15 +797,19 @@ body.tabs main { padding-bottom:96px; }
   <!-- REGISTRAR ESTUDO (27/09: por assunto do edital; não pinta o mapa, não dispara conferência) -->
   <section class="view" id="vRegistrar">
     <div class="hj-hello">Registrar estudo</div>
-    <div class="hj-sub">Marque os assuntos do edital que você estudou. O registro organiza o seu estudo; quem mostra o que você sabe são as questões.</div>
+    <div class="hj-sub">Marque os temas do edital que você estudou e toque em Registrar. O registro organiza o seu estudo; quem mostra o que você sabe são as questões.</div>
     <div class="rg-resumo" id="rgResumo"></div>
-    <input id="rgBusca" type="search" placeholder="Buscar assunto…" autocomplete="off" aria-label="Buscar assunto">
+    <input id="rgBusca" type="search" placeholder="Buscar tema (ex.: crase, remédios constitucionais)…" autocomplete="off" aria-label="Buscar tema">
     <div id="rgRecentes"></div>
     <div id="rgLista"></div>
   </section>
 </main>
 <div class="sheet" id="ssSheet"><div class="n">Fechar por aqui?</div><p id="ssSheetTxt"></p>
   <button class="btn" id="ssSheetCont">Continuar a sessão</button><button class="btn ghost" id="ssSheetSair">Fechar e guardar</button></div>
+<div class="rg-barra" id="rgBarra" role="region" aria-label="Temas selecionados">
+  <div class="rg-barra-in"><span id="rgBarraN"></span><button class="ss-link" id="rgLimpar" type="button">limpar</button>
+    <button class="btn" id="rgAbrir" type="button">Registrar</button></div>
+</div>
 <!-- folha do Registrar estudo: fora da seção (a animação da .view cria contexto de posição e prenderia o position:fixed) -->
 <div class="sheet" id="rgSheet" role="dialog" aria-modal="true" aria-labelledby="rgSheetT">
       <div class="n" id="rgSheetT"></div>
@@ -799,7 +821,7 @@ body.tabs main { padding-bottom:96px; }
       <div class="k-lbl rg-k">DE ONDE? <span>toque para registrar</span></div>
       <div class="rg-fontes" id="rgFontes"></div>
       <button class="ss-link" id="rgSemFonte" type="button">Registrar sem dizer a fonte</button>
-      <button class="btn ghost" id="rgDesfazer" type="button" style="display:none">Desmarcar o último registro</button>
+      <button class="btn ghost" id="rgDesfazer" type="button" style="display:none">Desmarcar o último registro deste tema</button>
       <button class="ss-link" id="rgCancelar" type="button">Cancelar</button>
     </div>
 
@@ -856,6 +878,7 @@ let sessao = null, itemAtual = null, respostaEscolhida = null, t0 = null;
 let totalTopicos = 0, reveal = null, declaracoes = {};
 
 function show(id) {
+  if (id !== 'vRegistrar' && typeof rgSel !== 'undefined') { $('rgSheet').classList.remove('on'); rgMostrarBarra(false); }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
   $(id).classList.add('on');
   window.scrollTo(0, 0);
@@ -2305,12 +2328,13 @@ async function compartilharCerebro() {
 }
 $('btnShare2').onclick = compartilharCerebro;
 
-// ---------- REGISTRAR ESTUDO (27/09/2026) ----------
-// Por assunto do edital; data automática (hoje, ontem ou "antes") e fonte opcional em 1 toque.
-// Efeito no motor: só o marcador "Visto" nos tópicos do assunto (e sai do "Ainda não estudei"). Não pinta, não agenda.
+// ---------- REGISTRAR ESTUDO (27/09/2026, por tema — caminho C) ----------
+// O aluno toca nos temas que estudou (de qualquer assunto), depois "Registrar": quando (hoje, ontem, antes) + fonte em 1 toque,
+// uma vez só para o lote. O assunto é cabeçalho com "marcar todos"; assunto de 1 tema vira uma linha só.
+// Efeito no motor: só o marcador "Visto" nos temas (e sai do "Ainda não estudei"). Não pinta, não agenda, não confere.
 const RG_FONTES = [['aula_elite', 'Aula do Elite'], ['pdf', 'PDF ou apostila'], ['videoaula', 'Videoaula'], ['lei_seca', 'Lei seca'], ['questoes', 'Questões'], ['outro', 'Outro']];
 const RG_FONTE_ROT = Object.fromEntries(RG_FONTES);
-let rgRegs = [], rgAlvo = null, rgQuandoSel = 'hoje', rgEnviando = false, rgAbertas = new Set();
+let rgRegs = [], rgSel = new Set(), rgQuandoSel = 'hoje', rgEnviando = false, rgAbertas = new Set();
 const semAcento = (t) => (t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const dataCurta = (iso) => { if (!iso) return ''; const [y, m, d] = String(iso).slice(0, 10).split('-'); return `${d}/${m}`; };
 function rgQuandoTxt(r) {
@@ -2318,15 +2342,18 @@ function rgQuandoTxt(r) {
   const hoje = new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Manaus' });
   return r.estudado_em === hoje ? 'estudado hoje' : `estudado em ${dataCurta(r.estudado_em)}`;
 }
-function rgAssuntos() { // [{a, d}] na ordem das disciplinas por peso
-  return [...estrutura].sort((x, y) => (y.peso_total || 0) - (x.peso_total || 0))
-    .flatMap(d => d.assuntos.map(a => ({ a, d })));
+function rgDiscs() { return [...estrutura].sort((x, y) => (y.peso_total || 0) - (x.peso_total || 0)); }
+function rgTemas() { // node_id → { t, a, d }
+  const m = {}; rgDiscs().forEach(d => d.assuntos.forEach(a => a.topicos.forEach(t => m[t.node_id] = { t, a, d }))); return m;
 }
-const pesoDoAssunto = (a) => a.topicos.reduce((s, t) => s + (t.peso || 0), 0);
-function rgPorAssunto() {
-  const m = {};
-  rgRegs.forEach(r => { (m[r.assunto_id] = m[r.assunto_id] || []).push(r); }); // rgRegs vem do mais novo para o mais velho
-  return m;
+function rgPorTema() { const m = {}; rgRegs.forEach(r => (m[r.node_id] = m[r.node_id] || []).push(r)); return m; } // mais novo primeiro
+function rgMostrarBarra(on) {
+  const b = $('rgBarra'); if (!b) return;
+  const n = rgSel.size;
+  $('rgBarraN').textContent = plural(n, 'tema selecionado', 'temas selecionados');
+  $('rgAbrir').textContent = `Registrar ${n === 1 ? '1 tema' : n + ' temas'}`;
+  b.classList.toggle('on', !!on && n > 0);
+  document.body.classList.toggle('rg-barra-on', !!on && n > 0);
 }
 async function loadRegistrar() {
   $('rgLista').innerHTML = skeletonCard();
@@ -2335,88 +2362,110 @@ async function loadRegistrar() {
   rgRegs = data || [];
   renderRegistrar();
 }
-function rgLinha(a, regs) {
+function rgLinha(t, regs, opts = {}) {
   const u = regs && regs[0];
-  const sub = u ? `${rgQuandoTxt(u)}${u.fonte ? ' · ' + RG_FONTE_ROT[u.fonte] : ''}` : '<span class="dsc">ainda não registrado</span>';
-  return `<button type="button" class="rg-row${u ? ' feito' : ''}" data-a="${a.assunto_id}">
+  const freq = t.provas_freq || 0;
+  const star = freq >= 3 ? ` <span class="rg-star">★ caiu ${freq}× nas provas</span>` : '';
+  const sub = u ? `${rgQuandoTxt(u)}${u.fonte ? ' · ' + RG_FONTE_ROT[u.fonte] : ''}${star ? ' ·' + star : ''}`
+                : (star ? star.trim() : '<span class="dsc">ainda não registrado</span>');
+  return `<button type="button" class="rg-row${opts.sub ? ' sub' : ''}${u ? ' feito' : ''}${rgSel.has(t.node_id) ? ' sel' : ''}" data-t="${t.node_id}" aria-pressed="${rgSel.has(t.node_id)}">
     <span class="ck" aria-hidden="true"></span>
-    <span class="an">${esc(a.assunto)}<small>${sub}</small></span>
+    <span class="an">${opts.cap ? `<span class="cap">${esc(opts.cap)}</span>` : ''}${esc(t.nome)}<small>${sub}</small></span>
     ${regs && regs.length > 1 ? `<span class="ct">${regs.length}×</span>` : ''}</button>`;
 }
 function renderRegistrar() {
-  const por = rgPorAssunto(), lista = rgAssuntos();
-  const total = lista.length, feitos = lista.filter(x => por[x.a.assunto_id]).length;
-  const pesoTot = lista.reduce((s, x) => s + pesoDoAssunto(x.a), 0) || 1;
-  const pesoFeito = lista.filter(x => por[x.a.assunto_id]).reduce((s, x) => s + pesoDoAssunto(x.a), 0);
-  const pct = Math.round(100 * pesoFeito / pesoTot);
-  const semana = new Set(rgRegs.filter(r => Date.now() - new Date(r.created_at) < 7 * 864e5).map(r => r.assunto_id)).size;
-  $('rgResumo').innerHTML = `<div class="v">${feitos} de ${plural(total, 'assunto', 'assuntos')} estudados</div>
+  const por = rgPorTema(), mapa = rgTemas(), ids = Object.keys(mapa);
+  const total = ids.length, feitos = ids.filter(id => por[id]).length;
+  const pesoTot = ids.reduce((s, id) => s + (mapa[id].t.peso || 0), 0) || 1;
+  const pct = Math.round(100 * ids.filter(id => por[id]).reduce((s, id) => s + (mapa[id].t.peso || 0), 0) / pesoTot);
+  const semana = new Set(rgRegs.filter(r => Date.now() - new Date(r.created_at) < 7 * 864e5).map(r => r.node_id)).size;
+  $('rgResumo').innerHTML = `<div class="v">${feitos} de ${plural(total, 'tema', 'temas')} estudados</div>
     <div class="rg-bar"><i style="width:${pct}%"></i></div>
-    <div class="m">${pct}% do peso do edital${semana ? ` · ${plural(semana, 'assunto', 'assuntos')} nos últimos 7 dias` : ''}</div>`;
-  const rec = rgRegs.slice(0, 5);
-  const nomeA = {}; lista.forEach(x => nomeA[x.a.assunto_id] = x.a.assunto);
-  $('rgRecentes').innerHTML = rec.length ? `<div class="rg-sec">REGISTRADOS RECENTEMENTE</div>` + rec.map(r => `
-    <div class="rg-rec"><div class="an">${esc(nomeA[r.assunto_id] || 'Assunto')}<small>${rgQuandoTxt(r)}${r.fonte ? ' · ' + RG_FONTE_ROT[r.fonte] : ''}</small></div>
-      <button type="button" data-desfazer="${r.id}">desfazer</button></div>`).join('') : '';
+    <div class="m">${pct}% do peso do edital${semana ? ` · ${plural(semana, 'tema', 'temas')} nos últimos 7 dias` : ''}</div>`;
+  // recentes por lote (o que foi registrado junto)
+  const lotes = []; const vistos = new Set();
+  rgRegs.forEach(r => { if (!vistos.has(r.lote)) { vistos.add(r.lote); lotes.push(rgRegs.filter(x => x.lote === r.lote)); } });
+  $('rgRecentes').innerHTML = lotes.length ? `<div class="rg-sec">REGISTRADOS RECENTEMENTE</div>` + lotes.slice(0, 5).map(l => {
+    const nomes = l.map(r => (mapa[r.node_id] || {}).t?.nome || 'Tema');
+    const txt = nomes.length <= 2 ? nomes.join(' e ') : `${nomes.slice(0, 2).join(', ')} e mais ${nomes.length - 2}`;
+    return `<div class="rg-rec"><div class="an">${esc(txt)}<small>${rgQuandoTxt(l[0])}${l[0].fonte ? ' · ' + RG_FONTE_ROT[l[0].fonte] : ''}</small></div>
+      <button type="button" data-lote="${l[0].lote}">desfazer</button></div>`; }).join('') : '';
   const q = semAcento($('rgBusca').value.trim());
   if (q.length >= 2) {
-    const achados = lista.filter(x => semAcento(x.a.assunto).includes(q) || x.a.topicos.some(t => semAcento(t.nome).includes(q)));
-    $('rgLista').innerHTML = `<div class="rg-sec">${plural(achados.length, 'ASSUNTO ENCONTRADO', 'ASSUNTOS ENCONTRADOS')}</div>` +
-      (achados.map(x => rgLinha(x.a, por[x.a.assunto_id])).join('') || '<p class="mp-dica">Nada com esse nome no edital.</p>');
+    const achados = ids.filter(id => semAcento(mapa[id].t.nome).includes(q) || semAcento(mapa[id].a.assunto).includes(q));
+    $('rgLista').innerHTML = `<div class="rg-sec">${plural(achados.length, 'TEMA ENCONTRADO', 'TEMAS ENCONTRADOS')}</div>` +
+      (achados.map(id => rgLinha(mapa[id].t, por[id], { cap: `${mapa[id].d.disciplina} · ${mapa[id].a.assunto}` })).join('') || '<p class="mp-dica">Nada com esse nome no edital.</p>');
   } else {
-    const discs = [...estrutura].sort((x, y) => (y.peso_total || 0) - (x.peso_total || 0));
-    $('rgLista').innerHTML = `<div class="rg-sec">POR DISCIPLINA</div>` + discs.map(d => {
-      const f = d.assuntos.filter(a => por[a.assunto_id]).length;
+    $('rgLista').innerHTML = `<div class="rg-sec">POR DISCIPLINA</div>` + rgDiscs().map(d => {
+      const temas = d.assuntos.flatMap(a => a.topicos), f = temas.filter(t => por[t.node_id]).length;
+      const corpo = d.assuntos.map(a => a.topicos.length === 1 ? rgLinha(a.topicos[0], por[a.topicos[0].node_id])
+        : `<div class="rg-ass"><span class="an">${esc(a.assunto)}</span><button type="button" data-todos="${a.assunto_id}">${a.topicos.every(t => rgSel.has(t.node_id)) ? 'desmarcar todos' : 'marcar todos'}</button></div>` +
+          a.topicos.map(t => rgLinha(t, por[t.node_id], { sub: true })).join('')).join('');
       return `<details class="rg-disc" data-d="${d.disciplina_id}"${rgAbertas.has(d.disciplina_id) ? ' open' : ''}>
-        <summary><span class="dn">${esc(d.disciplina)}</span><span class="dc">${f}/${d.assuntos.length}</span></summary>
-        <div class="rg-in">${d.assuntos.map(a => rgLinha(a, por[a.assunto_id])).join('')}</div></details>`;
+        <summary><span class="dn">${esc(d.disciplina)}</span><span class="dc">${f}/${temas.length}</span></summary>
+        <div class="rg-in">${corpo}</div></details>`;
     }).join('');
     $('rgLista').querySelectorAll('.rg-disc').forEach(el => el.ontoggle = () => {
       el.open ? rgAbertas.add(el.dataset.d) : rgAbertas.delete(el.dataset.d); });
   }
-  document.querySelectorAll('#vRegistrar .rg-row').forEach(b => b.onclick = () => abrirRegistro(b.dataset.a));
-  document.querySelectorAll('#rgRecentes [data-desfazer]').forEach(b => b.onclick = () => desfazerRegistro(b.dataset.desfazer));
+  document.querySelectorAll('#vRegistrar .rg-row').forEach(b => b.onclick = () => {
+    rgSel.has(b.dataset.t) ? rgSel.delete(b.dataset.t) : rgSel.add(b.dataset.t); renderRegistrar(); });
+  document.querySelectorAll('#vRegistrar [data-todos]').forEach(b => b.onclick = () => {
+    const a = rgDiscs().flatMap(d => d.assuntos).find(x => x.assunto_id === b.dataset.todos);
+    const todos = a.topicos.every(t => rgSel.has(t.node_id));
+    a.topicos.forEach(t => todos ? rgSel.delete(t.node_id) : rgSel.add(t.node_id)); renderRegistrar(); });
+  document.querySelectorAll('#rgRecentes [data-lote]').forEach(b => b.onclick = () => desfazerLote(b.dataset.lote));
+  rgMostrarBarra(document.querySelector('.view.on')?.id === 'vRegistrar');
 }
 let rgBuscaT = null;
 $('rgBusca').oninput = () => { clearTimeout(rgBuscaT); rgBuscaT = setTimeout(renderRegistrar, 150); };
-function abrirRegistro(assuntoId) {
-  const x = rgAssuntos().find(y => y.a.assunto_id === assuntoId); if (!x) return;
-  rgAlvo = x.a; rgQuandoSel = 'hoje';
-  const regs = rgPorAssunto()[assuntoId] || [];
-  $('rgSheetT').textContent = x.a.assunto;
-  $('rgSheetH').textContent = regs.length
-    ? `Você já registrou este assunto ${plural(regs.length, 'vez', 'vezes')}; a última: ${rgQuandoTxt(regs[0])}${regs[0].fonte ? ' (' + RG_FONTE_ROT[regs[0].fonte] + ')' : ''}. Registrar de novo guarda mais um estudo.`
-    : `${x.d.disciplina} · ${plural(x.a.topicos.length, 'tema', 'temas')} do edital.`;
+$('rgLimpar').onclick = () => { rgSel.clear(); renderRegistrar(); };
+$('rgAbrir').onclick = () => {
+  if (!rgSel.size) return;
+  const mapa = rgTemas(), por = rgPorTema(), sel = [...rgSel];
+  rgQuandoSel = 'hoje';
+  $('rgSheetT').textContent = `Registrar ${sel.length === 1 ? '1 tema' : sel.length + ' temas'}`;
+  const nomes = sel.map(id => mapa[id]?.t.nome).filter(Boolean);
+  const um = sel.length === 1 && por[sel[0]];
+  $('rgSheetH').innerHTML = `<span class="rg-lista-nomes">${esc(nomes.slice(0, 4).join(' · '))}${nomes.length > 4 ? ` e mais ${nomes.length - 4}` : ''}</span>` +
+    (um ? `<br>Você já registrou este tema ${plural(por[sel[0]].length, 'vez', 'vezes')}; a última: ${rgQuandoTxt(por[sel[0]][0])}. Registrar de novo guarda mais um estudo.` : '');
   document.querySelectorAll('#rgQuando button').forEach(b => b.classList.toggle('on', b.dataset.q === 'hoje'));
   $('rgFontes').innerHTML = RG_FONTES.map(([k, l]) => `<button type="button" data-f="${k}">${l}</button>`).join('');
   $('rgFontes').querySelectorAll('button').forEach(b => b.onclick = () => registrarEstudo(b.dataset.f));
-  $('rgDesfazer').style.display = regs.length ? 'block' : 'none';
-  $('rgDesfazer').onclick = async () => { $('rgSheet').classList.remove('on'); await desfazerRegistro(regs[0].id); };
+  $('rgDesfazer').style.display = um ? 'block' : 'none';
+  $('rgDesfazer').onclick = async () => { $('rgSheet').classList.remove('on'); await desfazerRegistro(por[sel[0]][0].id); };
   $('rgSheet').classList.add('on');
-}
+};
 document.querySelectorAll('#rgQuando button').forEach(b => b.onclick = () => {
   rgQuandoSel = b.dataset.q; document.querySelectorAll('#rgQuando button').forEach(x => x.classList.toggle('on', x === b)); });
 $('rgSemFonte').onclick = () => registrarEstudo(null);
 $('rgCancelar').onclick = () => $('rgSheet').classList.remove('on');
 async function registrarEstudo(fonte) {
-  if (!rgAlvo || rgEnviando) return;
+  if (!rgSel.size || rgEnviando) return;
   rgEnviando = true; $('rgFontes').querySelectorAll('button').forEach(b => b.disabled = true);
-  const { data, error } = await sb.rpc('fn_estudo_registrar', { p_edital: editalAtual.id, p_assunto: rgAlvo.assunto_id, p_quando: rgQuandoSel, p_fonte: fonte });
+  const temas = [...rgSel];
+  const { data, error } = await sb.rpc('fn_estudo_registrar_lote', { p_edital: editalAtual.id, p_temas: temas, p_quando: rgQuandoSel, p_fonte: fonte });
   rgEnviando = false;
   if (error) { toast('Não consegui registrar. Tente de novo.'); $('rgFontes').querySelectorAll('button').forEach(b => b.disabled = false); return; }
-  rgRegs.unshift(data);
-  tele('estudo_registrado', { assunto_id: rgAlvo.assunto_id, quando: rgQuandoSel, fonte });
+  rgRegs = (data || []).concat(rgRegs);
+  tele('estudo_registrado', { temas: temas.length, quando: rgQuandoSel, fonte });
+  rgSel.clear();
   $('rgSheet').classList.remove('on');
-  toast(`Registrado: ${rgAlvo.assunto}`);
+  toast(`Registrado: ${plural(temas.length, 'tema', 'temas')}`);
   renderRegistrar();
 }
 async function desfazerRegistro(id) {
   const { error } = await sb.rpc('fn_estudo_desfazer', { p_registro: id });
   if (error) { toast('Não consegui desfazer. Tente de novo.'); return; }
   rgRegs = rgRegs.filter(r => r.id !== id);
-  tele('estudo_desfeito', { registro: id });
-  toast('Registro desfeito.');
-  renderRegistrar();
+  tele('estudo_desfeito', { registro: id }); toast('Registro desfeito.'); renderRegistrar();
+}
+async function desfazerLote(lote) {
+  const { error } = await sb.rpc('fn_estudo_desfazer_lote', { p_lote: lote });
+  if (error) { toast('Não consegui desfazer. Tente de novo.'); return; }
+  const n = rgRegs.filter(r => r.lote === lote).length;
+  rgRegs = rgRegs.filter(r => r.lote !== lote);
+  tele('estudo_desfeito', { lote, temas: n }); toast(`Registro desfeito (${plural(n, 'tema', 'temas')}).`); renderRegistrar();
 }
 
 // compartilhar da Revelação: escondido até a 3.10 (imagem do cérebro, sem "% do edital mapeado")
