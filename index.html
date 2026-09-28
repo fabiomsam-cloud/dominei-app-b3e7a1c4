@@ -2332,7 +2332,8 @@ $('btnShare2').onclick = compartilharCerebro;
 // O aluno toca nos temas que estudou (de qualquer assunto), depois "Registrar": quando (hoje, ontem, antes) + fonte em 1 toque,
 // uma vez só para o lote. O assunto é cabeçalho com "marcar todos"; assunto de 1 tema vira uma linha só.
 // Efeito no motor: só o marcador "Visto" nos temas (e sai do "Ainda não estudei"). Não pinta, não agenda, não confere.
-const RG_FONTES = [['aula_elite', 'Aula do Elite'], ['pdf', 'PDF ou apostila'], ['videoaula', 'Videoaula'], ['lei_seca', 'Lei seca'], ['questoes', 'Questões'], ['outro', 'Outro']];
+// a chave 'aula_elite' fica no banco por compatibilidade; o rótulo é genérico porque o DOMINEI não é só para alunos do Elite (27/09)
+const RG_FONTES = [['aula_elite', 'Aula ou curso'], ['pdf', 'PDF ou apostila'], ['videoaula', 'Videoaula'], ['lei_seca', 'Lei seca'], ['questoes', 'Questões'], ['outro', 'Outro']];
 const RG_FONTE_ROT = Object.fromEntries(RG_FONTES);
 let rgRegs = [], rgSel = new Set(), rgQuandoSel = 'hoje', rgEnviando = false, rgAbertas = new Set();
 const semAcento = (t) => (t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
