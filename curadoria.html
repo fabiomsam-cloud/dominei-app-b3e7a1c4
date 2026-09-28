@@ -190,7 +190,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-09-27g'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-09-27h'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -1437,7 +1437,7 @@ async function loadBeta() {
     <div class="card"><div class="nome">Lista de espera</div><div id="btEspera" class="meta">carregando…</div></div>
     <div class="card"><div class="nome">Eventos recentes
         <select id="btFiltro" style="margin-left:10px" onchange="carregarEventos(true)"><option value="">todos</option>
-          ${['cadastro','entrada_quero','diagnostico_iniciado','diagnostico_retomado','diagnostico_concluido','revelacao_vista','revelacao_botao','revelacao_divergencia','sessao_iniciada','resposta','ainda_nao_estudei','resumo_aberto','sessao_guardada','sessao_concluida','plano_concluido','meu_edital_praticar','convite_pedido','autoavaliacao_pulada']
+          ${['cadastro','entrada_quero','diagnostico_iniciado','diagnostico_retomado','diagnostico_concluido','revelacao_vista','revelacao_botao','revelacao_divergencia','sessao_iniciada','resposta','ainda_nao_estudei','resumo_aberto','sessao_guardada','sessao_concluida','plano_concluido','meu_edital_praticar','estudo_registrado','estudo_desfeito','convite_pedido','autoavaliacao_pulada']
             .map(e => `<option>${e}</option>`).join('')}</select></div>
       <table class="tb"><thead><tr><th>QUANDO</th><th>ALUNO</th><th>EVENTO</th><th>TELA</th><th>DADOS</th></tr></thead><tbody id="btEventos"></tbody></table>
       <button class="b-ghost more" id="btMais" style="display:none;margin-top:10px" onclick="carregarEventos(false)">Carregar mais</button></div>
