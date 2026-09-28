@@ -428,6 +428,55 @@ body.rg-barra-on main { padding-bottom:170px; }
 .conq.ok .ic { background:rgba(242,179,61,.14); color:var(--amarelo); }
 .conq.ok b { color:var(--amarelo); }
 
+/* ---------- CÉREBRO · GALÁXIA ---------- */
+.cz { position:relative; height:calc(100dvh - 172px); min-height:440px; border-radius:18px; overflow:hidden; border:1px solid var(--line); background:#030710; }
+.cz canvas { position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; cursor:grab; }
+.cz-hud { position:absolute; left:16px; top:14px; pointer-events:none; z-index:2; }
+.cz-t { font-family:'Archivo', sans-serif; font-variation-settings:'wdth' 82,'wght' 800; font-size:21px; text-shadow:0 2px 12px rgba(0,0,0,.8); }
+.cz-s { color:#AFC0D8; font-size:12px; margin-top:2px; max-width:56vw; text-shadow:0 1px 8px rgba(0,0,0,.9); }
+.cz-acts { position:absolute; right:12px; bottom:12px; display:flex; gap:8px; z-index:3; }
+.cz-btn { min-height:40px; padding:0 13px; border-radius:11px; background:rgba(9,16,30,.82); border:1px solid var(--line); color:var(--text); font-weight:700; font-size:12.5px; backdrop-filter:blur(8px); cursor:pointer; font-family:inherit; }
+.cz-btn[aria-expanded="true"] { border-color:var(--line-v); color:var(--verde); }
+.cz-btn.filtrado { border-color:var(--line-v); color:var(--verde); background:rgba(12,40,28,.85); }
+.cz-leg { display:none; position:absolute; right:12px; bottom:62px; max-height:calc(100% - 80px); overflow-y:auto; width:282px; background:rgba(7,12,24,.93); border:1px solid var(--line); border-radius:13px; padding:12px 12px 10px; backdrop-filter:blur(10px); z-index:4; }
+.cz-leg.on { display:block; animation:enter .2s both; }
+.cz-leg .t { font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:var(--dim); margin-bottom:6px; }
+.cz-leg .lg, .cz-leg .lg-f { display:flex; align-items:center; gap:10px; width:100%; background:none; border:none; color:#AFC0D8; font-size:12px; padding:5px 6px; text-align:left; border-radius:8px; font-family:inherit; min-height:34px; }
+.cz-leg .lg { cursor:pointer; } .cz-leg .lg:hover, .cz-leg .lg.on { color:var(--text); background:rgba(255,255,255,.06); }
+.cz-leg i { flex:0 0 16px; height:16px; border-radius:50%; display:inline-block; }
+.g-dom { background:radial-gradient(circle, #fff 0 22%, #4F8BFF 42%, transparent 72%); box-shadow:0 0 10px rgba(79,139,255,.8); }
+.g-dev { background:radial-gradient(circle, #b9d0ff 0 18%, rgba(79,139,255,.7) 42%, transparent 72%); }
+.g-at { border:1.5px solid #ED5A5A; background:radial-gradient(circle, rgba(79,139,255,.8) 0 28%, transparent 60%); }
+.g-na { background:radial-gradient(circle, rgba(79,139,255,.4) 0 26%, transparent 62%); }
+.g-ovo { border:1.2px solid #F5C542; background:radial-gradient(circle, rgba(79,139,255,.6) 0 24%, transparent 60%); }
+.cz-leg .f-c, .cz-leg .f-conf, .cz-leg .f-p { height:0; border-radius:0; border-top:2px solid rgba(200,215,245,.75); }
+.cz-leg .f-conf { border-top-color:rgba(255,170,170,.85); } .cz-leg .f-p { border-top-color:#2FE08D; box-shadow:0 0 6px #2FE08D; }
+.cz-inicio { display:none; position:absolute; left:50%; bottom:68px; transform:translateX(-50%); text-align:center; pointer-events:none; width:min(90%, 520px); z-index:2; }
+.cz-inicio b { display:block; font-size:18px; font-family:'Archivo', sans-serif; font-variation-settings:'wdth' 82,'wght' 800; text-shadow:0 2px 14px rgba(0,0,0,.9); }
+.cz-inicio span { display:block; color:#AFC0D8; font-size:12.5px; margin-top:4px; text-shadow:0 1px 8px rgba(0,0,0,.9); }
+.cz .cv-controls { z-index:2; }
+.cz #cvZin, .cz #cvZout { display:none; } /* no celular a pinça faz o zoom; fica o "ver tudo" */
+.cz-s { max-width:calc(100vw - 72px); }
+.cz .cv-info { left:0; right:0; bottom:0; top:auto; width:auto; max-height:47%; overflow-y:auto; border-radius:18px 18px 0 0; border-bottom:none; z-index:5; padding:16px 18px 18px; }
+.cv-info .cz-chips { display:flex; gap:6px; flex-wrap:wrap; margin-top:9px; }
+.cv-info .cz-l { font-size:12.5px; color:#AFC0D8; margin-top:8px; } .cv-info .cz-l b { color:var(--text); } .cv-info .cz-l.ouro { color:var(--ouro); font-weight:700; }
+.cv-info .cz-k { font-family:var(--mono); font-size:9.5px; letter-spacing:.16em; color:var(--dim); margin:14px 0 6px; font-weight:700; } .cv-info .cz-k.verde { color:var(--verde); }
+.cz-lig { display:block; width:100%; text-align:left; background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:10px; padding:8px 10px; margin-bottom:6px; color:var(--text); cursor:pointer; font-family:inherit; min-height:44px; }
+.cz-lig:hover { border-color:rgba(255,255,255,.25); }
+.cz-lig span { display:block; font-size:12.5px; font-weight:700; line-height:1.3; } .cz-lig span i { font-style:normal; font-weight:600; color:#FFB0B0; font-size:10.5px; margin-left:6px; white-space:nowrap; }
+.cz-lig.prerequisito span i { color:#9EC2FF; }
+.cz-lig small { display:block; color:#93A4BD; font-size:11px; margin-top:2px; line-height:1.35; }
+.cz-lig.pes { border-color:rgba(47,224,141,.32); }
+.estado.e-rv { background:rgba(242,179,61,.14); color:var(--amarelo); } .estado.e-vi { border:1px solid rgba(132,170,214,.35); color:var(--dim); background:none; }
+.cz-drawer { display:none; position:absolute; left:0; right:0; bottom:0; max-height:72%; overflow-y:auto; background:rgba(7,12,24,.96); border:1px solid var(--line); border-radius:18px 18px 0 0; padding:14px 16px 18px; z-index:6; backdrop-filter:blur(12px); }
+.cz-drawer.on { display:block; animation:enter .22s both; }
+.cz-dh { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; } .cz-dh b { font-size:15px; }
+.cz-dh button { background:none; border:none; color:var(--dim); font-size:20px; min-width:44px; min-height:44px; cursor:pointer; }
+.cz-drawer .dom { gap:10px; } .cz-dot { flex:0 0 10px; height:10px; border-radius:50%; }
+.rv-hero .legend .lb { font-size:11.5px; color:var(--dim); line-height:1.6; } .rv-hero .legend .lb b { color:var(--text); font-weight:700; }
+.rv-hero .legend .lb-at { color:#FF8C8C !important; } .rv-hero .legend .lb-na { color:#8FA3C0 !important; }
+.rv-hero .legend span::before { display:none; }
+
 /* ---------- REVELAÇÃO ---------- */
 .rv .head { margin-bottom:18px; }
 .rv .head h2 { font-size:24px; }
@@ -479,7 +528,8 @@ body.rg-barra-on main { padding-bottom:170px; }
 
 .sharebar { position:sticky; bottom:0; padding:14px 0 8px; background:linear-gradient(transparent, var(--ink) 40%); }
 .rv-hero { min-height:calc(100dvh - 120px); display:flex; flex-direction:column; justify-content:center; }
-.rv-hero #rvCerebro svg { max-height:64dvh; }
+.rv-hero #rvCerebro { height:min(62dvh, 560px); margin:6px 0 10px; }
+#rvCanvas { width:100%; height:100%; display:block; border-radius:18px; border:1px solid var(--line); background:#030710; }
 .rv-hero .legend { justify-content:center; }
 .rv-sintese { font-size:16px; line-height:1.55; margin:18px 0 16px; }
 .rv-prior { list-style:none; counter-reset:pr; margin:10px 0 16px; padding:0; }
@@ -530,6 +580,11 @@ body.rg-barra-on main { padding-bottom:170px; }
   .cv-wrap { height:600px; }
   .cv-panel { margin-top:0; background:var(--glass); border:1px solid var(--line); border-radius:16px; padding:20px; }
   .cv-info { left:auto; right:12px; width:340px; }
+  .cz { height:calc(100dvh - 100px); }
+  .cz-acts { top:12px; bottom:auto; } .cz-leg { top:60px; bottom:auto; } .cz-inicio { bottom:26px; }
+  .cz #cvZin, .cz #cvZout { display:flex; align-items:center; justify-content:center; }
+  .cz .cv-info { left:auto; right:12px; top:62px; bottom:auto; width:350px; max-height:calc(100% - 76px); border-radius:16px; border-bottom:1px solid var(--line-v); }
+  .cz-drawer { left:auto; right:12px; top:62px; bottom:auto; width:320px; max-height:calc(100% - 76px); border-radius:16px; }
   .cv-legend { position:absolute; top:12px; right:12px; margin:0; display:block; padding:11px 14px; backdrop-filter:blur(8px); }
   .cv-legend .lg { min-height:0; }
 
@@ -674,7 +729,7 @@ body.rg-barra-on main { padding-bottom:170px; }
         <h2 class="disp">O mapa do seu cérebro</h2>
         <p id="rvSub"></p>
       </div>
-      <div id="rvCerebro"></div>
+      <div id="rvCerebro"><canvas id="rvCanvas" aria-label="O mapa do seu cérebro acendendo"></canvas></div>
       <div class="legend" id="rvLegenda"></div>
     </div>
     <p class="rv-sintese" id="rvSintese"></p>
@@ -737,41 +792,42 @@ body.rg-barra-on main { padding-bottom:170px; }
     <div id="mpMapa"></div>
   </section>
 
-  <!-- CÉREBRO (F5 · vivo desde o redesign) -->
+  <!-- CÉREBRO · GALÁXIA (27/09: direção de arte 01–04) -->
   <section class="view" id="vCerebroFull">
-    <div class="pagetitle">Cérebro</div>
-    <div class="pagesub">Seu sistema de conhecimento. Cada evidência acende um nó.</div>
-    <div class="kpis" id="cbKpis"></div>
-    <div class="cv-grid">
-      <div class="cv-col">
-      <div class="cv-wrap">
-        <canvas id="cvCanvas"></canvas>
-        <div class="cv-controls">
-          <button id="cvZin">+</button>
-          <button id="cvZout">−</button>
-          <button id="cvReset">⤾</button>
-        </div>
-        <div class="cv-info" id="cvInfo"></div>
+    <div class="cz" id="cz">
+      <canvas id="cvCanvas" aria-label="O mapa do seu cérebro: cada cor é uma disciplina e o brilho de cada tema mostra o seu domínio. A lista completa está em Meu edital."></canvas>
+      <div class="cz-hud"><div class="cz-t">Cérebro</div><div class="cz-s" id="czSub"></div></div>
+      <div class="cz-acts">
+        <button class="cz-btn" id="czLeg" type="button" aria-expanded="false" aria-controls="cvLegenda">Legenda</button>
+        <button class="cz-btn" id="czDisc" type="button" aria-expanded="false" aria-controls="czDrawer">Disciplinas</button>
       </div>
-        <div class="cv-legend" id="cvLegenda">
-          <div class="t">LEGENDA · TOQUE PARA ISOLAR</div>
-          <div class="lg lg-v" data-f="verde" role="button" tabindex="0">Dominado</div>
-          <div class="lg lg-a" data-f="amarelo" role="button" tabindex="0">Em desenvolvimento</div>
-          <div class="lg lg-r" data-f="vermelho" role="button" tabindex="0">Precisa de atenção</div>
-          <div class="lg lg-n" data-f="nd" role="button" tabindex="0">Ainda não avaliado</div>
-          <div class="lg lg-ne" data-f="ne" role="button" tabindex="0">Ainda não estudei</div>
-          <div class="lg lg-e" data-f="rever" role="button" tabindex="0">Rever</div>
-          <div class="lg lg-o" data-f="ovo" role="button" tabindex="0">Ovo de Ouro · cai muito nas provas</div>
-        </div>
+      <div class="cz-leg" id="cvLegenda">
+        <div class="t">CADA COR É UMA DISCIPLINA · O BRILHO É O DOMÍNIO</div>
+        <button class="lg" type="button" data-f="dominado"><i class="g-dom"></i>Dominado · brilho forte</button>
+        <button class="lg" type="button" data-f="desenvolvimento"><i class="g-dev"></i>Em desenvolvimento · brilho médio</button>
+        <button class="lg" type="button" data-f="atencao"><i class="g-at"></i>Precisa de atenção · anel vermelho</button>
+        <button class="lg" type="button" data-f="nao_avaliado"><i class="g-na"></i>Ainda não avaliado · poeira</button>
+        <button class="lg" type="button" data-f="ovo"><i class="g-ovo"></i>Ovo de Ouro · caiu 3+ vezes nas provas</button>
+        <div class="t" style="margin-top:10px">FIOS</div>
+        <div class="lg-f"><i class="f-c"></i>Ligação entre temas</div>
+        <div class="lg-f"><i class="f-conf"></i>Temas que costumam ser confundidos</div>
+        <button class="lg" type="button" data-f="pessoais"><i class="f-p"></i>Estudados juntos por você</button>
+        <div class="t" style="margin:8px 0 0;opacity:.8">TOQUE NUM ITEM PARA ISOLAR</div>
       </div>
-      <aside class="cv-panel">
-        <div class="cv-pk">DOMÍNIOS</div>
+      <div class="cz-inicio" id="czInicio"></div>
+      <div class="cv-controls">
+        <button id="cvZin" type="button" aria-label="Aproximar">+</button>
+        <button id="cvZout" type="button" aria-label="Afastar">−</button>
+        <button id="cvReset" type="button" aria-label="Ver tudo">⤾</button>
+      </div>
+      <div class="cv-info" id="cvInfo" role="dialog" aria-live="polite"></div>
+      <aside class="cz-drawer" id="czDrawer">
+        <div class="cz-dh"><b>Disciplinas</b><button type="button" id="czDrawerFech" aria-label="Fechar">×</button></div>
         <div id="cvDoms"></div>
         <div id="cvConqs"></div>
         <button class="btn" id="btnShare2" style="margin-top:16px">Compartilhar meu cérebro</button>
       </aside>
     </div>
-    <div class="cv-cap" id="cbSub"></div>
   </section>
 
   <!-- REVISÕES (F5) -->
@@ -1173,56 +1229,10 @@ function corDe(n) {
 }
 const COR_HEX = { verde: '#2FE08D', amarelo: '#F2B33D', vermelho: '#ED5A5A', nd: '#39435C' };
 const OURO = '#F5C542';
-function nodeSvg(x, y, r, cor, i) {
-  const glow = (cor === 'verde' || cor === 'amarelo') ? 'filter="url(#glow)"' : '';
-  return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${COR_HEX[cor]}" ${glow} class="cn ${cor === 'nd' ? 'nd' : ''}" style="--d:${250 + i * 70}ms"/>`;
-}
 function corMedia(tops) {
   const med = tops.filter(t => t.estado ? COR_ESTADO[t.estado] !== 'nd' : t.incerteza < 85);
   if (!med.length) return 'nd';
   return corDe({ forca: med.reduce((s, t) => s + t.forca, 0) / med.length, incerteza: 0 });
-}
-function renderCerebro(porNode, alvo = 'rvCerebro') {
-  const W = 360, C = W / 2;
-  const ND = Math.max(estrutura.length, 1);
-  const setor = 2 * Math.PI / ND;
-  const pt = (ang, r) => [C + r * Math.cos(ang), C + r * Math.sin(ang)];
-  let edges = '', nodes = '', idx = 0;
-  estrutura.forEach((d, di) => {
-    const angD = -Math.PI / 2 + setor * (di + 0.5);
-    const [dx, dy] = pt(angD, 55);
-    const topsD = d.assuntos.flatMap(a => a.topicos).map(t => porNode[t.node_id] || { forca: 0, incerteza: 100 });
-    edges += `<path d="M${C} ${C} Q ${(C + dx) / 2} ${(C + dy) / 2} ${dx.toFixed(1)} ${dy.toFixed(1)}" class="ce"/>`;
-    nodes += nodeSvg(dx, dy, 9, corMedia(topsD), idx++);
-    d.assuntos.forEach((a, ai) => {
-      const na = d.assuntos.length;
-      const angA = angD + (ai - (na - 1) / 2) * (setor * 0.55 / Math.max(na, 1));
-      const [ax, ay] = pt(angA, 102);
-      const topsA = a.topicos.map(t => porNode[t.node_id] || { forca: 0, incerteza: 100 });
-      edges += `<path d="M${dx.toFixed(1)} ${dy.toFixed(1)} Q ${(dx + ax) / 2} ${(dy + ay) / 2} ${ax.toFixed(1)} ${ay.toFixed(1)}" class="ce"/>`;
-      nodes += nodeSvg(ax, ay, 6, corMedia(topsA), idx++);
-      a.topicos.forEach((t, ti) => {
-        const nt = a.topicos.length;
-        const angT = angA + (ti - (nt - 1) / 2) * (setor * 0.4 / Math.max(nt, 1));
-        const jit = ((di * 7 + ai * 5 + ti * 13) % 14) - 7;
-        const [tx, ty] = pt(angT, 148 + jit);
-        const st = porNode[t.node_id] || { forca: 0, incerteza: 100 };
-        edges += `<path d="M${ax.toFixed(1)} ${ay.toFixed(1)} Q ${(ax + tx) / 2} ${(ay + ty) / 2} ${tx.toFixed(1)} ${ty.toFixed(1)}" class="ce"/>`;
-        nodes += nodeSvg(tx, ty, 4 + (t.peso || 0.5) * 3.5, corDe(st), idx++);
-      });
-    });
-  });
-  $(alvo).innerHTML = `
-    <svg viewBox="0 0 ${W} ${W}">
-      <defs><filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
-        <feGaussianBlur stdDeviation="4" result="b"/>
-        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter></defs>
-      ${edges}
-      <circle cx="${C}" cy="${C}" r="15" fill="#2FE08D" filter="url(#glow)" class="core"/>
-      ${nodes}
-    </svg>
-    <div class="cbcap">Seu cérebro para ${esc(editalAtual.concurso)} — ele cresce e acende conforme você domina.</div>`;
 }
 
 function heatmapHtml(porNode, clicavel = false) {
@@ -1255,13 +1265,14 @@ function animarBarras(container) {
     container.querySelectorAll('.bar i').forEach(i => i.style.width = i.dataset.w + '%'), 80));
 }
 
+const LEGENDA_BRILHO = `<span class="lb">Cada cor é uma disciplina · <b>brilho forte</b> = Dominado · <b>médio</b> = Em desenvolvimento · <b class="lb-at">anel vermelho</b> = Precisa de atenção · <b class="lb-na">poeira</b> = Ainda não avaliado</span>`;
 const LEGENDA_ESTADOS = `<span class="lg-v">Dominado</span><span class="lg-a">Em desenvolvimento</span>
   <span class="lg-r">Precisa de atenção</span><span class="lg-n">Ainda não avaliado</span>`;
 function renderReveal() {
   const mapa = reveal.mapa || [];
   const porNode = {}; mapa.forEach(n => porNode[n.node_id] = n);
-  renderCerebro(porNode);
-  $('rvLegenda').innerHTML = LEGENDA_ESTADOS;
+  revelarGalaxia(porNode);
+  $('rvLegenda').innerHTML = LEGENDA_BRILHO;
   const e = reveal.estados || {};
   $('rvSub').textContent = `${editalAtual.concurso} · ${plural(reveal.respostas, 'resposta', 'respostas')}`;
 
@@ -1823,332 +1834,379 @@ function abrirDetalheTema(row) {
   };
 }
 // ============ CÉREBRO VIVO (canvas, F5 redesign) ============
-const CerebroVivo = {
-  cv: null, ctx: null, nodes: [], edges: [], pulses: [], stars: [],
-  cam: { x: 0, y: 0, z: 1 }, sel: null, raf: null, t0: 0, dpr: 1,
+// ============ CÉREBRO · GALÁXIA (27/09/2026: direção de arte 01–04, etapas A, B e D-parte-fácil) ============
+// Cada disciplina é uma galáxia de cor própria; o BRILHO de cada tema é o domínio (cor congelada do servidor, seção 3.2);
+// fios curvos = ligações do conteúdo (IA, tabela edges); fios verdes = "estudados juntos" por você.
+// Layout: força determinística (semente do edital) — o mesmo cérebro a cada visita. Canvas 2D com brilho aditivo.
+const GAL_PALETA = ['#4F8BFF', '#A970FF', '#FF9F43', '#22D3EE', '#EC5FD0', '#2DD4BF', '#A3E635', '#7C83FF', '#7DD3FC', '#F9A8D4', '#FDBA74', '#C4B5FD', '#6EE7B7', '#F0ABFC'];
+const GAL_BRILHO = { dominado: 1, desenvolvimento: .72, atencao: .58, nao_avaliado: .15, nao_estudei: .15 };
+const GAL_VERDE = '#2FE08D', GAL_VERMELHO = '#ED5A5A', GAL_OURO = '#F5C542';
+const galSemMov = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+function galRng(seed) { let a = 0; for (const c of String(seed)) a = (a * 31 + c.charCodeAt(0)) | 0;
+  return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function galRgb(hex) { const n = parseInt(hex.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+const galSprites = {};
+function galSprite(hex) { // brilho pré-renderizado: núcleo branco → cor → transparente
+  if (galSprites[hex]) return galSprites[hex];
+  const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d');
+  const [r, g, b] = galRgb(hex), gr = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.12, `rgba(${r},${g},${b},.95)`);
+  gr.addColorStop(.35, `rgba(${r},${g},${b},.35)`); gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
+  x.fillStyle = gr; x.fillRect(0, 0, 64, 64); return (galSprites[hex] = c);
+}
 
-  montar(porNode) {
-    this.cv = $('cvCanvas'); this.ctx = this.cv.getContext('2d');
-    this.nodes = []; this.edges = []; this.pulses = []; this.sel = null;
-    this.filtro = null; this.atualizarLegenda();
-    $('cvInfo').classList.remove('on');
-    const ND = Math.max(estrutura.length, 1), setor = 2 * Math.PI / ND;
-    const core = { id: 'core', nome: 'DOMINEI', nivel: 'core', x: 0, y: 0, r: 15, cor: 'core', ph: 0 };
-    this.nodes.push(core);
-    estrutura.forEach((d, di) => {
-      const angD = -Math.PI / 2 + setor * (di + 0.5);
-      const topsD = d.assuntos.flatMap(a => a.topicos).map(t => porNode[t.node_id] || { forca: 0, incerteza: 100 });
-      const medD = topsD.filter(t => t.estado ? (t.n_evidencias || 0) >= 1 : t.incerteza < 85); // avaliados por evidência direta
-      const nd = { id: 'd' + di, nome: d.disciplina, nivel: 'disciplina',
-        x: Math.cos(angD) * 90, y: Math.sin(angD) * 90, r: 8.5,
-        cor: corMedia(topsD), ph: Math.random() * 7, ang: angD, filhos: [],
-        pct: medD.length ? Math.round(medD.reduce((s, t) => s + (t.forca_obs ?? t.forca), 0) / medD.length) : null };
-      this.nodes.push(nd); this.edges.push([core, nd]);
+class Galaxia {
+  constructor(canvas, opts = {}) {
+    this.cv = canvas; this.ctx = canvas.getContext('2d'); this.opts = opts;
+    this.nodes = []; this.hubs = []; this.clusters = []; this.lig = []; this.pes = []; this.pulses = [];
+    this.cam = { x: 0, y: 0, z: 1 }; this.camT = { x: 0, y: 0, z: 1 }; this.sel = null; this.filtro = null;
+    this.t0 = performance.now(); this.ign = null; this.raf = null; this.vivo = true;
+    if (opts.interativo) this.eventos();
+    this.ro = new ResizeObserver(() => this.redimensionar()); this.ro.observe(canvas);
+  }
+  // ---- dados → nós com posição (determinístico) ----
+  montar({ estrutura, porNode, ligacoes, semente }) {
+    const rnd = galRng(semente || 'dominei');
+    const discs = [...estrutura].sort((a, b) => (b.peso_total || 0) - (a.peso_total || 0));
+    this.nodes = []; this.hubs = []; this.clusters = []; this.byId = {};
+    const R0 = 168, ouro = 2.39996;
+    // o arranjo das galáxias acompanha o formato da tela (celular em pé = mais alto que largo)
+    const W0 = this.cv.clientWidth || window.innerWidth, H0 = (this.cv.clientHeight || window.innerHeight - 170) - (this.opts.topo || 0) - (this.opts.rodape || 0);
+    const asp = Math.min(2.2, Math.max(.55, H0 / W0)), ex = 1 / Math.sqrt(asp), ey = Math.sqrt(asp);
+    discs.forEach((d, i) => {
+      const nt = d.assuntos.reduce((s, a) => s + a.topicos.length, 0);
+      const ang = i * ouro, rr = R0 * Math.sqrt(i);
+      const cl = { id: d.disciplina_id, nome: d.disciplina, cor: GAL_PALETA[i % GAL_PALETA.length], cx: Math.cos(ang) * rr * ex, cy: Math.sin(ang) * rr * ey,
+        rc: 36 + 13 * Math.sqrt(nt + d.assuntos.length), temas: [], d };
+      this.clusters.push(cl);
       d.assuntos.forEach((a, ai) => {
-        const na = d.assuntos.length;
-        const angA = angD + (ai - (na - 1) / 2) * (setor * 0.6 / Math.max(na, 1));
-        const nA = { id: 'a' + di + '_' + ai, nome: a.assunto, nivel: 'assunto',
-          x: Math.cos(angA) * 165, y: Math.sin(angA) * 165, r: 5.5,
-          cor: corMedia(a.topicos.map(t => porNode[t.node_id] || { forca: 0, incerteza: 100 })),
-          ph: Math.random() * 7, disc: d.disciplina, filhos: [] };
-        this.nodes.push(nA); this.edges.push([nd, nA]); nd.filhos.push(nA);
-        a.topicos.forEach((t, ti) => {
-          const nt = a.topicos.length;
-          const angT = angA + (ti - (nt - 1) / 2) * (setor * 0.42 / Math.max(nt, 1));
-          const jit = ((di * 7 + ai * 5 + ti * 13) % 26) - 13;
-          const st = porNode[t.node_id] || { forca: 0, incerteza: 100 };
-          const freq = t.provas_freq || 0;
-          const atraso = st.proxima_revisao != null
-            ? Math.floor((Date.now() - new Date(st.proxima_revisao)) / 86400000) : null;
-          const nT = { id: t.node_id, nome: t.nome, nivel: 'topico',
-            x: Math.cos(angT) * (238 + jit), y: Math.sin(angT) * (238 + jit),
-            r: 3.4 + Math.min((t.peso || 0.003) * 55, 3.4), cor: corDe(st),
-            ph: Math.random() * 7, forca: st.forca, incerteza: st.incerteza,
-            estado: st.estado || null, n_ev: st.n_evidencias || 0, forca_obs: st.forca_obs, visto: !!st.visto,
-            freq, ovo: freq >= 3,
-            atraso, esq: st.estado ? !!st.rever : (atraso != null && atraso >= 0),
-            disc: d.disciplina, assunto: a.assunto };
-          this.nodes.push(nT); this.edges.push([nA, nT]); nA.filhos.push(nT);
+        const aa = (ai / d.assuntos.length) * Math.PI * 2 + rnd() * .5;
+        const hub = { id: a.assunto_id, nome: a.assunto, nivel: 'assunto', cl, x: cl.cx + Math.cos(aa) * cl.rc * .5, y: cl.cy + Math.sin(aa) * cl.rc * .5, vx: 0, vy: 0, filhos: [] };
+        this.hubs.push(hub);
+        a.topicos.forEach(t => {
+          const st = porNode[t.node_id] || { estado: 'nao_avaliado', n_evidencias: 0 };
+          const estado = st.estado || 'nao_avaliado', I = GAL_BRILHO[estado] ?? .15;
+          const n = { id: t.node_id, nome: t.nome, nivel: 'topico', cl, hub, disc: d.disciplina, assunto: a.assunto,
+            x: hub.x + (rnd() - .5) * 30, y: hub.y + (rnd() - .5) * 30, vx: 0, vy: 0,
+            r: 3.4 + Math.sqrt(t.peso || .003) * 26, I, estado, n_ev: st.n_evidencias || 0, forca_obs: st.forca_obs, forca: st.forca,
+            rever: !!st.rever, visto: !!st.visto, freq: t.provas_freq || 0, ph: rnd() * 7, viz: [], pviz: [] };
+          if (n.visto && estado === 'nao_avaliado') n.I = .34;
+          hub.filhos.push(n); cl.temas.push(n); this.nodes.push(n); this.byId[n.id] = n;
         });
       });
     });
-    this.stars = Array.from({ length: 70 }, () => ({
-      x: (Math.random() - .5) * 1300, y: (Math.random() - .5) * 900,
-      r: Math.random() * 1.1 + .3, a: Math.random() * .35 + .08 }));
-    this.cam = { x: 0, y: 0, z: 1 };
-    this.camT = { x: 0, y: 0, z: 1 };
-    this.ligarEventos();
-    this.redimensionar();
-    if (!this.raf) { this.t0 = performance.now(); this.loop(); }
-  },
-
-  redimensionar() {
-    const w = this.cv.clientWidth, h = this.cv.clientHeight;
-    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
-    this.cv.width = w * this.dpr; this.cv.height = h * this.dpr;
-    const alvo = window.innerWidth >= 1024 ? 620 : 540;
-    this.fit = Math.min(w, h) / alvo;
-  },
-
-  mundo(px, py) { // tela → mundo
-    const w = this.cv.clientWidth, h = this.cv.clientHeight, s = this.fit * this.cam.z;
-    return [(px - w / 2 - this.cam.x) / s, (py - h / 2 - this.cam.y) / s];
-  },
-
-  ligarEventos() {
-    if (this.eventosOk) return; this.eventosOk = true;
-    const cv = this.cv;
-    let arrasto = null, moveu = false, pinca = null;
-    cv.addEventListener('pointerdown', e => { arrasto = { x: e.clientX, y: e.clientY }; moveu = false; cv.setPointerCapture(e.pointerId); });
-    cv.addEventListener('pointermove', e => {
-      if (!arrasto) return;
-      const dx = e.clientX - arrasto.x, dy = e.clientY - arrasto.y;
-      if (Math.abs(dx) + Math.abs(dy) > 4) moveu = true;
-      this.cam.x += dx; this.cam.y += dy;
-      this.camT.x = this.cam.x; this.camT.y = this.cam.y;
-      arrasto = { x: e.clientX, y: e.clientY };
-    });
-    cv.addEventListener('pointerup', e => {
-      arrasto = null;
-      if (!moveu) this.tocar(e);
-    });
-    cv.addEventListener('wheel', e => { e.preventDefault();
-      this.zoom(e.deltaY < 0 ? 1.15 : 1 / 1.15); }, { passive: false });
-    let td = null;
-    cv.addEventListener('touchstart', e => { if (e.touches.length === 2) td = this.dist2(e); }, { passive: true });
-    cv.addEventListener('touchmove', e => {
-      if (e.touches.length === 2 && td) { e.preventDefault();
-        const d = this.dist2(e); this.zoom(d / td); td = d; }
-    }, { passive: false });
-    cv.addEventListener('touchend', () => td = null);
-    $('cvZin').onclick = () => this.zoom(1.3);
-    $('cvZout').onclick = () => this.zoom(1 / 1.3);
-    $('cvReset').onclick = () => { this.camT = { x: 0, y: 0, z: 1 }; this.sel = null; $('cvInfo').classList.remove('on');
-      this.filtro = null; this.atualizarLegenda(); };
-    document.querySelectorAll('#cvLegenda .lg').forEach(el =>
-      el.onclick = () => this.filtrar(el.dataset.f));
-    window.addEventListener('resize', () => this.cv && this.redimensionar());
-  },
-  dist2(e) { const [a, b] = e.touches; return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY); },
-
-  // ---- filtro pela legenda (isolar categoria) ----
-  passa(n) { // um tópico sobrevive ao filtro ativo?
-    if (!this.filtro) return true;
-    if (n.nivel !== 'topico') return this.aceso(n);
-    if (this.filtro === 'ovo') return !!n.ovo;
-    if (this.filtro === 'esq' || this.filtro === 'rever') return !!n.esq;
-    if (this.filtro === 'ne') return n.estado === 'nao_estudei';
-    if (this.filtro === 'nd' && n.estado) return n.estado === 'nao_avaliado';
-    return n.cor === this.filtro;
-  },
-  aceso(n) { // disciplina/assunto acendem se algum descendente passa
-    if (!this.filtro || n.nivel === 'core') return true;
-    if (n.nivel === 'topico') return this.passa(n);
-    return (n.filhos || []).some(f => this.aceso(f));
-  },
-  filtrar(f) {
-    this.filtro = this.filtro === f ? null : f;
-    if (this.sel && !this.aceso(this.sel)) this.selecionar(null);
-    this.pulses = this.pulses.filter(pu => this.passa(pu.rota[pu.rota.length - 1]));
-    this.atualizarLegenda();
-  },
-  atualizarLegenda() {
-    const leg = $('cvLegenda'); if (!leg) return;
-    leg.classList.toggle('filtrada', !!this.filtro);
-    leg.querySelectorAll('.lg').forEach(el =>
-      el.classList.toggle('on', el.dataset.f === this.filtro));
-  },
-  zoom(f) {
-    this.camT.z = Math.min(3.2, Math.max(.55, this.camT.z * f));
-    this.camT.x = this.cam.x; this.camT.y = this.cam.y;
-  },
-  focar(n, z = 1.9) { // câmera cinematográfica até o nó
-    const s = this.fit * z;
-    this.camT = { x: -n.x * s, y: -n.y * s, z };
-  },
-
-  tocar(e) {
-    const rc = this.cv.getBoundingClientRect();
-    const [mx, my] = this.mundo(e.clientX - rc.left, e.clientY - rc.top);
-    let melhor = null, md = 18 / (this.fit * this.cam.z);
-    this.nodes.forEach(n => {
-      if (n.nivel === 'core') return;
-      if (this.filtro && !this.aceso(n)) return; // fantasma não é clicável
-      const d = Math.hypot(n.x - mx, n.y - my);
-      if (d < md + n.r) { if (!melhor || d < melhor.d) melhor = { n, d }; }
-    });
-    this.selecionar(melhor ? melhor.n : null);
-  },
-  selecionar(n) {
-    this.sel = n;
-    const box = $('cvInfo');
-    if (!n) { box.classList.remove('on'); return; }
-    if (n.nivel === 'disciplina') this.focar(n, 1.9);
-    const corTxt = n.estado ? (ESTADO_ROT[n.estado] || '').toUpperCase()
-      : ({ verde: 'DOMINADO', amarelo: 'EM DESENVOLVIMENTO', vermelho: 'PRECISA DE ATENÇÃO', nd: 'AINDA NÃO AVALIADO' }[n.cor] || '');
-    const bc = n.nivel === 'topico' ? `${esc(n.disc)} · ${esc(n.assunto)}`
-             : n.nivel === 'assunto' ? esc(n.disc) : 'DISCIPLINA';
-    const stats = n.nivel === 'topico'
-      ? `<div class="st"><span><b style="color:${COR_HEX[n.cor]}">${corTxt}</b></span>
-         ${n.n_ev >= 1 ? `<span>desempenho <b style="color:${COR_HEX[n.cor]}">${n.forca_obs ?? Math.round(n.forca)}</b> · ${plural(n.n_ev, 'questão', 'questões')}</span>` : ''}
-         ${n.esq ? `<span><b style="color:${COR_HEX.amarelo}">⏱ Rever${n.atraso > 0 ? ` · faz ${plural(n.atraso, 'dia', 'dias')}` : ''}</b></span>` : ''}
-         ${n.freq > 0 ? `<span>caiu <b style="color:${OURO}">${n.freq}×</b> nas provas analisadas</span>` : ''}</div>`
-      : n.pct != null ? `<div class="st"><span>desempenho nos avaliados <b style="color:${COR_HEX[n.cor]}">${n.pct}</b></span></div>`
-      : `<div class="st"><span><b style="color:${COR_HEX[n.cor]}">${corTxt}</b></span></div>`;
-    box.innerHTML = `<button class="fech" id="cvFech">×</button>
-      ${n.ovo ? `<div class="ovo">OVO DE OURO · CAIU ${n.freq}× NAS PROVAS</div>` : ''}
-      <div class="bc">${bc.toUpperCase()}</div>
-      <div class="nm">${esc(n.nome)}</div>${stats}
-      ${n.nivel === 'topico' ? `<button class="btn est" id="cvEstudar">${n.n_ev >= 1 ? 'Praticar este tema' : 'Conferir o que você sabe'}</button>` : ''}`;
-    box.classList.add('on');
-    $('cvFech').onclick = () => this.selecionar(null);
-    const be = $('cvEstudar');
-    if (be) be.onclick = () => iniciarSessaoEstudo(n.id, n.estado ? (n.n_ev >= 1 ? 'estudar' : 'sondar') : (n.incerteza >= 60 ? 'sondar' : 'estudar'));
-  },
-
-  loop() {
-    this.raf = requestAnimationFrame(() => this.loop());
-    if (!document.getElementById('vCerebroFull').classList.contains('on')) return;
-    // câmera suave rumo ao alvo
-    this.cam.x += (this.camT.x - this.cam.x) * .1;
-    this.cam.y += (this.camT.y - this.cam.y) * .1;
-    this.cam.z += (this.camT.z - this.cam.z) * .1;
-    const ctx = this.ctx, w = this.cv.clientWidth, h = this.cv.clientHeight;
-    const t = (performance.now() - this.t0) / 1000;
-    const s = this.fit * this.cam.z;
-    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    ctx.clearRect(0, 0, w, h);
-    ctx.translate(w / 2 + this.cam.x, h / 2 + this.cam.y);
-    ctx.scale(s, s);
-
-    // estrelas
-    this.stars.forEach(st => { ctx.globalAlpha = st.a * (0.7 + 0.3 * Math.sin(t * .8 + st.x));
-      ctx.fillStyle = '#9FB8D8'; ctx.beginPath(); ctx.arc(st.x, st.y, st.r / this.cam.z, 0, 7); ctx.fill(); });
-    ctx.globalAlpha = 1;
-
-    const pos = n => [n.x + Math.sin(t * .55 + n.ph) * 2.6, n.y + Math.cos(t * .48 + n.ph * 1.3) * 2.6];
-
-    // arestas
-    this.edges.forEach(([a, b]) => {
-      const [ax, ay] = pos(a), [bx, by] = pos(b);
-      const ligada = this.sel && (a === this.sel || b === this.sel);
-      const apagada = this.filtro && !this.aceso(b);
-      ctx.strokeStyle = ligada ? 'rgba(47,224,141,.55)'
-        : apagada ? 'rgba(130,165,215,.035)' : 'rgba(130,165,215,.13)';
-      ctx.lineWidth = (ligada ? 1.6 : 0.8) / this.cam.z;
-      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
-    });
-
-    // pulsos viajantes (evidência fluindo)
-    if (Math.random() < .05 && this.pulses.length < 7) {
-      const medidos = this.nodes.filter(n => n.nivel === 'topico' && n.cor !== 'nd' && this.passa(n));
-      if (medidos.length) {
-        const alvo = medidos[Math.floor(Math.random() * medidos.length)];
-        const rota = this.rota(alvo);
-        if (rota) this.pulses.push({ rota, p: 0, cor: COR_HEX[alvo.cor] });
-      }
-    }
-    // pulsos dourados rumo aos Ovos de Ouro (a banca apontando o caminho)
-    if (Math.random() < .025 && this.pulses.length < 9) {
-      const ovos = this.nodes.filter(n => n.ovo && this.passa(n));
-      if (ovos.length) {
-        const alvo = ovos[Math.floor(Math.random() * ovos.length)];
-        const rota = this.rota(alvo);
-        if (rota) this.pulses.push({ rota, p: 0, cor: OURO });
-      }
-    }
-    this.pulses = this.pulses.filter(pu => pu.p < 1);
-    this.pulses.forEach(pu => {
-      pu.p += 0.012;
-      const seg = Math.min(Math.floor(pu.p * (pu.rota.length - 1)), pu.rota.length - 2);
-      const f = pu.p * (pu.rota.length - 1) - seg;
-      const [ax, ay] = pos(pu.rota[seg]), [bx, by] = pos(pu.rota[seg + 1]);
-      const x = ax + (bx - ax) * f, y = ay + (by - ay) * f;
-      ctx.shadowColor = pu.cor; ctx.shadowBlur = 12;
-      ctx.fillStyle = pu.cor; ctx.globalAlpha = .9 * (1 - pu.p * .5);
-      ctx.beginPath(); ctx.arc(x, y, 2.1, 0, 7); ctx.fill();
-      ctx.shadowBlur = 0; ctx.globalAlpha = 1;
-    });
-
-    // nós
-    this.nodes.forEach(n => {
-      const [x, y] = pos(n);
-      if (n.nivel === 'core') {
-        const pulso = 1 + Math.sin(t * 2.1) * .08;
-        ctx.shadowColor = '#2FE08D'; ctx.shadowBlur = 34;
-        ctx.fillStyle = '#0D2A1D'; ctx.beginPath(); ctx.arc(0, 0, n.r * pulso + 5, 0, 7); ctx.fill();
-        ctx.fillStyle = '#2FE08D'; ctx.beginPath(); ctx.arc(0, 0, n.r * pulso, 0, 7); ctx.fill();
-        ctx.shadowBlur = 0;
-        ctx.strokeStyle = 'rgba(47,224,141,.35)'; ctx.lineWidth = 1 / this.cam.z;
-        ctx.beginPath(); ctx.arc(0, 0, n.r * pulso + 9 + Math.sin(t * 2.1) * 2, 0, 7); ctx.stroke();
-        return;
-      }
-      const cor = COR_HEX[n.cor];
-      const medido = n.cor !== 'nd';
-      const pulso = medido ? 1 + Math.sin(t * 1.7 + n.ph) * .12 : 1;
-      // filtro da legenda: quem não passa vira fantasma (estrutura fica, brilho some)
-      if (this.filtro && !this.aceso(n)) {
-        ctx.globalAlpha = .1; ctx.fillStyle = cor;
-        ctx.beginPath(); ctx.arc(x, y, Math.min(n.r, 3), 0, 7); ctx.fill();
-        ctx.globalAlpha = 1;
-        return;
-      }
-      // Ovo de Ouro: aura dourada respirando por trás do nó (favorito da banca)
-      if (n.ovo) {
-        const resp = .55 + Math.sin(t * 1.15 + n.ph) * .3;
-        ctx.shadowColor = OURO; ctx.shadowBlur = 26 * resp;
-        ctx.strokeStyle = `rgba(245,197,66,${.35 + resp * .45})`;
-        ctx.lineWidth = 1.2 / this.cam.z;
-        ctx.beginPath(); ctx.arc(x, y, n.r * pulso + (3.4 + resp * 1.6) / this.cam.z, 0, 7); ctx.stroke();
-        ctx.shadowBlur = 0;
-      }
-      if (medido) { ctx.shadowColor = cor; ctx.shadowBlur = (n.cor === 'verde' ? 20 : 13); }
-      else if (n.ovo) { ctx.shadowColor = OURO; ctx.shadowBlur = 10; }
-      ctx.globalAlpha = medido ? 1 : (n.ovo ? .75 : .5);
-      ctx.fillStyle = cor;
-      ctx.beginPath(); ctx.arc(x, y, n.r * pulso, 0, 7); ctx.fill();
-      ctx.shadowBlur = 0; ctx.globalAlpha = 1;
-      if (this.sel === n) {
-        ctx.strokeStyle = cor; ctx.lineWidth = 1.4 / this.cam.z;
-        ctx.beginPath(); ctx.arc(x, y, n.r + 6 / this.cam.z, 0, 7); ctx.stroke();
-      }
-      // rótulos dos tópicos surgem quando a câmera aproxima
-      if (n.nivel === 'topico' && this.cam.z >= 1.4) {
-        const alfa = Math.min(1, (this.cam.z - 1.35) * 1.8) * (n.ovo ? .95 : n.cor === 'nd' ? .4 : .85);
-        ctx.globalAlpha = alfa;
-        ctx.font = `${n.ovo ? '700 ' : ''}${11 / (this.fit * this.cam.z)}px 'Atkinson Hyperlegible', sans-serif`;
-        ctx.textAlign = 'left';
-        ctx.fillStyle = n.ovo ? OURO : '#BECDE1';
-        const nome = n.nome.length > 26 ? n.nome.slice(0, 25) + '…' : n.nome;
-        ctx.fillText(nome, x + n.r + 5 / this.cam.z, y + 3 / this.cam.z);
-        ctx.globalAlpha = 1;
-      }
-      // rótulo das disciplinas (raio alternado p/ editais com muitos setores)
-      if (n.nivel === 'disciplina') {
-        const alt = parseInt(n.id.slice(1), 10) % 2;
-        const lr = 122 + alt * 34;
-        const lx = Math.cos(n.ang) * lr, ly = Math.sin(n.ang) * lr;
-        ctx.font = `700 ${11 / (this.fit * this.cam.z)}px Archivo, sans-serif`;
-        ctx.textAlign = Math.cos(n.ang) > .3 ? 'left' : Math.cos(n.ang) < -.3 ? 'right' : 'center';
-        ctx.fillStyle = 'rgba(190,205,225,.78)';
-        const rot = n.nome.length > 24 ? n.nome.toUpperCase().slice(0, 23) + '…' : n.nome.toUpperCase();
-        ctx.fillText(rot, lx, ly);
-        if (n.pct != null) { ctx.fillStyle = cor; ctx.font = `700 ${11 / (this.fit * this.cam.z)}px Menlo, monospace`;
-          ctx.fillText(String(n.pct), lx, ly + 12 / this.cam.z); }
-      }
-    });
-  },
-  rota(alvo) {
-    const paiA = this.edges.find(([a, b]) => b === alvo)?.[0]; if (!paiA) return null;
-    const paiD = this.edges.find(([a, b]) => b === paiA)?.[0]; if (!paiD) return null;
-    return [this.nodes[0], paiD, paiA, alvo];
+    this.ligar(ligacoes || { conteudo: [], pessoais: [] });
+    this.simular();
+    this.caixa(); this.redimensionar(); this.enquadrar(true);
+    return this;
   }
-};
+  ligar(lig) {
+    this.nodes.forEach(n => { n.viz = []; n.pviz = []; });
+    this.lig = (lig.conteudo || []).map(e => ({ a: this.byId[e.a], b: this.byId[e.b], tipo: e.tipo, forca: +e.forca || .5, motivo: e.motivo })).filter(e => e.a && e.b);
+    this.pes = (lig.pessoais || []).map(e => ({ a: this.byId[e.a], b: this.byId[e.b], n: e.n || 1 })).filter(e => e.a && e.b);
+    this.lig.forEach(e => { e.a.viz.push({ n: e.b, e }); e.b.viz.push({ n: e.a, e }); });
+    this.pes.forEach(e => { e.a.pviz.push({ n: e.b, e }); e.b.pviz.push({ n: e.a, e }); });
+  }
+  simular() { // forças: repulsão, mola tema–assunto, assunto–centro, gravidade da galáxia, ligações internas
+    const all = this.nodes.concat(this.hubs), N = all.length, IT = 260;
+    for (let it = 0; it < IT; it++) {
+      const alpha = 1 - it / IT;
+      for (let i = 0; i < N; i++) { const p = all[i];
+        for (let j = i + 1; j < N; j++) { const q = all[j]; let dx = q.x - p.x, dy = q.y - p.y; const d2 = dx * dx + dy * dy;
+          if (d2 > 9000 || d2 < .01) continue; const f = 520 / (d2 + 30); const d = Math.sqrt(d2); dx /= d; dy /= d;
+          p.vx -= dx * f; p.vy -= dy * f; q.vx += dx * f; q.vy += dy * f; } }
+      this.hubs.forEach(h => { const dx = h.cl.cx - h.x, dy = h.cl.cy - h.y, d = Math.hypot(dx, dy) || 1, k = (d - h.cl.rc * .55) * .05;
+        h.vx += dx / d * k; h.vy += dy / d * k; });
+      this.nodes.forEach(n => { const dx = n.hub.x - n.x, dy = n.hub.y - n.y, d = Math.hypot(dx, dy) || 1, k = (d - 26) * .07;
+        n.vx += dx / d * k; n.vy += dy / d * k; n.vx += (n.cl.cx - n.x) * .006; n.vy += (n.cl.cy - n.y) * .006; });
+      this.lig.forEach(e => { if (e.a.cl !== e.b.cl) return; const dx = e.b.x - e.a.x, dy = e.b.y - e.a.y, d = Math.hypot(dx, dy) || 1, k = (d - 34) * .012;
+        e.a.vx += dx / d * k; e.a.vy += dy / d * k; e.b.vx -= dx / d * k; e.b.vy -= dy / d * k; });
+      all.forEach(p => { p.vx *= .78; p.vy *= .78; p.x += p.vx * alpha; p.y += p.vy * alpha; });
+    }
+    this.clusters.forEach(cl => { // centro visual da galáxia = centróide real dos temas
+      if (!cl.temas.length) return; cl.mx = cl.temas.reduce((s, n) => s + n.x, 0) / cl.temas.length; cl.my = cl.temas.reduce((s, n) => s + n.y, 0) / cl.temas.length;
+      cl.raio = Math.max(40, ...cl.temas.map(n => Math.hypot(n.x - cl.mx, n.y - cl.my))) + 18;
+      cl.I = cl.temas.reduce((s, n) => s + n.I, 0) / cl.temas.length;
+      const av = cl.temas.filter(n => n.n_ev >= 1); cl.aval = av.length;
+      cl.desemp = av.length ? Math.round(av.reduce((s, n) => s + (n.forca_obs ?? n.forca ?? 0), 0) / av.length) : null; });
+  }
+  caixa() { let a = 1e9, b = 1e9, c = -1e9, d = -1e9; this.nodes.forEach(n => { a = Math.min(a, n.x); b = Math.min(b, n.y); c = Math.max(c, n.x); d = Math.max(d, n.y); });
+    this.bb = { x: (a + c) / 2, y: (b + d) / 2, w: c - a + 80, h: d - b + 80 }; }
+  redimensionar() { const w = this.cv.clientWidth, h = this.cv.clientHeight; if (!w || !h) return;
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2); this.cv.width = w * this.dpr; this.cv.height = h * this.dpr; this.W = w; this.H = h;
+    if (this.bb) this.fit = Math.min(w / this.bb.w, (h - (this.opts.topo || 0) - (this.opts.rodape || 0)) / this.bb.h) * (this.opts.margem || .92); }
+  enquadrar(ja) { const f = this.fit || 1, top = (this.opts.topo || 0) / f, rod = (this.opts.rodape || 0) / f; this.camT = { x: this.bb.x, y: this.bb.y - top / 2 + rod / 2, z: 1 }; if (ja) this.cam = { ...this.camT }; }
+  focar(x, y, z) { this.camT = { x, y, z: Math.min(4, Math.max(.6, z)) }; }
+  zoom(f, px, py) { const z = Math.min(4.2, Math.max(.6, this.camT.z * f));
+    if (px != null) { const [wx, wy] = this.mundo(px, py); this.camT.x = wx - (wx - this.camT.x) * this.camT.z / z; this.camT.y = wy - (wy - this.camT.y) * this.camT.z / z; }
+    this.camT.z = z; }
+  s() { return (this.fit || 1) * this.cam.z; }
+  tela(x, y) { const s = this.s(); return [(x - this.cam.x) * s + this.W / 2, (y - this.cam.y) * s + this.H / 2]; }
+  mundo(px, py) { const s = this.s(); return [(px - this.W / 2) / s + this.cam.x, (py - this.H / 2) / s + this.cam.y]; }
+  // ---- interação ----
+  eventos() {
+    const cv = this.cv; let arr = null, mov = false, pin = null;
+    cv.addEventListener('pointerdown', e => { arr = { x: e.clientX, y: e.clientY }; mov = false; cv.setPointerCapture(e.pointerId); });
+    cv.addEventListener('pointermove', e => {
+      if (!arr) { const rc = cv.getBoundingClientRect(); const n = this.achar(e.clientX - rc.left, e.clientY - rc.top); this.hover = n; cv.style.cursor = n ? 'pointer' : 'grab'; return; }
+      const dx = e.clientX - arr.x, dy = e.clientY - arr.y; if (Math.abs(dx) + Math.abs(dy) > 4) mov = true;
+      const s = this.s(); this.cam.x -= dx / s; this.cam.y -= dy / s; this.camT.x = this.cam.x; this.camT.y = this.cam.y; arr = { x: e.clientX, y: e.clientY }; });
+    cv.addEventListener('pointerup', e => { arr = null; if (!mov) { const rc = cv.getBoundingClientRect(); this.tocar(e.clientX - rc.left, e.clientY - rc.top); } });
+    cv.addEventListener('pointerleave', () => { this.hover = null; });
+    cv.addEventListener('wheel', e => { e.preventDefault(); const rc = cv.getBoundingClientRect(); this.zoom(e.deltaY < 0 ? 1.18 : 1 / 1.18, e.clientX - rc.left, e.clientY - rc.top); }, { passive: false });
+    cv.addEventListener('touchstart', e => { if (e.touches.length === 2) { arr = null; pin = this.d2(e); } }, { passive: true });
+    cv.addEventListener('touchmove', e => { if (e.touches.length === 2 && pin) { e.preventDefault(); const d = this.d2(e); this.zoom(d / pin); pin = d; } }, { passive: false });
+    cv.addEventListener('touchend', () => { pin = null; });
+  }
+  d2(e) { const [a, b] = e.touches; return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY); }
+  achar(px, py) { let m = null, md = 16; this.nodes.forEach(n => { if (!this.visivel(n)) return; const [x, y] = this.tela(n.x, n.y);
+      const d = Math.hypot(x - px, y - py) - n.r * this.s(); if (d < md) { md = d; m = n; } }); return m; }
+  tocar(px, py) {
+    const n = this.achar(px, py);
+    if (n) { this.selecionar(n, true); return; }
+    const [wx, wy] = this.mundo(px, py); // tocou numa galáxia vazia → foca a disciplina
+    const cl = this.clusters.find(c => Math.hypot(c.mx - wx, c.my - wy) < c.raio * .9);
+    if (cl && !this.sel) { this.focarCluster(cl); return; }
+    this.selecionar(null);
+  }
+  focarCluster(cl) { this.sel = null; this.selCl = cl; this.opts.onCluster && this.opts.onCluster(cl); // cartão primeiro: a área livre depende da altura dele
+    const f = this.fit || 1, topo = this.opts.topo || 0, [ox, oy] = this.opts.desvioFoco ? this.opts.desvioFoco(this) : [0, 0];
+    const livreW = this.W - 2 * Math.abs(ox) - 48, livreH = this.H - 2 * Math.abs(oy) - topo - 40;
+    const z = Math.min(4, Math.max(.8, Math.min(livreW, livreH) / (cl.raio * 1.7 * f)));
+    this.focar(cl.mx + ox / (f * z), cl.my + (oy - topo / 2) / (f * z), z); }
+  selecionar(n, voar) {
+    this.sel = n; this.selCl = null; this.opts.onSelect && this.opts.onSelect(n); // cartão primeiro: a área livre depende da altura dele
+    if (n && voar) { // enquadra o tema E tudo a que ele se liga, na área livre (fora do cartão)
+      const pts = [n, ...n.viz.map(v => v.n), ...(n.pviz || []).map(v => v.n)], f = this.fit || 1, topo = this.opts.topo || 0;
+      let a = n.x, b = n.y, c = n.x, d = n.y; pts.forEach(p => { a = Math.min(a, p.x); b = Math.min(b, p.y); c = Math.max(c, p.x); d = Math.max(d, p.y); });
+      const [ox, oy] = this.opts.desvioFoco ? this.opts.desvioFoco(this) : [0, 0];
+      const livreW = this.W - 2 * Math.abs(ox) - 48, livreH = this.H - 2 * Math.abs(oy) - topo - 40;
+      const z = Math.min(2.2, Math.max(.7, Math.min(livreW / ((c - a + 70) * f), livreH / ((d - b + 70) * f))));
+      this.focar((a + c) / 2 + ox / (f * z), (b + d) / 2 + (oy - topo / 2) / (f * z), z); }
+  }
+  visivel(n) { if (!this.filtro) return true; const f = this.filtro;
+    if (f === 'ovo') return n.freq >= 3; if (f === 'pessoais') return n.pviz.length > 0; if (f === 'rever') return n.rever;
+    return n.estado === f || (f === 'nao_avaliado' && n.estado === 'nao_estudei'); }
+  // ---- ignição (Revelação): poeira aparece, depois cada tema avaliado acende em sequência ----
+  ignicao(ms = 3200) { this.ign = { t0: performance.now(), ms, ordem: new Map() };
+    const acesos = this.nodes.filter(n => n.I >= .5).sort((a, b) => (a.cl.cx - b.cl.cx) || (a.y - b.y));
+    acesos.forEach((n, i) => this.ign.ordem.set(n, .25 + .7 * i / Math.max(acesos.length, 1))); }
+  // ---- desenho ----
+  iniciar() { if (this.raf) return; const loop = () => { this.raf = requestAnimationFrame(loop); if (this.cv.offsetParent === null) return; this.quadro(); }; loop(); }
+  parar() { if (this.raf) cancelAnimationFrame(this.raf); this.raf = null; }
+  quadro(alvoCtx, W, H) {
+    const ctx = alvoCtx || this.ctx; const exp = !!alvoCtx; if (!exp && !this.W) this.redimensionar();
+    const Wd = W || this.W, Hd = H || this.H; if (!Wd) return;
+    const sm = galSemMov(), t = (performance.now() - this.t0) / 1000;
+    if (!exp) { const k = sm ? 1 : .12; this.cam.x += (this.camT.x - this.cam.x) * k; this.cam.y += (this.camT.y - this.cam.y) * k; this.cam.z += (this.camT.z - this.cam.z) * k; }
+    const s = this.s();
+    const T = (x, y) => [(x - this.cam.x) * s + Wd / 2, (y - this.cam.y) * s + Hd / 2];
+    let ig = 1, igP = null;
+    if (this.ign) { ig = Math.min(1, (performance.now() - this.ign.t0) / this.ign.ms); igP = ig; if (ig >= 1 && !exp) this.ign = null; }
+    if (!exp) { ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0); }
+    ctx.fillStyle = '#030710'; ctx.fillRect(0, 0, Wd, Hd);
+    // estrelas de fundo (paralaxe leve)
+    if (!this.estrelas) { const r = galRng('estrelas'); this.estrelas = Array.from({ length: 160 }, () => ({ x: r(), y: r(), s: r() * 1.2 + .2, a: r() * .5 + .1, p: r() * 7 })); }
+    this.estrelas.forEach(e => { const tw = sm ? 1 : .65 + .35 * Math.sin(t * .9 + e.p);
+      ctx.globalAlpha = e.a * tw; ctx.fillStyle = '#AFC4E6';
+      const x = ((e.x * Wd - this.cam.x * s * .06) % Wd + Wd) % Wd, y = ((e.y * Hd - this.cam.y * s * .06) % Hd + Hd) % Hd;
+      ctx.fillRect(x, y, e.s, e.s); });
+    ctx.globalAlpha = 1;
+    const foco = this.sel, focoSet = new Set();
+    if (foco) { focoSet.add(foco); foco.viz.forEach(v => focoSet.add(v.n)); foco.pviz.forEach(v => focoSet.add(v.n)); }
+    const dim = (n) => (foco && !focoSet.has(n)) || (this.filtro && !this.visivel(n)) || (this.selCl && n.cl !== this.selCl);
+    // nebulosa de cada galáxia (cor da disciplina, mais forte quanto mais domínio)
+    ctx.globalCompositeOperation = 'lighter';
+    this.clusters.forEach(cl => { if (cl.mx == null) return; const [x, y] = T(cl.mx, cl.my), R = cl.raio * s * 1.35; const [r, g, b] = galRgb(cl.cor);
+      const a = (.06 + cl.I * .34) * (foco || this.selCl && this.selCl !== cl ? .4 : 1) * (igP == null ? 1 : Math.min(1, igP * 2));
+      const gr = ctx.createRadialGradient(x, y, 0, x, y, R * 1.2); gr.addColorStop(0, `rgba(${r},${g},${b},${a})`); gr.addColorStop(.35, `rgba(${r},${g},${b},${a * .55})`); gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, y, R * 1.2, 0, 7); ctx.fill();
+      const nuc = ctx.createRadialGradient(x, y, 0, x, y, R * .35); nuc.addColorStop(0, `rgba(255,255,255,${a * .5})`); nuc.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      ctx.fillStyle = nuc; ctx.beginPath(); ctx.arc(x, y, R * .35, 0, 7); ctx.fill(); });
+    ctx.globalCompositeOperation = 'source-over';
+    // braços da galáxia: assunto → centro
+    ctx.lineWidth = Math.max(.6, .9 * s);
+    this.hubs.forEach(h => { if (h.cl.mx == null) return; const [x1, y1] = T(h.x, h.y), [x2, y2] = T(h.cl.mx, h.cl.my); const [r, g, b] = galRgb(h.cl.cor);
+      ctx.strokeStyle = `rgba(${r},${g},${b},${foco || this.filtro || (this.selCl && this.selCl !== h.cl) ? .03 : .16})`; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); });
+    // fios da estrutura: tema → assunto (bem tênues, dão a "matéria" da galáxia)
+    ctx.lineWidth = Math.max(.5, .7 * s);
+    this.nodes.forEach(n => { const [x1, y1] = T(n.x, n.y), [x2, y2] = T(n.hub.x, n.hub.y); const [r, g, b] = galRgb(n.cl.cor);
+      ctx.strokeStyle = `rgba(${r},${g},${b},${dim(n) ? .03 : .10 + n.I * .12})`; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); });
+    // ligações do conteúdo: arcos curvos; acendem quando os dois lados já foram avaliados ou no foco
+    const arco = (a, b, cor, larg) => { const [x1, y1] = T(a.x, a.y), [x2, y2] = T(b.x, b.y); const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, dx = x2 - x1, dy = y2 - y1;
+      ctx.strokeStyle = cor; ctx.lineWidth = larg; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.quadraticCurveTo(mx - dy * .18, my + dx * .18, x2, y2); ctx.stroke(); };
+    this.lig.forEach(e => { const noFoco = foco && (e.a === foco || e.b === foco);
+      if (foco && !noFoco) { arco(e.a, e.b, 'rgba(170,190,230,.025)', .6); return; }
+      if (this.filtro || this.selCl) { if (dim(e.a) || dim(e.b)) return; }
+      const ambos = e.a.n_ev >= 1 && e.b.n_ev >= 1, conf = e.tipo === 'confundivel';
+      const a = noFoco ? .85 : (ambos ? .24 : .075) * (igP == null ? 1 : igP);
+      const cor = conf ? `rgba(255,170,170,${a})` : `rgba(200,215,245,${a})`;
+      if (noFoco) { ctx.shadowColor = conf ? '#FF9A9A' : '#CFE0FF'; ctx.shadowBlur = 10; }
+      arco(e.a, e.b, cor, noFoco ? 1.6 : Math.max(.6, .9 * e.forca)); ctx.shadowBlur = 0; });
+    // ligações pessoais "estudados juntos" (verde da marca)
+    this.pes.forEach(e => { const noFoco = foco && (e.a === foco || e.b === foco); if (foco && !noFoco) return; if (dim(e.a) && dim(e.b)) return;
+      const vis = this.filtro === 'pessoais' || noFoco;
+      ctx.shadowColor = GAL_VERDE; ctx.shadowBlur = vis ? 12 : 0;
+      arco(e.a, e.b, `rgba(47,224,141,${vis ? .9 : .16 * (igP == null ? 1 : igP)})`, vis ? 1.8 : .7 + Math.min(e.n, 4) * .2); ctx.shadowBlur = 0; });
+    // sinapses: pulsos de luz correndo pelos fios
+    if (!sm && !exp && this.vivo) {
+      if (Math.random() < .07 && this.pulses.length < 10) {
+        const cand = (foco ? foco.viz.map(v => v.e).concat(foco.pviz.map(v => v.e)) : this.pes.concat(this.lig.filter(e => e.a.n_ev >= 1 && e.b.n_ev >= 1)));
+        if (cand.length) { const e = cand[Math.floor(Math.random() * cand.length)]; this.pulses.push({ e, p: 0, v: .012 + Math.random() * .01, pes: this.pes.includes(e), inv: Math.random() < .5 }); } }
+      ctx.globalCompositeOperation = 'lighter';
+      this.pulses = this.pulses.filter(pu => (pu.p += pu.v) < 1);
+      this.pulses.forEach(pu => { const a = pu.inv ? pu.e.b : pu.e.a, b = pu.inv ? pu.e.a : pu.e.b; const [x1, y1] = T(a.x, a.y), [x2, y2] = T(b.x, b.y);
+        const mx = (x1 + x2) / 2 - (y2 - y1) * .18 * (pu.inv ? -1 : 1), my = (y1 + y2) / 2 + (x2 - x1) * .18 * (pu.inv ? -1 : 1); const p = pu.p, q = 1 - p;
+        const x = q * q * x1 + 2 * q * p * mx + p * p * x2, y = q * q * y1 + 2 * q * p * my + p * p * y2, R = 7 + 5 * Math.sin(p * Math.PI);
+        ctx.globalAlpha = Math.sin(p * Math.PI) * .9; ctx.drawImage(galSprite(pu.pes ? GAL_VERDE : '#DDE8FF'), x - R, y - R, R * 2, R * 2); });
+      ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    }
+    // assuntos: pontinhos-núcleo
+    this.hubs.forEach(h => { const [x, y] = T(h.x, h.y); ctx.globalAlpha = (foco || this.filtro || this.selCl && this.selCl !== h.cl) ? .12 : .45; ctx.fillStyle = h.cl.cor;
+      ctx.beginPath(); ctx.arc(x, y, Math.max(1, 1.6 * s), 0, 7); ctx.fill(); });
+    ctx.globalAlpha = 1;
+    // temas: brilho aditivo pelo domínio
+    ctx.globalCompositeOperation = 'lighter';
+    this.nodes.forEach(n => {
+      const [x, y] = T(n.x, n.y); if (x < -60 || y < -60 || x > Wd + 60 || y > Hd + 60) return;
+      let I = n.I, apar = 1;
+      if (igP != null) { const o = this.ign?.ordem?.get(n); apar = Math.min(1, igP * 3); if (o != null) I = igP < o ? .15 : (igP < o + .05 ? 1.4 : n.I); }
+      const fx = dim(n) ? .18 : 1;
+      const resp = sm ? 1 : 1 + Math.sin(t * 1.6 + n.ph) * (I >= .5 ? .12 : .05);
+      const rr = Math.max(1.1, n.r * s) * resp, halo = rr * (2.4 + I * 5);
+      ctx.globalAlpha = (I < .3 ? .2 + I * .5 : Math.min(1, .3 + I * .8)) * fx * apar;
+      ctx.drawImage(galSprite(n.cl.cor), x - halo, y - halo, halo * 2, halo * 2);
+      ctx.globalAlpha = (I < .3 ? .32 + I : Math.min(1, .45 + I * .55)) * fx * apar; ctx.fillStyle = n.cl.cor;
+      ctx.beginPath(); ctx.arc(x, y, Math.max(1, rr * .42), 0, 7); ctx.fill();
+      if (I >= .7) { ctx.globalAlpha = (I - .6) * fx * apar; ctx.drawImage(galSprite('#FFFFFF'), x - rr * 2.2, y - rr * 2.2, rr * 4.4, rr * 4.4); }
+    });
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+    // anéis: atenção (vermelho pulsando), Ovo de Ouro (dourado fino), seleção (verde)
+    this.nodes.forEach(n => { if (dim(n) && n !== foco) return; const [x, y] = T(n.x, n.y); const rr = Math.max(1, n.r * s);
+      if (n.estado === 'atencao' && (igP == null || igP > .9)) { const p = sm ? .7 : .55 + .45 * Math.sin(t * 2.4 + n.ph);
+        ctx.strokeStyle = `rgba(237,90,90,${.35 + p * .45})`; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(x, y, rr + 3 + p * 1.5, 0, 7); ctx.stroke(); }
+      if (n.freq >= 3 && (this.filtro === 'ovo' || n === foco || s > 1.6)) { ctx.strokeStyle = 'rgba(245,197,66,.7)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(x, y, rr + 6, 0, 7); ctx.stroke(); }
+      if (n === foco) { ctx.strokeStyle = GAL_VERDE; ctx.lineWidth = 2; ctx.shadowColor = GAL_VERDE; ctx.shadowBlur = 14; ctx.beginPath(); ctx.arc(x, y, rr + 9, 0, 7); ctx.stroke(); ctx.shadowBlur = 0; }
+      else if (n === this.hover) { ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(x, y, rr + 6, 0, 7); ctx.stroke(); } });
+    if (this.opts.semRotulos) return;
+    // rótulos: galáxias sempre (pílula); temas quando aproxima (sem sobreposição)
+    ctx.textBaseline = 'middle';
+    const caixas = [];
+    const livre = (x, y, w, h) => { if (caixas.some(c => x < c.x + c.w && x + w > c.x && y < c.y + c.h && y + h > c.y)) return false; caixas.push({ x, y, w, h }); return true; };
+    const rotTema = s > 1.55 || foco;
+    if (rotTema) {
+      const cand = this.nodes.filter(n => (!dim(n) || n === foco)).map(n => ({ n, pri: (n === foco ? 9 : focoSet.has(n) ? 5 : 0) + n.I * 2 + n.r / 6 }))
+        .sort((a, b) => b.pri - a.pri).slice(0, foco ? 30 : 46);
+      ctx.font = `600 ${exp ? 22 : 11.5}px 'Atkinson Hyperlegible', system-ui, sans-serif`;
+      cand.forEach(({ n }) => { const [x, y] = T(n.x, n.y); if (x < 0 || y < 0 || x > Wd || y > Hd) return;
+        if (!foco && s <= 1.55) return; let nome = n.nome.length > 34 ? n.nome.slice(0, 33) + '…' : n.nome;
+        const gap = n.r * s + 7, ly = y; let w = ctx.measureText(nome).width, lx = x + gap;
+        if (lx + w > Wd - 6) { // não cabe à direita: vira para a esquerda do ponto; se ainda não couber, encurta
+          if (x - gap - w >= 6) lx = x - gap - w;
+          else { const lado = Math.max(x - gap - 6, Wd - 6 - (x + gap)), dir = lado === Wd - 6 - (x + gap);
+            while (nome.length > 6 && ctx.measureText(nome).width > lado) nome = nome.slice(0, -2).trimEnd() + '…';
+            w = ctx.measureText(nome).width; lx = dir ? x + gap : x - gap - w; } }
+        if (!livre(lx - 2, ly - 8, w + 4, 16)) return;
+        ctx.globalAlpha = n === foco ? 1 : focoSet.has(n) ? .92 : Math.min(.9, .35 + n.I);
+        ctx.fillStyle = n === foco ? '#FFFFFF' : n.freq >= 3 && this.filtro === 'ovo' ? GAL_OURO : '#D5E0F2'; ctx.fillText(nome, lx, ly); });
+      ctx.globalAlpha = 1;
+    }
+    const aLbl = foco ? .25 : (s > 2.6 ? .35 : 1);
+    const estreito = !exp && Wd < 520;
+    ctx.font = `700 ${exp ? 23 : estreito ? 9.5 : 10.5}px 'Archivo', system-ui, sans-serif`;
+    const curto = (nome) => !estreito ? nome : nome.replace(/^Direito Processual /, 'Processo ').replace(/^Direito /, '').replace(/^Legislação de /, '')
+      .replace(/^Legislação Especial$/, 'Leis Especiais').replace(/^Língua /, '').replace(/-Matemático$/, '').replace(/ e Cidadania$/, '');
+    this.clusters.forEach(cl => { if (cl.mx == null) return; const [x0, y0] = T(cl.mx, cl.my - cl.raio); const yA = y0 - (exp ? 18 : 10);
+      const txt = curto(cl.nome).toUpperCase(), w = ctx.measureText(txt).width + (exp ? 30 : 14), h = exp ? 40 : estreito ? 19 : 21;
+      const x = Math.min(Wd - w / 2 - 6, Math.max(w / 2 + 6, x0));
+      let y = yA; // acima da galáxia; se colidir, tenta embaixo; se colidir de novo, some (aparece ao aproximar)
+      const topoLbl = exp ? 0 : (this.opts.topo || 0) + 4; // não desenha atrás do título
+      if (y - h / 2 < topoLbl || !livre(x - w / 2, y - h / 2, w, h)) { const [, yb] = T(cl.mx, cl.my + cl.raio); y = yb + (exp ? 18 : 10); if (y - h / 2 < topoLbl) return; if (!livre(x - w / 2, y - h / 2, w, h) && s < 1.2) return; }
+      ctx.globalAlpha = aLbl * (this.selCl && this.selCl !== cl ? .4 : 1) * (igP == null ? 1 : Math.min(1, igP * 1.6));
+      ctx.fillStyle = 'rgba(4,9,20,.72)'; ctx.strokeStyle = 'rgba(255,255,255,.14)'; ctx.lineWidth = 1;
+      const rx = x - w / 2, ry = y - h / 2, rad = h / 2; ctx.beginPath(); ctx.moveTo(rx + rad, ry); ctx.arcTo(rx + w, ry, rx + w, ry + h, rad); ctx.arcTo(rx + w, ry + h, rx, ry + h, rad);
+      ctx.arcTo(rx, ry + h, rx, ry, rad); ctx.arcTo(rx, ry, rx + w, ry, rad); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#EAF2EC'; ctx.textAlign = 'center'; ctx.fillText(txt, x, y + .5); ctx.textAlign = 'left'; });
+    ctx.globalAlpha = 1;
+  }
+}
+
+// ---------- cola do Cérebro (tela, cartão, legenda, gaveta) ----------
+let cerebroGal = null, revGal = null, cerebroLig = null;
+async function carregarLigacoes() {
+  if (cerebroLig && cerebroLig.edital === editalAtual.id && Date.now() - cerebroLig.t < 60000) return cerebroLig.dados;
+  const { data, error } = await sb.rpc('fn_cerebro_ligacoes', { p_edital: editalAtual.id });
+  const dados = (!error && data) ? data : { conteudo: [], pessoais: [] };
+  cerebroLig = { edital: editalAtual.id, t: Date.now(), dados };
+  return dados;
+}
+function cerebroCard(n) {
+  const box = $('cvInfo');
+  if (!n) { box.classList.remove('on'); return; }
+  $('czDrawer').classList.remove('on'); $('czDisc').setAttribute('aria-expanded', 'false');
+  const lig = n.viz.slice().sort((a, b) => b.e.forca - a.e.forca).slice(0, 5);
+  const pes = n.pviz.slice().sort((a, b) => b.e.n - a.e.n).slice(0, 3);
+  box.innerHTML = `<button class="fech" id="cvFech" type="button" aria-label="Fechar">×</button>
+    <div class="bc">${esc(n.disc).toUpperCase()} · ${esc(n.assunto).toUpperCase()}</div>
+    <div class="nm">${esc(n.nome)}</div>
+    <div class="cz-chips">${chip(n.estado)}${n.rever ? '<span class="estado e-rv">⏱ Rever</span>' : ''}${n.visto ? '<span class="estado e-vi">Visto</span>' : ''}</div>
+    ${n.n_ev >= 1 ? `<div class="cz-l">Desempenho <b>${n.forca_obs ?? Math.round(n.forca || 0)}</b> · ${plural(n.n_ev, 'questão respondida', 'questões respondidas')}</div>` : ''}
+    ${n.freq > 0 ? `<div class="cz-l${n.freq >= 3 ? ' ouro' : ''}">★ caiu ${n.freq}× nas provas analisadas</div>` : ''}
+    ${lig.length ? `<div class="cz-k">LIGADO A</div>` + lig.map(v => `<button type="button" class="cz-lig ${v.e.tipo}" data-n="${v.n.id}"><span>${esc(v.n.nome)}${v.e.tipo === 'confundivel' ? '<i>costumam ser confundidos</i>' : v.e.tipo === 'prerequisito' ? '<i>um é base do outro</i>' : ''}</span><small>${esc(v.e.motivo || '')}</small></button>`).join('') : ''}
+    ${pes.length ? `<div class="cz-k verde">ESTUDADO JUNTO COM VOCÊ</div>` + pes.map(v => `<button type="button" class="cz-lig pes" data-n="${v.n.id}"><span>${esc(v.n.nome)}</span><small>${plural(v.e.n, 'dia', 'dias')} em que você estudou os dois juntos</small></button>`).join('') : ''}
+    <button class="btn est" id="cvEstudar" type="button" style="width:100%;margin-top:14px">${n.n_ev >= 1 ? 'Praticar este tema' : 'Conferir o que você sabe'}</button>`;
+  box.classList.add('on'); box.scrollTop = 0;
+  $('cvFech').onclick = () => cerebroGal.selecionar(null);
+  box.querySelectorAll('.cz-lig').forEach(b => b.onclick = () => { const m = cerebroGal.byId[b.dataset.n]; if (m) cerebroGal.selecionar(m, true); });
+  const be = $('cvEstudar');
+  be.onclick = async () => {
+    be.disabled = true; tele('cerebro_praticar', { node_id: n.id, estado: n.estado });
+    const erro = await iniciarSessaoEstudo(n.id, n.n_ev >= 1 ? 'estudar' : 'sondar'); be.disabled = false;
+    if (erro && /assinatura_necessaria/i.test(erro)) { be.textContent = 'Pedir convite';
+      be.onclick = async () => { const { error } = await sb.rpc('fn_lista_espera_entrar'); be.disabled = true; be.textContent = error ? 'Tente de novo' : 'Pedido registrado'; }; }
+  };
+  tele('cerebro_tema', { node_id: n.id, ligacoes: n.viz.length, pessoais: n.pviz.length });
+}
+function cerebroCardCluster(cl) {
+  const box = $('cvInfo');
+  box.innerHTML = `<button class="fech" id="cvFech" type="button" aria-label="Fechar">×</button>
+    <div class="bc">DISCIPLINA</div><div class="nm"><span class="cz-dot" style="display:inline-block;margin-right:8px;background:${cl.cor};box-shadow:0 0 10px ${cl.cor}"></span>${esc(cl.nome)}</div>
+    <div class="cz-l"><b>${cl.aval}</b> de ${plural(cl.temas.length, 'tema avaliado', 'temas avaliados')}${cl.desemp != null ? ` · desempenho médio <b>${cl.desemp}</b>` : ''}</div>
+    <div class="cz-l">Toque num tema para ver com o que ele se liga.</div>`;
+  box.classList.add('on');
+  $('cvFech').onclick = () => { cerebroGal.selCl = null; cerebroGal.enquadrar(); box.classList.remove('on'); };
+}
+function czLegendaMarcar() {
+  document.querySelectorAll('#cvLegenda .lg').forEach(el => el.classList.toggle('on', !!cerebroGal && el.dataset.f === cerebroGal.filtro));
+  // com a legenda fechada, o botão mostra que há um filtro ligado (e o nome dele)
+  const f = cerebroGal && cerebroGal.filtro, nomes = { dominado: 'Dominados', desenvolvimento: 'Em desenv.', atencao: 'Atenção', nao_avaliado: 'Não avaliados', ovo: 'Ovos de Ouro', pessoais: 'Estudados juntos' };
+  $('czLeg').textContent = f ? `● ${nomes[f] || 'Filtro'}` : 'Legenda'; $('czLeg').classList.toggle('filtrado', !!f);
+}
+document.querySelectorAll('#cvLegenda .lg').forEach(el => el.onclick = () => {
+  if (!cerebroGal) return; cerebroGal.filtro = cerebroGal.filtro === el.dataset.f ? null : el.dataset.f;
+  if (cerebroGal.sel && !cerebroGal.visivel(cerebroGal.sel)) cerebroGal.selecionar(null);
+  czLegendaMarcar(); tele('cerebro_filtro', { filtro: cerebroGal.filtro });
+});
+$('czLeg').onclick = () => { const on = !$('cvLegenda').classList.contains('on'); $('cvLegenda').classList.toggle('on', on); $('czLeg').setAttribute('aria-expanded', String(on));
+  $('czDrawer').classList.remove('on'); $('czDisc').setAttribute('aria-expanded', 'false'); };
+$('czDisc').onclick = () => { const on = !$('czDrawer').classList.contains('on'); $('czDrawer').classList.toggle('on', on); $('czDisc').setAttribute('aria-expanded', String(on));
+  $('cvLegenda').classList.remove('on'); $('czLeg').setAttribute('aria-expanded', 'false'); if (on) $('cvInfo').classList.remove('on'); };
+$('czDrawerFech').onclick = () => { $('czDrawer').classList.remove('on'); $('czDisc').setAttribute('aria-expanded', 'false'); };
+$('cvZin').onclick = () => cerebroGal && cerebroGal.zoom(1.3);
+$('cvZout').onclick = () => cerebroGal && cerebroGal.zoom(1 / 1.3);
+$('cvReset').onclick = () => { if (!cerebroGal) return; cerebroGal.filtro = null; cerebroGal.selCl = null; cerebroGal.selecionar(null); cerebroGal.enquadrar(); czLegendaMarcar(); };
+async function revelarGalaxia(porNode) {
+  if (!revGal) revGal = new Galaxia($('rvCanvas'), { margem: .95, semRotulos: false });
+  revGal.montar({ estrutura, porNode, ligacoes: { conteudo: [], pessoais: [] }, semente: editalAtual.id });
+  revGal.ignicao(galSemMov() ? 1 : 3600); revGal.iniciar();
+  try { revGal.ligar(await carregarLigacoes()); } catch (e) { /* sem ligações, o cérebro aparece do mesmo jeito */ }
+}
 
 async function loadCerebroFull() {
-  const [{ data: mapa, error: e1 }, { data: home }] = await Promise.all([
+  const [{ data: mapa, error: e1 }, { data: home }, lig] = await Promise.all([
     sb.rpc('fn_meu_mapa', { p_edital: editalAtual.id }),
-    sb.rpc('fn_home', { p_edital: editalAtual.id })
+    sb.rpc('fn_home', { p_edital: editalAtual.id }),
+    carregarLigacoes()
   ]);
   if (e1) { toast(humanizar(e1.message)); return; }
   const lista = mapa.mapa || [];
@@ -2165,31 +2223,29 @@ async function loadCerebroFull() {
     const med = tops.filter(aval);
     return med.length >= Math.max(2, tops.length / 2) && med.reduce((s, t) => s + desempenho(t), 0) / med.length >= 70;
   });
-  cbDados = { indice, verdes, medidos: medidos.length, total: lista.length,
-    streak: home?.streak ?? 0, setorOk };
-  $('cbKpis').innerHTML = `
-    <div class="kpi"><div class="v">${medidos.length}<small> /${lista.length}</small></div><div class="k">AVALIADOS</div><div class="d">temas com questão respondida</div></div>
-    <div class="kpi"><div class="v" style="color:var(--verde)">${verdes}</div><div class="k">DOMINADOS</div><div class="d">3+ questões e desempenho ≥ 70</div></div>
-    <div class="kpi dourado"><div class="v">${atencao}</div><div class="k">PRECISAM DE ATENÇÃO</div><div class="d">desempenho abaixo de 40</div></div>
-    <div class="kpi"><div class="v">${home?.streak ?? 0}</div><div class="k">DIAS SEGUIDOS</div><div class="d">com questão respondida</div></div>`;
-  $('cvDoms').innerHTML = estrutura.map((d, di) => {
-    const tops = d.assuntos.flatMap(a => a.topicos).map(t => porNode[t.node_id] || { forca: 0, incerteza: 100 });
-    const med = tops.filter(aval);
-    const pct = med.length ? Math.round(med.reduce((s, t) => s + desempenho(t), 0) / med.length) : null;
-    const cor = COR_HEX[corMedia(tops)];
-    return `<div class="dom" data-d="${di}">
-      <div class="dn">${esc(d.disciplina)}<small>${med.length}/${tops.length} avaliados</small></div>
-      <div class="db"><i style="width:${pct ?? 0}%;background:${cor};box-shadow:0 0 8px ${cor}"></i></div>
-      <div class="dv" style="color:${cor}">${pct != null ? pct : '—'}</div>
-    </div>`;
-  }).join('');
-  $('cbSub').textContent = `Seu cérebro para ${editalAtual.concurso} cresce conforme você domina os assuntos.`;
-  CerebroVivo.montar(porNode);
+  cbDados = { indice, verdes, atencao, medidos: medidos.length, total: lista.length, streak: home?.streak ?? 0, setorOk };
+  $('czSub').textContent = `${medidos.length} de ${lista.length} temas avaliados · ${plural(verdes, 'dominado', 'dominados')} · ${atencao} ${atencao === 1 ? 'precisa' : 'precisam'} de atenção`;
+  if (!cerebroGal) cerebroGal = new Galaxia($('cvCanvas'), { interativo: true, topo: 64, onSelect: cerebroCard, onCluster: cerebroCardCluster,
+    // o tema focado fica no centro da área livre: à esquerda do cartão (desktop) ou acima da folha (celular)
+    desvioFoco: () => window.innerWidth >= 1024 ? [187, 0] : [0, ($('cvInfo').classList.contains('on') ? $('cvInfo').offsetHeight + 14 : 0) / 2] });
+  cerebroGal.filtro = null; cerebroGal.selCl = null; cerebroGal.sel = null;
+  const celular = window.innerWidth < 1024, inicio = medidos.length < 20;
+  cerebroGal.opts.rodape = (celular ? 58 : 0) + (inicio ? 64 : 0); // faixa dos botões (celular) e da frase do iniciante
+  cerebroGal.montar({ estrutura, porNode, ligacoes: lig, semente: editalAtual.id });
+  $('cvInfo').classList.remove('on'); czLegendaMarcar();
+  cerebroGal.iniciar();
+  $('czInicio').innerHTML = inicio ? `<b>Seu cérebro está começando a acender</b><span>${medidos.length} de ${lista.length} temas avaliados · cada questão respondida acende um tema</span>` : '';
+  $('czInicio').style.display = inicio ? 'block' : 'none';
+  $('cvDoms').innerHTML = cerebroGal.clusters.map((cl, i) => `<div class="dom" data-c="${i}" role="button" tabindex="0">
+      <span class="cz-dot" style="background:${cl.cor};box-shadow:0 0 8px ${cl.cor}"></span>
+      <div class="dn">${esc(cl.nome)}<small>${cl.aval}/${cl.temas.length} avaliados</small></div>
+      <div class="dv">${cl.desemp ?? '—'}</div></div>`).join('');
   document.querySelectorAll('#cvDoms .dom').forEach(el => el.onclick = () => {
-    const n = CerebroVivo.nodes.find(x => x.id === 'd' + el.dataset.d);
-    if (n) CerebroVivo.selecionar(n);
+    const cl = cerebroGal.clusters[+el.dataset.c]; if (!cl) return;
+    cerebroGal.focarCluster(cl); $('czDrawer').classList.remove('on'); $('czDisc').setAttribute('aria-expanded', 'false');
   });
   $('cvConqs').innerHTML = renderConquistas(cbDados);
+  tele('cerebro_aberto', { avaliados: medidos.length, ligacoes: (lig.conteudo || []).length, pessoais: (lig.pessoais || []).length });
 }
 async function loadRevisoes() {
   const { data, error } = await sb.rpc('fn_revisoes_hoje', { p_edital: editalAtual.id });
@@ -2228,102 +2284,55 @@ function renderConquistas(d) {
 }
 
 async function compartilharCerebro() {
-  if (!cbDados || !CerebroVivo.nodes.length) { toast('Abra o cérebro primeiro.'); return; }
+  if (!cbDados || !cerebroGal || !cerebroGal.nodes.length) { toast('Abra o cérebro primeiro.'); return; }
   await document.fonts.ready;
-  const W = 1080, H = 1920;
+  const W = 1080, H = 1920, GH = 1180;
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d');
-  // fundo
   x.fillStyle = '#030710'; x.fillRect(0, 0, W, H);
-  let g = x.createRadialGradient(W * .8, -100, 0, W * .8, -100, 900);
-  g.addColorStop(0, 'rgba(47,224,141,.14)'); g.addColorStop(1, 'transparent');
-  x.fillStyle = g; x.fillRect(0, 0, W, H);
-  x.strokeStyle = 'rgba(120,160,220,.05)'; x.lineWidth = 1;
-  for (let i = 0; i < W; i += 54) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, H); x.stroke(); }
-  for (let i = 0; i < H; i += 54) { x.beginPath(); x.moveTo(0, i); x.lineTo(W, i); x.stroke(); }
-  for (let i = 0; i < 90; i++) {
-    x.globalAlpha = Math.random() * .4 + .1; x.fillStyle = '#9FB8D8';
-    x.beginPath(); x.arc(Math.random() * W, Math.random() * H, Math.random() * 1.6 + .4, 0, 7); x.fill();
-  }
-  x.globalAlpha = 1;
+  // a galáxia real do aluno, enquadrada inteira (sem seleção nem filtro)
+  const g = document.createElement('canvas'); g.width = W; g.height = GH;
+  const G = cerebroGal, snap = { cam: { ...G.cam }, fit: G.fit, sel: G.sel, filtro: G.filtro, selCl: G.selCl };
+  G.sel = null; G.filtro = null; G.selCl = null; G.cam = { x: G.bb.x, y: G.bb.y, z: 1 }; G.fit = Math.min(W / G.bb.w, GH / G.bb.h) * .96;
+  G.quadro(g.getContext('2d'), W, GH);
+  Object.assign(G, { cam: snap.cam, fit: snap.fit, sel: snap.sel, filtro: snap.filtro, selCl: snap.selCl });
+  x.drawImage(g, 0, 330);
+  const gr = x.createLinearGradient(0, 330, 0, 470); gr.addColorStop(0, '#030710'); gr.addColorStop(1, 'rgba(3,7,16,0)'); x.fillStyle = gr; x.fillRect(0, 330, W, 140);
+  const gr2 = x.createLinearGradient(0, 1370, 0, 1510); gr2.addColorStop(0, 'rgba(3,7,16,0)'); gr2.addColorStop(1, '#030710'); x.fillStyle = gr2; x.fillRect(0, 1370, W, 140);
   // marca
-  x.textAlign = 'center';
   x.font = "64px 'Archivo Black', sans-serif";
   const bw = x.measureText('DOMINEI').width;
   x.fillStyle = '#EAF2EC'; x.textAlign = 'left';
   x.fillText('DOMINE', W / 2 - bw / 2, 170);
   x.fillStyle = '#2FE08D'; x.shadowColor = '#2FE08D'; x.shadowBlur = 26;
   x.fillText('I', W / 2 - bw / 2 + x.measureText('DOMINE').width, 170);
-  x.shadowBlur = 0;
-  x.textAlign = 'center';
-  x.font = "700 34px 'Archivo', sans-serif"; x.fillStyle = '#7E8CA0';
-  x.fillText('O  M A P A  D O  M E U  C É R E B R O', W / 2, 244);
+  x.shadowBlur = 0; x.textAlign = 'center';
+  x.font = "700 32px 'Archivo', sans-serif"; x.fillStyle = '#7E8CA0';
+  x.fillText('O MAPA DO MEU CÉREBRO', W / 2, 238);
   x.font = "700 40px 'Archivo', sans-serif"; x.fillStyle = '#EAF2EC';
-  x.fillText(editalAtual.concurso.toUpperCase(), W / 2, 310);
-  // grafo (posições reais, render estático)
-  const cx = W / 2, cy = 900, esc = 1.55;
-  const P = n => [cx + n.x * esc, cy + n.y * esc];
-  x.strokeStyle = 'rgba(130,165,215,.16)'; x.lineWidth = 1.6;
-  CerebroVivo.edges.forEach(([a, b]) => {
-    const [ax, ay] = P(a), [bx, by] = P(b);
-    x.beginPath(); x.moveTo(ax, ay); x.lineTo(bx, by); x.stroke();
-  });
-  CerebroVivo.nodes.forEach(n => {
-    const [nx, ny] = P(n);
-    if (n.nivel === 'core') {
-      x.shadowColor = '#2FE08D'; x.shadowBlur = 60;
-      x.fillStyle = '#2FE08D'; x.beginPath(); x.arc(nx, ny, 26, 0, 7); x.fill();
-      x.shadowBlur = 0; return;
-    }
-    const cor = COR_HEX[n.cor];
-    if (n.ovo) {
-      x.shadowColor = OURO; x.shadowBlur = 34;
-      x.strokeStyle = 'rgba(245,197,66,.8)'; x.lineWidth = 2.4;
-      x.beginPath(); x.arc(nx, ny, n.r * esc + 8, 0, 7); x.stroke();
-      x.shadowBlur = 0;
-    }
-    if (n.cor !== 'nd') { x.shadowColor = cor; x.shadowBlur = n.cor === 'verde' ? 42 : 26; }
-    x.globalAlpha = n.cor === 'nd' ? (n.ovo ? .7 : .45) : 1;
-    x.fillStyle = cor; x.beginPath(); x.arc(nx, ny, n.r * esc, 0, 7); x.fill();
-    x.shadowBlur = 0; x.globalAlpha = 1;
-    if (n.nivel === 'disciplina') {
-      x.font = "700 26px 'Archivo', sans-serif"; x.fillStyle = 'rgba(190,205,225,.85)';
-      x.fillText(n.nome.toUpperCase().slice(0, 28), cx + n.x * esc * 1.62, cy + n.y * esc * 1.62);
-      if (n.pct != null) { x.fillStyle = cor; x.font = '700 24px Menlo, monospace';
-        x.fillText(String(n.pct), cx + n.x * esc * 1.62, cy + n.y * esc * 1.62 + 32); }
-    }
-  });
-  // stats
+  x.fillText(editalAtual.concurso.toUpperCase(), W / 2, 300);
+  // números (sem "% do edital mapeado", item 3.10)
   const d = cbDados;
-  const stats = [
-    [`${d.medidos}/${d.total}`, 'AVALIADOS'],
-    [`${d.verdes}`, 'DOMINADOS'],
-    [`${Math.round(d.medidos / Math.max(d.total, 1) * 100)}%`, 'DO EDITAL MAPEADO'],
-  ];
-  stats.forEach(([v, k], i) => {
-    const sx = W / 2 + (i - 1) * 320;
-    x.font = "84px 'Archivo Black', sans-serif"; x.fillStyle = i === 1 ? '#2FE08D' : '#EAF2EC';
-    x.fillText(v, sx, 1560);
-    x.font = '700 22px Menlo, monospace'; x.fillStyle = '#7E8CA0';
-    x.fillText(k, sx, 1600);
+  [[`${d.medidos}/${d.total}`, 'TEMAS AVALIADOS', '#EAF2EC'], [`${d.verdes}`, 'DOMINADOS', '#2FE08D'], [`${d.atencao ?? 0}`, 'PRECISAM DE ATENÇÃO', '#FF8C8C']].forEach(([v, k, cor], i) => {
+    const sx = W / 2 + (i - 1) * 330;
+    x.font = "80px 'Archivo Black', sans-serif"; x.fillStyle = cor; x.fillText(v, sx, 1600);
+    x.font = '700 21px Menlo, monospace'; x.fillStyle = '#7E8CA0'; x.fillText(k, sx, 1640);
   });
   x.font = "700 30px 'Archivo', sans-serif"; x.fillStyle = '#7E8CA0';
-  x.fillText('Cada evidência acende um nó. E o seu cérebro?', W / 2, 1720);
+  x.fillText('Cada questão respondida acende um tema. E o seu cérebro?', W / 2, 1735);
   x.font = "44px 'Archivo Black', sans-serif"; x.fillStyle = '#2FE08D';
-  x.shadowColor = '#2FE08D'; x.shadowBlur = 20;
-  x.fillText('dominei.app', W / 2, 1800);
-  x.shadowBlur = 0;
-
+  x.shadowColor = '#2FE08D'; x.shadowBlur = 20; x.fillText('dominei.app', W / 2, 1815); x.shadowBlur = 0;
   const blob = await new Promise(r => c.toBlob(r, 'image/png'));
   const file = new File([blob], 'meu-cerebro-dominei.png', { type: 'image/png' });
-  const texto = `O mapa do meu cérebro para ${editalAtual.concurso} no DOMINEI — ${Math.round(d.medidos / Math.max(d.total, 1) * 100)}% do edital mapeado. dominei.app`;
+  const texto = `O mapa do meu cérebro para ${editalAtual.concurso} no DOMINEI: ${d.medidos} temas avaliados, ${d.verdes} dominados. dominei.app`;
+  tele('cerebro_compartilhar', {});
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try { await navigator.share({ files: [file], text: texto }); return; } catch (e) { /* cancelado */ }
   } else {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob); a.download = 'meu-cerebro-dominei.png';
     a.click(); URL.revokeObjectURL(a.href);
-    toast('Imagem baixada — poste onde quiser.');
+    toast('Imagem baixada: poste onde quiser.');
   }
 }
 $('btnShare2').onclick = compartilharCerebro;

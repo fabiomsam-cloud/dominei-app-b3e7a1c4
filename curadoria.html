@@ -190,7 +190,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-09-27j'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-09-27k'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -1367,10 +1367,11 @@ const MOTIVOS_AUD = {
          ['ambiguo', 'Enunciado ambíguo'], ['fora_do_edital', 'Fora do edital'], ['outro', 'Outro']],
   resumo: [['fato_errado', 'Informação errada'], ['artigo_errado', 'Artigo/lei citado errado'], ['incompleto', 'Falta o essencial'], ['outro', 'Outro']],
 };
-let audDados = null, audFiltro = 'pendentes';
+let audDados = null, audFiltro = 'pendentes', audModo = 'conteudo';
 async function loadAuditoria() {
+  if (audModo === 'ligacoes') return loadLigacoes();
   const pane = $('pane-auditoria');
-  pane.innerHTML = `<div class="pagetitle">Auditoria</div>
+  pane.innerHTML = `<div class="pagetitle">Auditoria</div>${abasAud()}
     <div class="pagesub">Leitura única de calibração (item 1.4): uma questão gerada por IA de cada tema da trilha e os resumos.
       "Erro" tira a questão das sessões (vai para Qualidade) e despublica o resumo (o aluno vê o texto de reserva).</div>
     <div id="audResumo" class="card meta">carregando…</div>
@@ -1420,6 +1421,56 @@ async function registrarAud(tipo, id, veredito) {
   const x = lista.find(y => y.id === id); if (x) Object.assign(x, { veredito, motivo, nota });
   toast(veredito === 'ok' ? 'Registrado como certo.' : (tipo === 'item' ? 'Questão suspensa: saiu das sessões.' : 'Resumo despublicado.'));
   desenharAuditoria();
+}
+
+function abasAud() {
+  return `<div class="acts" style="margin:0 0 14px;gap:8px">${[['conteudo', 'Questões e resumos'], ['ligacoes', 'Ligações do Cérebro']]
+    .map(([k, l]) => `<button class="${k === audModo ? 'b-ok' : 'b-ghost'}" onclick="audModo='${k}';loadAuditoria()">${l}</button>`).join('')}</div>`;
+}
+
+// ---------- LIGAÇÕES DO CÉREBRO: a IA cria e já aprova; a equipe só lê depois e remove o que estiver errado ----------
+const TIPO_LIG = { relacionado: 'se relaciona com', prerequisito: 'é base para', confundivel: 'costuma ser confundido com' };
+let ligDados = null, ligFiltro = 'pendentes';
+async function loadLigacoes() {
+  const pane = $('pane-auditoria');
+  pane.innerHTML = `<div class="pagetitle">Auditoria</div>${abasAud()}
+    <div class="pagesub">Ligações entre temas que aparecem no Cérebro do aluno. Foram criadas e aprovadas pela IA, já estão no ar.
+      Leia quando der: "Remover" tira a ligação do Cérebro de todos na hora; "Está certa" só marca como revisada.</div>
+    <div id="ligResumo" class="card meta">carregando…</div>
+    <div class="acts" id="ligFiltros" style="margin:0 0 12px;gap:8px"></div>
+    <div id="ligLista"></div>`;
+  const { data, error } = await sb.rpc('fn_admin_ligacoes_listar', {});
+  if (error) { $('ligLista').innerHTML = `<div class="card empty">${esc(error.message)}</div>`; return; }
+  ligDados = data || []; desenharLigacoes();
+}
+function desenharLigacoes() {
+  const rev = ligDados.filter(x => x.revisado_em).length, rem = ligDados.filter(x => x.status === 'removido').length;
+  $('ligResumo').innerHTML = `<b>${rev} de ${ligDados.length}</b> revisadas · ${rem} removidas · ${ligDados.length - rem} no ar`;
+  $('ligFiltros').innerHTML = [['pendentes', 'Não revisadas'], ['removido', 'Removidas'], ['todos', 'Todas']]
+    .map(([k, l]) => `<button class="${k === ligFiltro ? 'b-ok' : 'b-ghost'}" onclick="ligFiltro='${k}';desenharLigacoes()">${l}</button>`).join('');
+  const vis = ligDados.filter(x => ligFiltro === 'todos' || (ligFiltro === 'removido' ? x.status === 'removido' : !x.revisado_em));
+  $('ligLista').innerHTML = vis.slice(0, 150).map(x => `
+    <div class="card" id="lig-${x.id}">
+      <div class="meta"><span class="badge edge">${esc(x.tipo)}</span> ${x.origem === 'ia' ? 'IA' : esc(x.origem || '')}
+        ${x.revisado_em ? `<span class="badge ${x.status === 'removido' ? 'red' : 'edge'}">${x.status === 'removido' ? 'removida' : 'revisada'} · ${esc(x.revisado_por || '')}</span>` : ''}</div>
+      <div style="margin-top:8px;line-height:1.5"><b>${esc(x.a)}</b> <span class="meta">(${esc(x.disc_a)})</span><br>
+        <span class="meta">${TIPO_LIG[x.tipo] || esc(x.tipo)}</span><br><b>${esc(x.b)}</b> <span class="meta">(${esc(x.disc_b)})</span></div>
+      ${x.motivo ? `<div class="meta" style="margin-top:6px">Por quê: ${esc(x.motivo)}</div>` : ''}
+      <div class="acts" style="gap:8px;margin-top:12px">
+        ${x.status === 'removido'
+          ? `<button class="b-ok" onclick="decidirLigacao('${x.id}','aprovado')">Recolocar no Cérebro</button>`
+          : `<button class="b-ok" onclick="decidirLigacao('${x.id}','aprovado')">Está certa</button>
+             <button class="b-ghost" style="color:var(--vermelho);border-color:rgba(237,90,90,.4)" onclick="decidirLigacao('${x.id}','removido')">Remover</button>`}
+      </div>
+    </div>`).join('') + (vis.length > 150 ? `<div class="card meta">Mostrando 150 de ${vis.length}. Revise estas e as próximas aparecem.</div>` : '')
+    || `<div class="card empty">${ligFiltro === 'pendentes' ? 'Todas revisadas. Obrigado!' : 'Nada aqui.'}</div>`;
+}
+async function decidirLigacao(id, status) {
+  const { error } = await sb.rpc('fn_admin_ligacao_decidir', { p_id: id, p_status: status });
+  if (error) { toast(error.message, false); return; }
+  const x = ligDados.find(y => y.id === id); if (x) Object.assign(x, { status, revisado_em: new Date().toISOString(), revisado_por: 'você' });
+  toast(status === 'removido' ? 'Removida: sumiu do Cérebro dos alunos.' : 'Marcada como revisada.');
+  desenharLigacoes();
 }
 
 // ---------- BETA (etapa 5 · 0.7): funil, dias com sessão, lista de espera + convite, eventos e erros ----------
