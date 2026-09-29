@@ -493,6 +493,47 @@ body.rg-barra-on main { padding-bottom:170px; }
 .rv-hero .legend .lb-at { color:#FF8C8C !important; } .rv-hero .legend .lb-na { color:#8FA3C0 !important; }
 .rv-hero .legend span::before { display:none; }
 
+/* ---------- MEU CADERNO (29/09) ---------- */
+.mt-novo { width:100%; margin:14px 0 4px; }
+.rg-marcar { margin-top:24px; } .rg-marcar span { font-weight:400; letter-spacing:.04em; font-family:inherit; font-size:11px; }
+.mt-uso { float:right; font-weight:400; letter-spacing:.04em; font-family:inherit; font-size:11px; color:var(--dim); }
+.mt-vazio { color:var(--dim); font-size:13px; line-height:1.5; margin:10px 2px; }
+.mt-item { display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:rgba(255,255,255,.035); border:1px solid var(--line); border-radius:11px; padding:9px 11px; margin-bottom:6px; color:var(--text); cursor:pointer; font-family:inherit; min-height:48px; }
+.mt-item:hover { border-color:rgba(127,184,255,.45); }
+.mt-item .an { flex:1; min-width:0; font-size:13.5px; font-weight:700; line-height:1.3; overflow:hidden; text-overflow:ellipsis; }
+.mt-item .an small { display:block; color:var(--dim); font-weight:400; font-size:11.5px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mt-ic { flex:0 0 30px; height:30px; border-radius:8px; background:rgba(127,184,255,.12); border:1px solid rgba(127,184,255,.3); display:grid; place-items:center; color:#A9CBF5; font-size:14px; font-weight:800; }
+.mt-ic.mt-pdf::after { content:'PDF'; font-size:8.5px; letter-spacing:.04em; }
+.mt-ic.mt-texto, .mt-ic.mt-foto { background-repeat:no-repeat; background-position:center; background-size:17px; }
+.mt-ic.mt-texto { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A9CBF5' stroke-width='1.8' stroke-linecap='round'%3E%3Crect x='5' y='3' width='14' height='18' rx='2'/%3E%3Cpath d='M9 8h6M9 12h6M9 16h4'/%3E%3C/svg%3E"); }
+.mt-ic.mt-foto { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A9CBF5' stroke-width='1.8' stroke-linejoin='round'%3E%3Cpath d='M4 8h3l2-3h6l2 3h3v11H4z'/%3E%3Ccircle cx='12' cy='13' r='3.5'/%3E%3C/svg%3E"); }
+.mt-sheet { max-height:92dvh; overflow-y:auto; }
+.mt-sheet select, #mtTitulo, #mtTexto { width:100%; min-height:44px; background:#0A1322; border:1px solid var(--line); border-radius:10px; color:var(--text); font-family:inherit; font-size:15px; padding:10px 12px; }
+.mt-sheet select:disabled { opacity:.5; }
+#mtTexto { min-height:180px; resize:vertical; line-height:1.5; }
+.mt-cont { text-align:right; font-size:11px; color:var(--dim); margin-top:4px; }
+.mt-arq { position:relative; display:flex; align-items:center; justify-content:center; min-height:54px; border:1.5px dashed rgba(127,184,255,.45); border-radius:12px; color:#A9CBF5; font-weight:700; cursor:pointer; }
+.mt-arq input { position:absolute; width:1px; height:1px; opacity:0; }
+.mt-prev { display:grid; grid-template-columns:repeat(auto-fill, minmax(72px, 1fr)); gap:8px; margin-top:10px; }
+.mt-th { position:relative; aspect-ratio:3/4; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.mt-th img { width:100%; height:100%; object-fit:cover; display:block; }
+.mt-th button { position:absolute; top:3px; right:3px; width:28px; height:28px; border-radius:50%; border:0; background:rgba(0,0,0,.72); color:#fff; font-size:16px; cursor:pointer; }
+.mt-pdf { margin-top:10px; font-size:13px; }
+.mt-erro { color:#FF8C8C; font-size:13px; min-height:18px; margin:10px 0 2px; }
+.mt-bc { font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; color:var(--dim); margin-bottom:4px; }
+.mt-meta { color:var(--dim); font-size:12.5px; margin-top:4px; }
+.mt-temas { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; } .mt-temas span { font-size:11.5px; padding:3px 9px; border-radius:20px; background:rgba(127,184,255,.12); color:#A9CBF5; }
+.mt-corpo { margin:10px 0; }
+.mt-leitura { white-space:pre-wrap; font-size:14.5px; line-height:1.6; background:#0A1322; border:1px solid var(--line); border-radius:12px; padding:14px; max-height:52dvh; overflow-y:auto; }
+.mt-pagina { width:100%; border-radius:10px; margin-bottom:8px; display:block; border:1px solid var(--line); }
+.mt-acts .btn { width:100%; } .mt-excluir { color:var(--vermelho) !important; border-color:rgba(237,90,90,.35) !important; }
+.mt-k { font-family:var(--mono); font-size:9.5px; letter-spacing:.16em; color:#7FB8FF; margin:14px 0 6px; font-weight:700; }
+.mt-add { display:block; width:100%; text-align:left; background:none; border:1px dashed rgba(127,184,255,.45); border-radius:10px; padding:10px; color:#A9CBF5; font-weight:700; font-size:12.5px; cursor:pointer; font-family:inherit; min-height:44px; }
+.mt-mais { font-size:11.5px; color:var(--dim); margin:0 0 6px 2px; }
+.mt-rec { font-size:11.5px; color:#A9CBF5; white-space:nowrap; }
+.cz-legenda .l-est { background:#7FB8FF; box-shadow:0 0 8px #7FB8FF; }
+@media (min-width:1024px) { .mt-sheet { left:calc(50% - 310px); right:auto; width:620px; } }
+
 /* ---------- REVELAÇÃO ---------- */
 .rv .head { margin-bottom:18px; }
 .rv .head h2 { font-size:24px; }
@@ -817,7 +858,7 @@ body.rg-barra-on main { padding-bottom:170px; }
         <div class="cz-t" id="czTit">Cérebro</div><div class="cz-s" id="czSub"></div>
         <button class="cz-link" id="czConq" type="button" aria-expanded="false" aria-controls="czDrawer">Conquistas e compartilhar</button>
       </div>
-      <div class="cz-legenda" id="czLegenda"><span><i class="l-dom"></i>Dominado</span><span><i class="l-dev"></i>Em desenvolvimento</span><span><i class="l-at"></i>Precisa de atenção</span><span><i class="l-na"></i>Não explorado</span></div>
+      <div class="cz-legenda" id="czLegenda"><span><i class="l-dom"></i>Dominado</span><span><i class="l-dev"></i>Em desenvolvimento</span><span><i class="l-at"></i>Precisa de atenção</span><span><i class="l-est"></i>Estudado</span><span><i class="l-na"></i>Não explorado</span></div>
       <div class="cv-info" id="cvInfo" role="dialog" aria-live="polite"></div>
       <aside class="cz-drawer" id="czDrawer">
         <div class="cz-dh"><b>Conquistas</b><button type="button" id="czDrawerFech" aria-label="Fechar">×</button></div>
@@ -850,7 +891,10 @@ body.rg-barra-on main { padding-bottom:170px; }
   <!-- REGISTRAR ESTUDO (27/09: por assunto do edital; não pinta o mapa, não dispara conferência) -->
   <section class="view" id="vRegistrar">
     <div class="hj-hello">Registrar estudo</div>
-    <div class="hj-sub">Marque os temas do edital que você estudou e toque em Registrar. O registro organiza o seu estudo; quem mostra o que você sabe são as questões.</div>
+    <div class="hj-sub">Guarde seus resumos e marque o que estudou, sempre no assunto do edital. Isso acende a luz de estudo no seu cérebro; quem mostra o quanto você domina são as questões.</div>
+    <button class="btn mt-novo" id="mtNovo" type="button">＋ Guardar resumo, foto ou PDF</button>
+    <div id="mtLista"></div>
+    <div class="rg-sec rg-marcar">MARCAR TEMAS ESTUDADOS <span>sem material</span></div>
     <div class="rg-resumo" id="rgResumo"></div>
     <input id="rgBusca" type="search" placeholder="Buscar tema (ex.: crase, remédios constitucionais)…" autocomplete="off" aria-label="Buscar tema">
     <div id="rgRecentes"></div>
@@ -878,6 +922,23 @@ body.rg-barra-on main { padding-bottom:170px; }
       <button class="ss-link" id="rgCancelar" type="button">Cancelar</button>
     </div>
 
+
+<!-- Meu Caderno: guardar e ver material (fora da seção: a animação da .view prenderia o position:fixed) -->
+<div class="sheet mt-sheet" id="mtSheet" role="dialog" aria-modal="true" aria-labelledby="mtSheetT">
+  <div class="n" id="mtSheetT">Guardar no meu caderno</div>
+  <p>O material fica ligado ao assunto do edital e acende a luz de estudo desses temas. Só você vê.</p>
+  <div class="k-lbl rg-k">O QUE VOCÊ VAI GUARDAR?</div>
+  <div class="rg-seg" id="mtTipo"><button type="button" data-t="texto" class="on">Texto</button><button type="button" data-t="foto">Fotos</button><button type="button" data-t="pdf">PDF</button></div>
+  <div class="k-lbl rg-k">DISCIPLINA</div><select id="mtDisc" aria-label="Disciplina"></select>
+  <div class="k-lbl rg-k">ASSUNTO</div><select id="mtAss" aria-label="Assunto"></select>
+  <div id="mtTemasBox"><div class="k-lbl rg-k">TEMAS <span>desmarque o que não entrou</span></div><div id="mtTemas"></div></div>
+  <div class="k-lbl rg-k">TÍTULO <span>opcional</span></div><input type="text" id="mtTitulo" maxlength="120" placeholder="Ex.: Resumo da aula 3">
+  <div id="mtConteudo"></div>
+  <div class="mt-erro" id="mtErro" role="alert"></div>
+  <button class="btn" id="mtGuardar" type="button">Guardar</button>
+  <button class="ss-link" id="mtCancelar" type="button">Cancelar</button>
+</div>
+<div class="sheet mt-sheet" id="mtVer" role="dialog" aria-modal="true" aria-label="Material guardado"><div id="mtVerIn"></div></div>
 
 <nav class="tabbar" id="tabbar">
   <button data-v="vHoje" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 5 13.5h5L10 22l8-11.5h-5L13 2z"/></svg>HOJE</button>
@@ -1256,13 +1317,13 @@ function heatmapHtml(porNode, clicavel = false) {
   return html;
 }
 const LEGENDA_MAPA = `<span class="lg-v">Dominado</span><span class="lg-a">Em desenvolvimento</span><span class="lg-r">Precisa de atenção</span>
-  <span class="lg-n">Ainda não avaliado</span><span class="lg-ne">Ainda não estudei</span><span class="lg-rv">⏱ Rever</span><span class="lg-vi">Visto (estudo registrado)</span>`;
+  <span class="lg-n">Ainda não avaliado</span><span class="lg-ne">Ainda não estudei</span><span class="lg-rv">⏱ Rever</span><span class="lg-vi">Estudado (registro ou material)</span>`;
 function animarBarras(container) {
   requestAnimationFrame(() => setTimeout(() =>
     container.querySelectorAll('.bar i').forEach(i => i.style.width = i.dataset.w + '%'), 80));
 }
 
-const LEGENDA_BRILHO = `<span class="lb">Cada região do cérebro é uma disciplina · <b style="color:var(--verde)">verde</b> = Dominado · <b style="color:var(--amarelo)">amarelo</b> = Em desenvolvimento · <b class="lb-at">vermelho</b> = Precisa de atenção · <b class="lb-na">cinza</b> = Ainda não explorado</span>`;
+const LEGENDA_BRILHO = `<span class="lb">Cada região do cérebro é uma disciplina · <b style="color:var(--verde)">verde</b> = Dominado · <b style="color:var(--amarelo)">amarelo</b> = Em desenvolvimento · <b class="lb-at">vermelho</b> = Precisa de atenção · <b style="color:#7FB8FF">azul</b> = estudado, ainda sem questões · <b class="lb-na">cinza</b> = Ainda não explorado</span>`;
 const LEGENDA_ESTADOS = `<span class="lg-v">Dominado</span><span class="lg-a">Em desenvolvimento</span>
   <span class="lg-r">Precisa de atenção</span><span class="lg-n">Ainda não avaliado</span>`;
 function renderReveal() {
@@ -1807,15 +1868,16 @@ function abrirDetalheTema(row) {
     const dias = n.ultima_evidencia ? Math.floor((Date.now() - new Date(n.ultima_evidencia)) / 86400000) : null;
     linhas.push(dias != null && dias > 0 ? `Rever: faz ${plural(dias, 'dia', 'dias')} que você não vê isto.` : 'Rever: está na hora de reforçar.');
   }
-  if (n.visto) linhas.push('Você registrou que estudou este assunto. Só uma questão respondida acende o tema.');
+  if (n.visto) linhas.push('Você estudou este tema (registro ou material guardado): a luz de estudo está acesa. As questões mostram o quanto você domina.');
   const freq = n.provas_freq || t.provas_freq || 0;
   if (freq > 0) linhas.push(`${freq >= 3 ? 'Ovo de Ouro · caiu' : 'Caiu'} ${plural(freq, 'vez', 'vezes')} nas provas analisadas.`);
   const tipo = (n.n_evidencias || 0) >= 1 ? 'estudar' : 'sondar';
   const det = document.createElement('div');
   det.className = 'tdet';
   det.innerHTML = `${chip(n.estado || 'nao_avaliado')}${linhas.length ? `<div class="l">${linhas.map(esc).join('<br>')}</div>` : '<div class="l"></div>'}
-    <button class="btn" type="button">${(n.n_evidencias || 0) >= 1 ? 'Praticar este tema' : 'Conferir o que você sabe'}</button>`;
+    <button class="btn" type="button">${(n.n_evidencias || 0) >= 1 ? 'Praticar este tema' : 'Conferir o que você sabe'}</button><div class="mt-sec"></div>`;
   row.after(det); row.classList.add('aberto');
+  mtSecao(det.querySelector('.mt-sec'), id, estrutura.flatMap(d => d.assuntos).find(a => a.topicos.some(x => x.node_id === id))?.assunto_id, 'meu_edital');
   const btn = det.querySelector('.btn');
   btn.onclick = async () => {
     btn.disabled = true;
@@ -1842,7 +1904,7 @@ const COSMO_TOM = ['#4F8BFF', '#A970FF', '#FF9F43', '#22D3EE', '#EC5FD0', '#2DD4
 const COSMO_CURTO = { 'Direito Administrativo': 'Administrativo', 'Direito Constitucional': 'Constitucional', 'Direito Penal': 'Penal',
   'Direito Processual Penal': 'Processo Penal', 'Legislação de Trânsito': 'Trânsito', 'Legislação Especial': 'Leis Especiais', 'Língua Portuguesa': 'Português',
   'Língua Estrangeira': 'Estrangeira', 'Raciocínio Lógico-Matemático': 'Raciocínio Lógico', 'Ética e Cidadania': 'Ética' };
-const COSMO_OURO = '#F5C542', CER_APAGADO = '#343E53';
+const COSMO_OURO = '#F5C542', CER_APAGADO = '#343E53', COSMO_ESTUDO = '#7FB8FF'; // azul = estudado (registro ou material), ainda sem questão
 const galSemMov = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const cosmoExpl = (e) => e === 'dominado' || e === 'desenvolvimento' || e === 'atencao';
 const cosmoClamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
@@ -2223,19 +2285,22 @@ class CerebroMapa {
             ctx.globalAlpha = aG * al * (ab ? .95 : .85); ctx.lineWidth = (ab ? 2.2 : 1.3) * fs; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
             if (!sm) { const u = ((t * (ab ? .32 : .25) + cosmoHash(p.id + q.id)) % 1), px = x1 + (x2 - x1) * u, py = y1 + (y2 - y1) * u, z = ab ? 11 : 6;
               ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = aG * al * Math.sin(Math.PI * u); ctx.drawImage(cosmoSprite('#FFFFFF'), px - z, py - z, z * 2, z * 2); ctx.globalCompositeOperation = 'source-over'; }
-          } else { ctx.globalAlpha = aG * al * (ab ? .55 : .32) * aparece; ctx.strokeStyle = '#6F7E99'; ctx.lineWidth = (ab ? 1.4 : .9) * fs; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); } });
+          } else { const est = (p.visto || cosmoExpl(p.estado)) && (q.visto || cosmoExpl(q.estado)); // os dois estudados: linha azulada
+            ctx.globalAlpha = aG * al * (ab ? .55 : .32) * aparece * (est ? 1.35 : 1); ctx.strokeStyle = est ? '#6C9BDA' : '#6F7E99'; ctx.lineWidth = (ab ? 1.4 : .9) * fs; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); } });
       });
       ctx.globalCompositeOperation = 'lighter';
+      g.temas.forEach(o => { if (cosmoExpl(o.estado) || !o.visto) return; const [x, y] = this.tela(...this.posTema(o)), gw = this.raio(o) * 5.6; // luz de estudo
+        ctx.globalAlpha = aG * .8 * aparece; ctx.drawImage(cosmoSprite(COSMO_ESTUDO), x - gw, y - gw, gw * 2, gw * 2); });
       g.temas.forEach(o => { if (!cosmoExpl(o.estado)) return; const L = this.luz(o, ti); if (L <= 0) return; const [x, y] = this.tela(...this.posTema(o)), r = this.raio(o);
         const I = o.estado === 'dominado' ? 1 : o.estado === 'desenvolvimento' ? .55 + .35 * cosmoClamp(((o.forca_obs ?? 50) - 40) / 40) : .75 + .25 * (sm ? 1 : Math.sin(t * 3 + o.peso * 1e3));
         const flash = this.intro ? Math.sin(Math.PI * L) * 2.2 : 0, gw = r * (2.6 + 3.2 * I + flash * 2);
         ctx.globalAlpha = aG * cosmoClamp((.35 + .55 * I) * L + flash * .25); ctx.drawImage(cosmoSprite(COSMO_COR[o.estado]), x - gw, y - gw, gw * 2, gw * 2); });
       ctx.globalCompositeOperation = 'source-over';
       g.temas.forEach(o => { const [x, y] = this.tela(...this.posTema(o)), r = this.raio(o), L = cosmoExpl(o.estado) ? this.luz(o, ti) : 0, ex = L > 0;
-        ctx.globalAlpha = aG * (ex ? 1 : .9 * aparece); ctx.fillStyle = ex ? COSMO_COR[o.estado] : CER_APAGADO; ctx.beginPath(); ctx.arc(x, y, ex ? r : r * .8, 0, 6.29); ctx.fill();
+        ctx.globalAlpha = aG * (ex ? 1 : .9 * aparece); ctx.fillStyle = ex ? COSMO_COR[o.estado] : o.visto ? '#6FA6EC' : CER_APAGADO; ctx.beginPath(); ctx.arc(x, y, ex || o.visto ? r : r * .8, 0, 6.29); ctx.fill();
         if (ex) { ctx.fillStyle = '#FFFFFF'; ctx.globalAlpha = aG * .75 * L; ctx.beginPath(); ctx.arc(x, y, r * .42, 0, 6.29); ctx.fill(); }
-        else if (o.visto || (g === this.sel && fade > .5)) { ctx.globalAlpha = aG * (o.visto ? .95 : .8) * aparece; ctx.strokeStyle = o.visto ? '#8E9CB4' : '#56627A'; ctx.lineWidth = fs;
-          ctx.beginPath(); ctx.arc(x, y, r * .8 + (o.visto ? 1.5 : 0), 0, 6.29); ctx.stroke(); }
+        else if (!o.visto && g === this.sel && fade > .5) { ctx.globalAlpha = aG * .8 * aparece; ctx.strokeStyle = '#56627A'; ctx.lineWidth = fs;
+          ctx.beginPath(); ctx.arc(x, y, r * .8, 0, 6.29); ctx.stroke(); }
         if (o === this.selTema) { ctx.globalAlpha = 1; ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 5 + (sm ? 0 : Math.sin(t * 4) * 1.2), 0, 6.29); ctx.stroke(); } });
       ctx.globalAlpha = 1;
     });
@@ -2260,7 +2325,7 @@ class CerebroMapa {
       this.sel.temas.forEach(o => { const [x, y] = this.tela(...this.posTema(o)), ex = cosmoExpl(o.estado); let lx = x + o.r + 8;
         ctx.globalAlpha = a * (ex ? 1 : .85); ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(4,7,14,.9)';
         if (o.freq >= 3) { ctx.strokeText('★', lx, y + .5); ctx.fillStyle = COSMO_OURO; ctx.fillText('★', lx, y + .5); lx += est; }
-        ctx.strokeText(o.rot, lx, y + .5); ctx.fillStyle = o === this.selTema ? '#FFFFFF' : ex ? '#EAF2EC' : '#7A869A'; ctx.fillText(o.rot, lx, y + .5); });
+        ctx.strokeText(o.rot, lx, y + .5); ctx.fillStyle = o === this.selTema ? '#FFFFFF' : ex ? '#EAF2EC' : o.visto ? '#A9CBF5' : '#7A869A'; ctx.fillText(o.rot, lx, y + .5); });
       ctx.globalAlpha = 1;
     }
   }
@@ -2309,13 +2374,15 @@ function cerebroCard(n) {
   box.innerHTML = `<button class="fech" id="cvFech" type="button" aria-label="Fechar">×</button>
     <div class="bc">${esc(n.disc).toUpperCase()} · ${esc(n.assunto).toUpperCase()}</div>
     <div class="nm">${esc(n.nome)}</div>
-    <div class="cz-chips">${chip(n.estado)}${n.rever ? '<span class="estado e-rv">⏱ Rever</span>' : ''}${n.visto ? '<span class="estado e-vi">Visto</span>' : ''}</div>
+    <div class="cz-chips">${chip(n.estado)}${n.rever ? '<span class="estado e-rv">⏱ Rever</span>' : ''}${n.visto ? '<span class="estado e-vi">Estudado</span>' : ''}</div>
     ${n.n_ev >= 1 ? `<div class="cz-l">Desempenho <b>${n.forca_obs ?? Math.round(n.forca || 0)}</b> · ${plural(n.n_ev, 'questão respondida', 'questões respondidas')}</div>` : ''}
     ${n.freq > 0 ? `<div class="cz-l${n.freq >= 3 ? ' ouro' : ''}">★ caiu ${n.freq}× nas provas analisadas</div>` : ''}
+    <div id="cvMat"></div>
     ${lig.length ? `<div class="cz-k">LIGADO A</div>` + lig.map(v => `<button type="button" class="cz-lig ${v.e.tipo}" data-n="${v.n.id}"><span>${esc(v.n.nome)}${v.e.tipo === 'confundivel' ? '<i>costumam ser confundidos</i>' : v.e.tipo === 'prerequisito' ? '<i>um é base do outro</i>' : ''}</span><small>${esc(v.e.motivo || '')}</small></button>`).join('') : ''}
     ${pes.length ? `<div class="cz-k verde">ESTUDADO JUNTO COM VOCÊ</div>` + pes.map(v => `<button type="button" class="cz-lig pes" data-n="${v.n.id}"><span>${esc(v.n.nome)}</span><small>${plural(v.e.n, 'dia', 'dias')} em que você estudou os dois juntos</small></button>`).join('') : ''}
     <button class="btn est" id="cvEstudar" type="button" style="width:100%;margin-top:14px">${n.n_ev >= 1 ? 'Praticar este tema' : 'Conferir o que você sabe'}</button>`;
   box.classList.add('on'); box.scrollTop = 0;
+  mtSecao($('cvMat'), n.id, n.a && n.a.id, 'cerebro');
   $('cvFech').onclick = () => cerebroGal.selecionar(null);
   box.querySelectorAll('.cz-lig').forEach(b => b.onclick = () => { const m = cerebroGal.byId[b.dataset.n]; if (m) cerebroGal.selecionar(m); });
   const be = $('cvEstudar');
@@ -2467,7 +2534,7 @@ $('btnShare2').onclick = compartilharCerebro;
 // Efeito no motor: só o marcador "Visto" nos temas (e sai do "Ainda não estudei"). Não pinta, não agenda, não confere.
 // a chave 'aula_elite' fica no banco por compatibilidade; o rótulo é genérico porque o DOMINEI não é só para alunos do Elite (27/09)
 const RG_FONTES = [['aula_elite', 'Aula ou curso'], ['pdf', 'PDF ou apostila'], ['videoaula', 'Videoaula'], ['lei_seca', 'Lei seca'], ['questoes', 'Questões'], ['outro', 'Outro']];
-const RG_FONTE_ROT = Object.fromEntries(RG_FONTES);
+const RG_FONTE_ROT = Object.fromEntries(RG_FONTES); RG_FONTE_ROT.material = 'Material guardado';
 let rgRegs = [], rgSel = new Set(), rgQuandoSel = 'hoje', rgEnviando = false, rgAbertas = new Set();
 const semAcento = (t) => (t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const dataCurta = (iso) => { if (!iso) return ''; const [y, m, d] = String(iso).slice(0, 10).split('-'); return `${d}/${m}`; };
@@ -2495,6 +2562,7 @@ async function loadRegistrar() {
   if (error) { $('rgLista').innerHTML = `<div class="acaocard"><div class="m">${esc(humanizar(error.message))}</div><button class="btn" onclick="loadRegistrar()">Tentar de novo</button></div>`; return; }
   rgRegs = data || [];
   renderRegistrar();
+  mtCarregar(true).then(mtRenderLista).catch(() => { $('mtLista').innerHTML = ''; });
 }
 function rgLinha(t, regs, opts = {}) {
   const u = regs && regs[0];
@@ -2523,7 +2591,7 @@ function renderRegistrar() {
     const nomes = l.map(r => (mapa[r.node_id] || {}).t?.nome || 'Tema');
     const txt = nomes.length <= 2 ? nomes.join(' e ') : `${nomes.slice(0, 2).join(', ')} e mais ${nomes.length - 2}`;
     return `<div class="rg-rec"><div class="an">${esc(txt)}<small>${rgQuandoTxt(l[0])}${l[0].fonte ? ' · ' + RG_FONTE_ROT[l[0].fonte] : ''}</small></div>
-      <button type="button" data-lote="${l[0].lote}">desfazer</button></div>`; }).join('') : '';
+      ${l[0].fonte === 'material' ? '<span class="mt-rec">no seu caderno</span>' : `<button type="button" data-lote="${l[0].lote}">desfazer</button>`}</div>`; }).join('') : '';
   const q = semAcento($('rgBusca').value.trim());
   if (q.length >= 2) {
     const achados = ids.filter(id => semAcento(mapa[id].t.nome).includes(q) || semAcento(mapa[id].a.assunto).includes(q));
@@ -2600,6 +2668,236 @@ async function desfazerLote(lote) {
   const n = rgRegs.filter(r => r.lote === lote).length;
   rgRegs = rgRegs.filter(r => r.lote !== lote);
   tele('estudo_desfeito', { lote, temas: n }); toast(`Registro desfeito (${plural(n, 'tema', 'temas')}).`); renderRegistrar();
+}
+
+// ---------- MEU CADERNO (29/09/2026, fase A — pedido da equipe; decisão do Fábio) ----------
+// O aluno guarda resumo digitado, fotos do caderno ou PDF, sempre ligado a disciplina + assunto + temas (ele escolhe; nada é
+// lido por IA). Guardar registra o estudo dos temas → acende a LUZ DE ESTUDO (azul) no Cérebro. Não vira base de questão.
+// Arquivos no armazenamento privado (pasta do aluno); fotos comprimidas no aparelho antes de subir; limite de 1 GB por aluno.
+const MT_TIPO = { texto: 'Resumo digitado', foto: 'Fotos do caderno', pdf: 'PDF' };
+const MT_BUCKET = 'materiais-alunos', MT_MAX_FOTOS = 30, MT_MAX_BYTES = 15 * 1024 * 1024;
+let mtDados = null, mtCarregando = null, mtEstado = null, mtArquivos = [], mtEnviando = false, mtVerTodos = false;
+const mtTamanho = (b) => b >= 1048576 ? (b / 1048576).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round((b || 0) / 1024)) + ' KB';
+const mtData = (iso) => dataCurta(new Date(iso).toLocaleDateString('sv-SE'));
+// as mensagens das funções do caderno já são frases para o aluno; o resto passa pelo humanizar
+const mtErroTxt = (msg) => /Escolha ao menos|Escreva ou cole|Envie de 1 a 30|Envie um PDF|limite de 1 GB|Arquivo não encontrado|Tipo de arquivo não confere|Assunto fora do edital/i.test(msg || '')
+  ? String(msg) : humanizar(msg);
+async function mtCarregar(forcar) {
+  if (mtDados && !forcar && mtDados.edital === editalAtual.id) return mtDados;
+  if (mtCarregando && !forcar) return mtCarregando;
+  mtCarregando = (async () => {
+    const { data, error } = await sb.rpc('fn_materiais_meus', { p_edital: editalAtual.id });
+    mtCarregando = null; if (error) throw error;
+    mtDados = { ...data, edital: editalAtual.id }; return mtDados;
+  })();
+  return mtCarregando;
+}
+const mtDoTema = (nodeId) => (mtDados?.itens || []).filter(m => (m.temas || []).includes(nodeId));
+function mtItemHtml(m, compacto) {
+  const temas = rgTemas(), nomes = (m.temas || []).map(id => temas[id]?.t.nome).filter(Boolean);
+  const qual = m.tipo === 'foto' ? plural((m.arquivos || []).length, 'foto', 'fotos') : m.tipo === 'pdf' ? 'PDF' : 'resumo digitado';
+  const tit = m.titulo || (m.tipo === 'texto' ? (m.texto || '').replace(/\s+/g, ' ').slice(0, 70) : m.assunto);
+  const onde = compacto ? '' : `${esc(m.disciplina)} · `;
+  const quais = !compacto && nomes.length ? ` · ${esc(nomes.length === 1 ? nomes[0] : plural(nomes.length, 'tema', 'temas'))}` : '';
+  return `<button type="button" class="mt-item" data-mt="${m.id}"><span class="mt-ic mt-${m.tipo}" aria-hidden="true"></span>
+    <span class="an">${esc(tit)}<small>${onde}${qual} · ${mtData(m.created_at)}${quais}</small></span></button>`;
+}
+// lista da aba REGISTRAR
+function mtRenderLista() {
+  const box = $('mtLista'); if (!box) return;
+  if (!mtDados) { box.innerHTML = ''; return; }
+  const it = mtDados.itens || [];
+  box.innerHTML = it.length
+    ? `<div class="rg-sec">MEU CADERNO · ${plural(it.length, 'MATERIAL', 'MATERIAIS')}<span class="mt-uso">${mtTamanho(mtDados.bytes_usados || 0)} de 1 GB</span></div>` +
+      it.slice(0, mtVerTodos ? 500 : 5).map(m => mtItemHtml(m)).join('') +
+      (it.length > 5 && !mtVerTodos ? `<button type="button" class="ss-link" id="mtTodos">ver todos (${it.length})</button>` : '')
+    : `<p class="mt-vazio">Seu caderno ainda está vazio. Guarde aqui seus resumos (digitados ou fotos do caderno) e PDFs, cada um no assunto do edital. Eles acendem a luz de estudo no seu cérebro.</p>`;
+  box.querySelectorAll('[data-mt]').forEach(b => b.onclick = () => mtVer(b.dataset.mt));
+  const t = $('mtTodos'); if (t) t.onclick = () => { mtVerTodos = true; mtRenderLista(); };
+}
+// seção "Seus materiais" no cartão do tema (Cérebro) e no detalhe do tema (Meu edital)
+async function mtSecao(el, nodeId, assuntoId, origem) {
+  if (!el) return;
+  const pinta = () => {
+    const it = mtDoTema(nodeId);
+    el.innerHTML = `<div class="mt-k">SEUS MATERIAIS${it.length ? ' · ' + it.length : ''}</div>` + it.slice(0, 4).map(m => mtItemHtml(m, true)).join('') +
+      (it.length > 4 ? `<div class="mt-mais">e mais ${it.length - 4} na aba Registrar</div>` : '') +
+      `<button type="button" class="mt-add">＋ Guardar resumo, foto ou PDF deste tema</button>`;
+    el.querySelectorAll('[data-mt]').forEach(b => b.onclick = () => mtVer(b.dataset.mt));
+    el.querySelector('.mt-add').onclick = () => mtAbrir({ assunto_id: assuntoId, temas: [nodeId], origem });
+  };
+  if (mtDados && mtDados.edital === editalAtual.id) pinta();
+  else { el.innerHTML = ''; try { await mtCarregar(); if (el.isConnected) pinta(); } catch (e) { /* sem materiais agora: a seção fica oculta */ } }
+}
+// ---- guardar ----
+function mtAbrir(pre = {}) {
+  mtEstado = { tipo: pre.tipo || 'texto', assunto: pre.assunto_id || null, temas: new Set(pre.temas || []) };
+  mtArquivos = [];
+  const discs = rgDiscs(), disc = mtEstado.assunto ? discs.find(d => d.assuntos.some(a => a.assunto_id === mtEstado.assunto)) : null;
+  $('mtDisc').innerHTML = `<option value="">Escolha a disciplina</option>` +
+    discs.map(d => `<option value="${d.disciplina_id}"${disc && d.disciplina_id === disc.disciplina_id ? ' selected' : ''}>${esc(d.disciplina)}</option>`).join('');
+  mtAssuntos(mtEstado.temas.size ? 'manter' : 'todos');
+  $('mtTitulo').value = ''; $('mtErro').textContent = '';
+  mtTipo(mtEstado.tipo);
+  $('cvInfo') && $('cvInfo').classList.remove('on');
+  $('mtSheet').classList.add('on'); $('mtSheet').scrollTop = 0;
+  tele('material_abrir', { origem: pre.origem || 'registrar' });
+}
+function mtAssuntos(modoTemas) {
+  const d = rgDiscs().find(x => x.disciplina_id === $('mtDisc').value);
+  $('mtAss').innerHTML = d ? `<option value="">Escolha o assunto</option>` +
+    d.assuntos.map(a => `<option value="${a.assunto_id}"${a.assunto_id === mtEstado.assunto ? ' selected' : ''}>${esc(a.assunto)}</option>`).join('')
+    : '<option value="">Escolha a disciplina primeiro</option>';
+  $('mtAss').disabled = !d;
+  if (!d || !d.assuntos.some(a => a.assunto_id === mtEstado.assunto)) mtEstado.assunto = null;
+  mtTemas(modoTemas);
+}
+function mtTemas(modo) {
+  const a = rgDiscs().flatMap(d => d.assuntos).find(x => x.assunto_id === mtEstado.assunto);
+  if (!a) { $('mtTemasBox').style.display = 'none'; return; }
+  if (modo !== 'manter' || !mtEstado.temas.size) mtEstado.temas = new Set(a.topicos.map(t => t.node_id));
+  mtEstado.temas = new Set([...mtEstado.temas].filter(id => a.topicos.some(t => t.node_id === id)));
+  $('mtTemasBox').style.display = a.topicos.length > 1 ? 'block' : 'none';
+  $('mtTemas').innerHTML = a.topicos.map(t => `<button type="button" class="rg-row sub${mtEstado.temas.has(t.node_id) ? ' sel' : ''}" data-t="${t.node_id}" aria-pressed="${mtEstado.temas.has(t.node_id)}">
+      <span class="ck" aria-hidden="true"></span><span class="an">${esc(t.nome)}</span></button>`).join('');
+  $('mtTemas').querySelectorAll('[data-t]').forEach(b => b.onclick = () => {
+    const id = b.dataset.t; mtEstado.temas.has(id) ? mtEstado.temas.delete(id) : mtEstado.temas.add(id); mtTemas('manter'); });
+}
+$('mtDisc').onchange = () => { mtEstado.assunto = null; mtAssuntos('todos'); };
+$('mtAss').onchange = () => { mtEstado.assunto = $('mtAss').value || null; mtTemas('todos'); };
+function mtTipo(tipo) {
+  mtEstado.tipo = tipo; mtArquivos = []; $('mtErro').textContent = '';
+  document.querySelectorAll('#mtTipo button').forEach(b => b.classList.toggle('on', b.dataset.t === tipo));
+  const c = $('mtConteudo');
+  if (tipo === 'texto') {
+    c.innerHTML = `<div class="k-lbl rg-k">SEU RESUMO</div><textarea id="mtTexto" maxlength="60000" rows="9" placeholder="Escreva ou cole aqui o seu resumo"></textarea><div class="mt-cont" id="mtCont"></div>`;
+    $('mtTexto').oninput = () => { $('mtCont').textContent = `${$('mtTexto').value.length.toLocaleString('pt-BR')} de 60.000 caracteres`; };
+  } else {
+    c.innerHTML = `<div class="k-lbl rg-k">${tipo === 'foto' ? 'FOTOS <span>até 30 páginas</span>' : 'ARQUIVO PDF <span>até 15 MB</span>'}</div>
+      <label class="mt-arq"><input type="file" id="mtArq" ${tipo === 'foto' ? 'accept="image/*" multiple' : 'accept="application/pdf,.pdf"'}>
+        <span>${tipo === 'foto' ? 'Tirar ou escolher fotos' : 'Escolher o PDF'}</span></label><div class="mt-prev" id="mtPrev"></div>`;
+    $('mtArq').onchange = (e) => { mtEscolheu(e.target.files); e.target.value = ''; };
+  }
+}
+document.querySelectorAll('#mtTipo button').forEach(b => b.onclick = () => mtTipo(b.dataset.t));
+function mtEscolheu(files) {
+  const lista = [...(files || [])]; $('mtErro').textContent = '';
+  if (mtEstado.tipo === 'pdf') {
+    const f = lista[0]; if (!f) return;
+    if (f.type !== 'application/pdf' && !/\.pdf$/i.test(f.name)) { $('mtErro').textContent = 'Escolha um arquivo PDF.'; return; }
+    if (f.size > MT_MAX_BYTES) { $('mtErro').textContent = 'O PDF passa de 15 MB. Tente um arquivo menor.'; return; }
+    mtArquivos = [f];
+  } else {
+    const fotos = lista.filter(f => /^image\//.test(f.type) || /\.(heic|heif|jpe?g|png|webp)$/i.test(f.name));
+    if (lista.length && !fotos.length) $('mtErro').textContent = 'Escolha fotos (as do celular servem).';
+    mtArquivos = mtArquivos.concat(fotos);
+    if (mtArquivos.length > MT_MAX_FOTOS) { mtArquivos = mtArquivos.slice(0, MT_MAX_FOTOS); $('mtErro').textContent = 'Até 30 fotos por material: fiquei com as 30 primeiras.'; }
+  }
+  mtPrevia();
+}
+function mtPrevia() {
+  const p = $('mtPrev'); if (!p) return;
+  if (mtEstado.tipo === 'pdf') { p.innerHTML = mtArquivos[0] ? `<div class="mt-pdf">${esc(mtArquivos[0].name)} · ${mtTamanho(mtArquivos[0].size)}</div>` : ''; return; }
+  p.querySelectorAll('img').forEach(i => URL.revokeObjectURL(i.src));
+  p.innerHTML = mtArquivos.map((f, i) => `<div class="mt-th"><img alt="Página ${i + 1}" src="${URL.createObjectURL(f)}"><button type="button" data-rm="${i}" aria-label="Tirar a página ${i + 1}">×</button></div>`).join('');
+  p.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { mtArquivos.splice(+b.dataset.rm, 1); mtPrevia(); });
+}
+// foto do caderno: reduz para ~1800 px e JPEG no próprio aparelho (de ~3 MB para ~300 KB)
+async function mtComprimir(f) {
+  try {
+    const bmp = await createImageBitmap(f, { imageOrientation: 'from-image' });
+    const k = Math.min(1, 1800 / Math.max(bmp.width, bmp.height)), c = document.createElement('canvas');
+    c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height); if (bmp.close) bmp.close();
+    const b = await new Promise(r => c.toBlob(r, 'image/jpeg', .78)); if (b) return b;
+  } catch (e) { /* formato que o navegador não abre: envia o original se o armazenamento aceitar */ }
+  if (['image/jpeg', 'image/png', 'image/webp'].includes(f.type) && f.size <= MT_MAX_BYTES) return f;
+  throw new Error('Não consegui ler uma das fotos. Tire a foto de novo pelo botão.');
+}
+$('mtGuardar').onclick = async () => {
+  if (mtEnviando) return;
+  const E = mtEstado, erro = (m) => { $('mtErro').textContent = m; };
+  if (!E.assunto) return erro('Escolha a disciplina e o assunto.');
+  if (!E.temas.size) return erro('Deixe pelo menos um tema marcado.');
+  const texto = E.tipo === 'texto' ? $('mtTexto').value : null;
+  if (E.tipo === 'texto' && texto.trim().length < 3) return erro('Escreva ou cole o seu resumo.');
+  if (E.tipo !== 'texto' && !mtArquivos.length) return erro(E.tipo === 'foto' ? 'Escolha ao menos uma foto.' : 'Escolha o PDF.');
+  mtEnviando = true; const bt = $('mtGuardar'); bt.disabled = true; erro('');
+  const enviados = [];
+  try {
+    if (E.tipo !== 'texto') {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) throw new Error('Sua sessão expirou. Entre de novo para continuar.');
+      const pasta = `${session.user.id}/${crypto.randomUUID()}`;
+      for (let i = 0; i < mtArquivos.length; i++) {
+        bt.textContent = mtArquivos.length > 1 ? `Enviando ${i + 1} de ${mtArquivos.length}…` : 'Enviando…';
+        const blob = E.tipo === 'foto' ? await mtComprimir(mtArquivos[i]) : mtArquivos[i];
+        const tipo = E.tipo === 'pdf' ? 'application/pdf' : (blob.type || 'image/jpeg');
+        const ext = { 'application/pdf': 'pdf', 'image/png': 'png', 'image/webp': 'webp' }[tipo] || 'jpg';
+        const path = `${pasta}/${String(i + 1).padStart(2, '0')}.${ext}`;
+        const { error } = await sb.storage.from(MT_BUCKET).upload(path, blob, { contentType: tipo, upsert: false });
+        if (error) throw new Error(/size|large|exceed/i.test(error.message) ? 'Um arquivo passa de 15 MB.' : 'O envio falhou. Confira a internet e tente de novo.');
+        enviados.push(path);
+      }
+    }
+    bt.textContent = 'Guardando…';
+    const { data, error } = await sb.rpc('fn_material_guardar', { p_edital: editalAtual.id, p_assunto: E.assunto, p_temas: [...E.temas], p_tipo: E.tipo,
+      p_titulo: $('mtTitulo').value.trim() || null, p_texto: texto, p_arquivos: enviados.length ? enviados : null });
+    if (error) throw new Error(mtErroTxt(error.message));
+    if (mtDados && mtDados.edital === editalAtual.id) { mtDados.itens = [data, ...(mtDados.itens || [])]; mtDados.bytes_usados = (mtDados.bytes_usados || 0) + (data.bytes || 0); }
+    tele('material_guardado', { tipo: E.tipo, temas: E.temas.size, arquivos: enviados.length });
+    $('mtSheet').classList.remove('on');
+    toast(`Guardado no seu caderno. A luz de estudo acendeu em ${plural(E.temas.size, 'tema', 'temas')}.`);
+    mtDepoisDeMudar();
+  } catch (e) {
+    if (enviados.length) sb.storage.from(MT_BUCKET).remove(enviados).catch(() => {});
+    erro(e.message || 'Não consegui guardar. Tente de novo.');
+  } finally { mtEnviando = false; bt.disabled = false; bt.textContent = 'Guardar'; }
+};
+$('mtCancelar').onclick = () => $('mtSheet').classList.remove('on');
+$('mtNovo').onclick = () => mtAbrir({ origem: 'registrar' });
+function mtDepoisDeMudar() { // atualiza a tela aberta (lista, mapa e luz de estudo)
+  const v = document.querySelector('.view.on')?.id;
+  if (v === 'vRegistrar') loadRegistrar();
+  else if (v === 'vCerebroFull') loadCerebroFull();
+  else if (v === 'vMapa') loadMapa();
+}
+// ---- ver / excluir ----
+async function mtVer(id) {
+  const m = (mtDados?.itens || []).find(x => x.id === id); if (!m) return;
+  const temas = rgTemas(), nomes = (m.temas || []).map(i => temas[i]?.t.nome).filter(Boolean);
+  $('mtVerIn').innerHTML = `<div class="mt-bc">${esc(m.disciplina).toUpperCase()} · ${esc(m.assunto).toUpperCase()}</div>
+    <div class="n">${esc(m.titulo || MT_TIPO[m.tipo])}</div>
+    <div class="mt-meta">${m.titulo ? MT_TIPO[m.tipo] + ' · ' : ''}guardado em ${mtData(m.created_at)}${m.bytes ? ' · ' + mtTamanho(m.bytes) : ''}</div>
+    <div class="mt-temas">${nomes.map(x => `<span>${esc(x)}</span>`).join('')}</div>
+    <div class="mt-corpo" id="mtCorpo">${m.tipo === 'texto' ? `<div class="mt-leitura">${esc(m.texto || '')}</div>` : '<p class="mt-vazio">Abrindo…</p>'}</div>
+    <div class="mt-acts">${m.tipo === 'texto' ? '<button class="btn ghost" id="mtCopiar" type="button">Copiar texto</button>' : ''}
+      <button class="btn ghost mt-excluir" id="mtExcluir" type="button">Excluir material</button>
+      <button class="ss-link" id="mtFechar" type="button">Fechar</button></div>`;
+  $('cvInfo') && $('cvInfo').classList.remove('on');
+  $('mtVer').classList.add('on'); $('mtVer').scrollTop = 0;
+  $('mtFechar').onclick = () => $('mtVer').classList.remove('on');
+  if ($('mtCopiar')) $('mtCopiar').onclick = async () => { try { await navigator.clipboard.writeText(m.texto || ''); toast('Texto copiado.'); } catch (e) { toast('Não consegui copiar.'); } };
+  let conf = false;
+  $('mtExcluir').onclick = async () => {
+    if (!conf) { conf = true; $('mtExcluir').textContent = 'Toque de novo para excluir'; return; }
+    $('mtExcluir').disabled = true;
+    const { data, error } = await sb.rpc('fn_material_excluir', { p_id: m.id });
+    if (error) { toast('Não consegui excluir. Tente de novo.'); $('mtExcluir').disabled = false; return; }
+    const paths = (data && data.arquivos) || []; if (paths.length) await sb.storage.from(MT_BUCKET).remove(paths);
+    mtDados.itens = mtDados.itens.filter(x => x.id !== m.id); mtDados.bytes_usados = Math.max(0, (mtDados.bytes_usados || 0) - (m.bytes || 0));
+    tele('material_excluido', { tipo: m.tipo });
+    $('mtVer').classList.remove('on'); toast('Material excluído.'); mtDepoisDeMudar();
+  };
+  tele('material_aberto', { tipo: m.tipo });
+  if (m.tipo !== 'texto') {
+    const { data, error } = await sb.storage.from(MT_BUCKET).createSignedUrls((m.arquivos || []).map(a => a.path), 3600);
+    if (!$('mtCorpo')) return;
+    if (error || !data) { $('mtCorpo').innerHTML = '<p class="mt-vazio">Não consegui abrir agora. Tente de novo.</p>'; return; }
+    $('mtCorpo').innerHTML = m.tipo === 'pdf'
+      ? `<a class="btn" href="${data[0].signedUrl}" target="_blank" rel="noopener">Abrir o PDF</a>`
+      : data.map((d, i) => `<a href="${d.signedUrl}" target="_blank" rel="noopener"><img class="mt-pagina" alt="Página ${i + 1}" src="${d.signedUrl}" loading="lazy"></a>`).join('');
+  }
 }
 
 // compartilhar da Revelação: escondido até a 3.10 (imagem do cérebro, sem "% do edital mapeado")
