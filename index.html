@@ -2134,7 +2134,7 @@ class CerebroMapa {
     const k = this.sB * this.dpr, M = CER_MUNDO, { cel } = cerGrade(), GR = CER_GR, px = 1 / this.sB;
     const novo = () => { const c = document.createElement('canvas'); c.width = Math.max(1, Math.ceil((M.x1 - M.x0) * k)); c.height = Math.max(1, Math.ceil((M.y1 - M.y0) * k)); return c; };
     const base = novo(), b = base.getContext('2d'); b.setTransform(k, 0, 0, k, -M.x0 * k, -M.y0 * k);
-    b.save(); b.shadowColor = 'rgba(80,140,255,.55)'; b.shadowBlur = 26 * this.dpr * this.fs; b.fillStyle = '#081226'; [CER_PATH_TR, CER_PATH_CB, CER_PATH_C].forEach(p => b.fill(p)); b.restore();
+    b.save(); b.shadowColor = 'rgba(80,140,255,.55)'; b.shadowBlur = 26 * this.dpr * this.fs; b.fillStyle = '#081226'; b.fill(CER_PATH_C); b.restore(); // 30/09: sem cerebelo e tronco (pedido da equipe)
     const tint = novo(), t = tint.getContext('2d'); t.setTransform(k, 0, 0, k, -M.x0 * k, -M.y0 * k);
     this.gals.forEach(g => { if (!g.expl) return; t.fillStyle = g.tom; t.globalAlpha = .08 + .17 * g.frac; g.cel.forEach(c => t.fillRect(c.x - GR / 2 - .3, c.y - GR / 2 - .3, GR + .6, GR + .6)); });
     const tinta = novo(); { const tt = tinta.getContext('2d'); tt.filter = `blur(${Math.max(2.5 * this.dpr, GR * k * 1.3)}px)`; tt.drawImage(tint, 0, 0); }
@@ -2144,10 +2144,7 @@ class CerebroMapa {
       b.stroke(); }
     b.restore();
     b.strokeStyle = 'rgba(170,195,245,.26)'; b.lineWidth = 2 * px * this.fs; b.lineCap = 'round'; [CER_SYL, CER_CEN].forEach(p => b.stroke(cerPath(p, false)));
-    b.save(); b.clip(CER_PATH_CB); b.strokeStyle = 'rgba(165,190,240,.12)'; b.lineWidth = 1.2 * px * this.fs;
-    for (let i = 0; i < 9; i++) { b.beginPath(); b.ellipse(762, 560, 150 - i * 15, 72 - i * 6, -.08, Math.PI * .95, Math.PI * 2.05); b.stroke(); } b.restore();
-    b.save(); b.clip(CER_PATH_TR); b.strokeStyle = 'rgba(165,190,240,.1)'; b.lineWidth = 1.2 * px * this.fs; for (let i = 0; i < 4; i++) { b.beginPath(); b.moveTo(566 + i * 12, 548); b.lineTo(585 + i * 10, 700); b.stroke(); } b.restore();
-    b.strokeStyle = 'rgba(130,175,255,.6)'; b.lineWidth = 1.6 * px * this.fs; [CER_PATH_C, CER_PATH_CB, CER_PATH_TR].forEach(p => b.stroke(p));
+    b.strokeStyle = 'rgba(130,175,255,.6)'; b.lineWidth = 1.6 * px * this.fs; b.stroke(CER_PATH_C);
     this.baseC = base; this.tinta = tinta;
   }
   // disciplina aberta: o desenho da região ampliado, com os nomes curtos empurrados só o suficiente para não encostarem
@@ -2253,7 +2250,7 @@ class CerebroMapa {
   }
   contornoParcial(ctx, p) {
     ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    [CER_C_PTS, CER_CB_PTS].forEach((pts, qi) => { const pp = cosmoClamp(p * 1.15 - qi * .25); if (pp <= 0) return; const n = Math.floor(pts.length * pp); if (n < 2) return;
+    [CER_C_PTS].forEach((pts, qi) => { const pp = cosmoClamp(p * 1.15 - qi * .25); if (pp <= 0) return; const n = Math.floor(pts.length * pp); if (n < 2) return;
       ctx.beginPath(); pts.slice(0, n + 1).forEach(([x, y], i) => { const [sx, sy] = this.tela(x, y); i ? ctx.lineTo(sx, sy) : ctx.moveTo(sx, sy); });
       ctx.shadowColor = 'rgba(110,170,255,.95)'; ctx.shadowBlur = 16; ctx.strokeStyle = 'rgba(170,205,255,.95)'; ctx.lineWidth = 2; ctx.stroke();
       const [hx, hy] = this.tela(...pts[Math.min(n, pts.length - 1)]); ctx.shadowBlur = 0; ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(cosmoSprite('#CFE3FF'), hx - 16, hy - 16, 32, 32); ctx.globalCompositeOperation = 'source-over'; });
