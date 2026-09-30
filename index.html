@@ -2431,10 +2431,8 @@ async function loadCerebroFull() {
   cerebroGal.montar({ estrutura, porNode, ligacoes: lig });
   czTitulo('cerebro'); cerebroCard(null);
   cerebroGal.redimensionar(true); cerebroGal.iniciar();
-  // entrada animada na primeira abertura do dia (nas outras o cérebro já aparece aceso)
-  const hoje = new Date().toLocaleDateString('sv-SE'); let ja = null;
-  try { ja = localStorage.getItem('dominei_entrada_cerebro'); } catch (e) { /* armazenamento bloqueado: mostra a entrada */ }
-  if (ja !== hoje) { cerebroGal.entrada(3000); try { localStorage.setItem('dominei_entrada_cerebro', hoje); } catch (e) { /* sem armazenamento */ } }
+  // entrada animada em toda abertura do Cérebro (30/09, pedido do Fábio; toque pula; desligada com "reduzir movimento")
+  cerebroGal.entrada(3000);
   $('cvConqs').innerHTML = renderConquistas(cbDados);
   tele('cerebro_aberto', { avaliados: medidos.length, disciplinas_exploradas: cerebroGal.gals.filter(g => g.expl).length });
 }
