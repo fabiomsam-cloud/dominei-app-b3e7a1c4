@@ -1015,6 +1015,7 @@ async function boot() {
     const { data: est } = await sb.rpc('fn_edital_estrutura', { p_edital: alvo.id });
     estrutura = est || [];
     entrarModoAluno();
+    cerebroAquecer();
     return;
   }
   await mostrarHome();
@@ -1953,6 +1954,17 @@ const CER_SYL = cerCurva([[288,452],[360,428],[450,410],[540,392],[610,360]], fa
 const CER_MUNDO = { x0: 95, y0: 40, x1: 920, y1: 715 }, CER_GR = 5, CER_GX0 = 100, CER_GY0 = 45;
 const CER_NX = Math.ceil((920 - CER_GX0) / CER_GR), CER_NY = Math.ceil((570 - CER_GY0) / CER_GR);
 let cerGradeCache = null;
+function cerGradeDeMascara(b64) { // reconstrói a grade a partir da máscara guardada (mesmas células, mesma ordem)
+  const bin = atob(b64), cel = [], idx = new Int32Array(CER_NX * CER_NY).fill(-1);
+  for (let j = 0; j < CER_NY; j++) for (let i = 0; i < CER_NX; i++) { const q = j * CER_NX + i;
+    if (bin.charCodeAt(q >> 3) & (1 << (q & 7))) { idx[q] = cel.length; cel.push({ i, j, x: CER_GX0 + (i + .5) * CER_GR, y: CER_GY0 + (j + .5) * CER_GR }); } }
+  return { cel, idx };
+}
+function cerMascara() {
+  const { idx } = cerGrade(), u8 = new Uint8Array(Math.ceil(CER_NX * CER_NY / 8));
+  for (let q = 0; q < idx.length; q++) if (idx[q] >= 0) u8[q >> 3] |= 1 << (q & 7);
+  let bin = ''; for (let i = 0; i < u8.length; i++) bin += String.fromCharCode(u8[i]); return btoa(bin);
+}
 function cerGrade() { // células de 5 × 5 dentro do cérebro (uma vez só)
   if (cerGradeCache) return cerGradeCache;
   const tc = document.createElement('canvas').getContext('2d'), cel = [], idx = new Int32Array(CER_NX * CER_NY).fill(-1);
@@ -1961,6 +1973,17 @@ function cerGrade() { // células de 5 × 5 dentro do cérebro (uma vez só)
   return (cerGradeCache = { cel, idx });
 }
 // ruído suave por região: as divisas ficam onduladas como sulcos
+const CER_LAYOUTS = {}; // memória da sessão (e cópia no aparelho, abaixo)
+function cerLayoutLer(chave) {
+  if (CER_LAYOUTS[chave]) return CER_LAYOUTS[chave];
+  try { const j = localStorage.getItem('dominei_cerebro_' + chave); if (j) return (CER_LAYOUTS[chave] = JSON.parse(j)); } catch (e) { /* sem armazenamento: calcula */ }
+  return null;
+}
+function cerLayoutGravar(chave, obj) {
+  CER_LAYOUTS[chave] = obj;
+  try { Object.keys(localStorage).filter(k => k.startsWith('dominei_cerebro_') && k !== 'dominei_cerebro_' + chave).forEach(k => localStorage.removeItem(k));
+        localStorage.setItem('dominei_cerebro_' + chave, JSON.stringify(obj)); } catch (e) { /* sem armazenamento: fica só na memória */ }
+}
 const cerRuido = (x, y, k) => 520 * (Math.sin((x * .71 + y * .7) * .03 + k * 1.7) + Math.sin((x * .5 - y * .87) * .027 - k * 2.3) + .7 * Math.sin((x * .26 + y * .97) * .041 + k));
 
 class CerebroMapa {
@@ -2004,10 +2027,14 @@ class CerebroMapa {
     this.pesoTot = this.gals.reduce((s, g) => s + g.peso, 0) || 1;
     this.gals.forEach((g, i) => { g.tom = COSMO_TOM[i % COSMO_TOM.length]; g.expl = g.temas.filter(t => cosmoExpl(t.estado)).length;
       g.frac = g.expl / g.temas.length; g.pct = Math.round(100 * g.peso / this.pesoTot); });
-    if (this.gals.length) { this.regioes(); this.decidirNomes(); this.neuronios(); }
+    if (this.gals.length) {
+      const chave = this.chaveLayout();
+      if (!this.aplicarLayout(cerLayoutLer(chave))) { this.regioes(); this.decidirNomes(); this.neuronios(); cerLayoutGravar(chave, this.exportarLayout()); }
+    }
     this.ligar(ligacoes || {});
     this.modo = 'cerebro'; this.sel = null; this.selTema = null; this.fade = 0; this.fadeAlvo = 0; this.anim = null; this.intro = null;
     this.redimensionar(true);
+    this.prontoEm = performance.now(); // cliques anteriores a isto ficaram na fila durante a carga: ignorados
     return this;
   }
   // ligações do conteúdo e "estudados juntos": alimentam só o cartão do tema (não são desenhadas)
@@ -2029,12 +2056,15 @@ class CerebroMapa {
       for (let t = 0; t < 60; t++) { const c = livres[Math.floor(rng() * livres.length)], ds = sem.filter(Boolean).map(s => Math.hypot(s[0] - c.x, s[1] - c.y));
         const d = ds.length ? Math.min(...ds) : 1e9; if (d > bd) { bd = d; best = c; } }
       sem[k] = [best.x, best.y]; });
-    const w = new Array(n).fill(0), r = new Int16Array(cel.length);
+    const w = new Array(n).fill(0), r = new Int16Array(cel.length), N = cel.length;
+    const X = new Float64Array(N), Y = new Float64Array(N), NZ = new Float64Array(N * n), SX = new Float64Array(n), SY = new Float64Array(n);
+    for (let ci = 0; ci < N; ci++) { X[ci] = cel[ci].x; Y[ci] = cel[ci].y; for (let k = 0; k < n; k++) NZ[ci * n + k] = cerRuido(X[ci], Y[ci], k); }
     for (let it = 0; it < 90; it++) {
       const cnt = new Array(n).fill(0), sx = new Array(n).fill(0), sy = new Array(n).fill(0);
-      for (let ci = 0; ci < cel.length; ci++) { const c = cel[ci]; let b = 0, bv = 1e18;
-        for (let k = 0; k < n; k++) { const v = (c.x - sem[k][0]) ** 2 + (c.y - sem[k][1]) ** 2 - w[k] + cerRuido(c.x, c.y, k); if (v < bv) { bv = v; b = k; } }
-        r[ci] = b; cnt[b]++; sx[b] += c.x; sy[b] += c.y; }
+      for (let k = 0; k < n; k++) { SX[k] = sem[k][0]; SY[k] = sem[k][1]; }
+      for (let ci = 0; ci < N; ci++) { const x = X[ci], y = Y[ci], o = ci * n; let b = 0, bv = 1e18;
+        for (let k = 0; k < n; k++) { const dx = x - SX[k], dy = y - SY[k], v = dx * dx + dy * dy - w[k] + NZ[o + k]; if (v < bv) { bv = v; b = k; } }
+        r[ci] = b; cnt[b]++; sx[b] += x; sy[b] += y; }
       for (let k = 0; k < n; k++) { w[k] += .7 * (alvo[k] - cnt[k]) * CER_GR * CER_GR / Math.PI;
         if (cnt[k]) { const cx = sx[k] / cnt[k], cy = sy[k] / cnt[k], an = ancora[this.gals[k].nome];
           sem[k] = an ? [cx * .4 + an[0] * .6, cy * .4 + an[1] * .6] : [sem[k][0] * .5 + cx * .5, sem[k][1] * .5 + cy * .5]; } }
@@ -2085,10 +2115,46 @@ class CerebroMapa {
         const c = cand[bi]; esc.push(c); cand.forEach((o, i) => { md[i] = Math.min(md[i], Math.hypot(o.x - c.x, o.y - c.y)); }); }
       esc.sort((a, b) => Math.hypot(a.x - g.cx, a.y - g.cy) - Math.hypot(b.x - g.cx, b.y - g.cy));
       [...g.temas].sort((a, b) => b.peso - a.peso).forEach((t, k) => { const c = esc[k % esc.length]; t.bx = c.x + (rng() - .5) * 3; t.by = c.y + (rng() - .5) * 3; });
+      this.derivar(g);
+    });
+  }
+  derivar(g) {
+    {
       const rx = Math.max(8, ...g.temas.map(t => Math.abs(t.bx - g.cx))), ry = Math.max(8, ...g.temas.map(t => Math.abs(t.by - g.cy)));
       g.temas.forEach(t => { t.u = g.temas.length > 1 ? (t.bx - g.cx) / rx : 0; t.v = g.temas.length > 1 ? (t.by - g.cy) / ry : 0; t.rb = 1.7 + 2.3 * Math.sqrt(t.peso / .03); });
       g.arCer = cosmoArvore(g.temas, t => t.bx, t => t.by);
-    });
+    }
+  }
+  // ---- layout guardado: o desenho do cérebro só depende do edital; calcula uma vez e guarda no aparelho ----
+  chaveLayout() {
+    const sig = 'L1|' + this.gals.map(g => g.id + ':' + g.nome + ':' + g.peso.toFixed(6) + ':' + g.temas.map(t => t.id + '@' + t.peso.toFixed(6)).join(',')).join('|');
+    let h = 2166136261; for (let i = 0; i < sig.length; i++) { h ^= sig.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return (h >>> 0).toString(36) + sig.length.toString(36);
+  }
+  exportarLayout() {
+    const u8 = new Uint8Array(this.reg.buffer); let bin = '';
+    for (let i = 0; i < u8.length; i += 8192) bin += String.fromCharCode.apply(null, u8.subarray(i, i + 8192));
+    const d = {}, t = {};
+    this.gals.forEach(g => d[g.id] = { cx: g.cx, cy: g.cy, polo: g.polo, dentro: g.dentro, reserva: g.reserva, linhas: g.linhas });
+    this.temas.forEach(x => t[x.id] = [x.bx, x.by]);
+    return { v: 'L1', n: cerGrade().cel.length, reg: btoa(bin), m: cerMascara(), d, t };
+  }
+  aplicarLayout(c) {
+    try {
+      if (!c || c.v !== 'L1') return false;
+      if (!cerGradeCache && c.m) { const g = cerGradeDeMascara(c.m); if (g.cel.length === c.n) cerGradeCache = g; }
+      const { cel } = cerGrade(); if (c.n !== cel.length) return false;
+      const bin = atob(c.reg), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+      const reg = new Int16Array(u8.buffer); if (reg.length !== cel.length) return false;
+      if (this.gals.some(g => !c.d[g.id]) || this.temas.some(x => !c.t[x.id])) return false;
+      this.reg = reg;
+      const por = this.gals.map(() => []); for (let ci = 0; ci < cel.length; ci++) { const k = reg[ci]; if (por[k]) por[k].push({ x: cel[ci].x, y: cel[ci].y, d: 0, ci }); }
+      this.gals.forEach((g, k) => { const L = c.d[g.id]; g.cel = por[k].length ? por[k] : [{ x: 500, y: 300, d: 0, ci: -1 }];
+        g.cx = L.cx; g.cy = L.cy; g.polo = L.polo; g.dentro = L.dentro; g.reserva = L.reserva; g.linhas = L.linhas || [g.curto]; });
+      this.temas.forEach(x => { x.bx = c.t[x.id][0]; x.by = c.t[x.id][1]; });
+      this.gals.forEach(g => this.derivar(g));
+      return true;
+    } catch (e) { return false; }
   }
   // enquadramento do cérebro + nomes de fora (em cima/embaixo no celular, nas laterais no desktop e no story)
   telaB([x, y]) { return [(x - this.camB.x) * this.camB.s + this.W / 2, (y - this.camB.y) * this.camB.s + this.H / 2]; }
@@ -2212,6 +2278,7 @@ class CerebroMapa {
     if (this.anim) this.anim.c1 = c; else this.alvo = c;
   }
   tocar(e) {
+    if (this.prontoEm && e.timeStamp && e.timeStamp < this.prontoEm) return; // clique dado durante a carga
     if (this.intro) { this.intro = null; return; } // toque pula a entrada
     const r = this.cv.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
     if (this.modo === 'cerebro') {
@@ -2234,11 +2301,16 @@ class CerebroMapa {
     this.intro = { t0: performance.now(), k, ms };
   }
   luz(t, ti) { return this.intro ? cosmoClamp((ti - t.atraso) / 220) : 1; }
-  iniciar() { if (this.raf) return; const loop = () => { this.raf = requestAnimationFrame(loop); if (this.cv.offsetParent === null) return; this.quadro(); }; loop(); }
+  iniciar() { if (this.raf) return; let falhas = 0;
+    const loop = () => { this.raf = requestAnimationFrame(loop); if (this.cv.offsetParent === null) return;
+      try { this.quadro(); falhas = 0; } catch (e) { if (++falhas === 3) { registrarErro('cerebro_quadro: ' + e.message, e.stack); this.parar(); this.opts.onFalha && this.opts.onFalha(e); } } };
+    loop(); }
   parar() { if (this.raf) cancelAnimationFrame(this.raf); this.raf = null; }
   quadro() {
     if (!this.W) this.redimensionar(true); if (!this.W || !this.gals.length || !this.baseC) return;
     const T = performance.now(), dt = Math.min(100, T - (this.tq || T)); this.tq = T;
+    if (!this.leve && dt > 0 && (this.nq = (this.nq || 0) + 1) <= 90) { this.somaDt = (this.somaDt || 0) + dt;
+      if (this.nq >= 40 && this.somaDt / this.nq > 33) { this.leve = true; tele('cerebro_modo_leve', { ms_quadro: Math.round(this.somaDt / this.nq) }); } }
     if (this.anim) { const A = this.anim, p = galSemMov() ? 1 : cosmoClamp((T - A.t0) / A.ms), e = 1 - Math.pow(1 - p, 3), s = Math.exp(Math.log(A.c0.s) * (1 - e) + Math.log(A.c1.s) * e);
       const sx0 = (A.ax - A.c0.x) * A.c0.s, sy0 = (A.ay - A.c0.y) * A.c0.s, sx1 = (A.ax - A.c1.x) * A.c1.s, sy1 = (A.ay - A.c1.y) * A.c1.s;
       this.cam = { s, x: A.ax - (sx0 + (sx1 - sx0) * e) / s, y: A.ay - (sy0 + (sy1 - sy0) * e) / s }; if (p >= 1) { this.cam = { ...A.c1 }; this.alvo = { ...A.c1 }; this.anim = null; } }
@@ -2252,7 +2324,7 @@ class CerebroMapa {
     ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     [CER_C_PTS].forEach((pts, qi) => { const pp = cosmoClamp(p * 1.15 - qi * .25); if (pp <= 0) return; const n = Math.floor(pts.length * pp); if (n < 2) return;
       ctx.beginPath(); pts.slice(0, n + 1).forEach(([x, y], i) => { const [sx, sy] = this.tela(x, y); i ? ctx.lineTo(sx, sy) : ctx.moveTo(sx, sy); });
-      ctx.shadowColor = 'rgba(110,170,255,.95)'; ctx.shadowBlur = 16; ctx.strokeStyle = 'rgba(170,205,255,.95)'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.shadowColor = 'rgba(110,170,255,.95)'; ctx.shadowBlur = this.leve ? 0 : 16; ctx.strokeStyle = 'rgba(170,205,255,.95)'; ctx.lineWidth = 2; ctx.stroke();
       const [hx, hy] = this.tela(...pts[Math.min(n, pts.length - 1)]); ctx.shadowBlur = 0; ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(cosmoSprite('#CFE3FF'), hx - 16, hy - 16, 32, 32); ctx.globalCompositeOperation = 'source-over'; });
     ctx.restore();
   }
@@ -2264,7 +2336,7 @@ class CerebroMapa {
     if (aBase > .01) { const M = CER_MUNDO, [x0, y0] = this.tela(M.x0, M.y0), [x1, y1] = this.tela(M.x1, M.y1);
       ctx.globalAlpha = aBase; ctx.drawImage(this.baseC, x0, y0, x1 - x0, y1 - y0);
       const aT = cosmoClamp((ti - 1250 * k) / (1500 * k)) * (1 - .9 * fade); if (this.tinta && aT > .01) { ctx.globalAlpha = aBase * aT; ctx.drawImage(this.tinta, x0, y0, x1 - x0, y1 - y0); }
-      if (!sm) { // respiração: o contorno pulsa de leve
+      if (!sm && !this.leve) { // respiração: o contorno pulsa de leve (desligada no modo leve)
         ctx.globalAlpha = aBase * (.18 + .12 * Math.sin(t * 1.3)) * (1 - fade); ctx.save();
         ctx.setTransform(this.dpr * this.cam.s, 0, 0, this.dpr * this.cam.s, this.dpr * (W / 2 - this.cam.x * this.cam.s), this.dpr * (H / 2 - this.cam.y * this.cam.s));
         ctx.shadowColor = 'rgba(100,160,255,1)'; ctx.shadowBlur = 18 * this.dpr; ctx.strokeStyle = 'rgba(150,195,255,.9)'; ctx.lineWidth = 1.4 / this.cam.s; ctx.stroke(CER_PATH_C); ctx.restore(); }
@@ -2280,7 +2352,7 @@ class CerebroMapa {
           if (ok) { const gr = ctx.createLinearGradient(x1, y1, x2, y2); gr.addColorStop(0, COSMO_COR[p.estado]); gr.addColorStop(1, COSMO_COR[q.estado]); ctx.strokeStyle = gr;
             ctx.globalAlpha = aG * al * (ab ? .22 : .2); ctx.lineWidth = (ab ? 7 : 4) * fs; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
             ctx.globalAlpha = aG * al * (ab ? .95 : .85); ctx.lineWidth = (ab ? 2.2 : 1.3) * fs; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-            if (!sm) { const u = ((t * (ab ? .32 : .25) + cosmoHash(p.id + q.id)) % 1), px = x1 + (x2 - x1) * u, py = y1 + (y2 - y1) * u, z = ab ? 11 : 6;
+            if (!sm && !this.leve) { const u = ((t * (ab ? .32 : .25) + cosmoHash(p.id + q.id)) % 1), px = x1 + (x2 - x1) * u, py = y1 + (y2 - y1) * u, z = ab ? 11 : 6;
               ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = aG * al * Math.sin(Math.PI * u); ctx.drawImage(cosmoSprite('#FFFFFF'), px - z, py - z, z * 2, z * 2); ctx.globalCompositeOperation = 'source-over'; }
           } else { const est = (p.visto || cosmoExpl(p.estado)) && (q.visto || cosmoExpl(q.estado)); // os dois estudados: linha azulada
             ctx.globalAlpha = aG * al * (ab ? .55 : .32) * aparece * (est ? 1.35 : 1); ctx.strokeStyle = est ? '#6C9BDA' : '#6F7E99'; ctx.lineWidth = (ab ? 1.4 : .9) * fs; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); } });
@@ -2400,7 +2472,20 @@ async function revelarGalaxia(porNode) { // Revelação: o cérebro do aluno ace
   revGal.entrada(3000); revGal.iniciar();
 }
 
+function cerebroAquecer() { // o aluno ainda está na HOJE: o cérebro fica pronto antes do 1º toque em Cérebro
+  const vai = async () => { try { if (!estrutura || !estrutura.length) return;
+    if (document.fonts) await Promise.race([document.fonts.load("800 11.5px 'Archivo'"), new Promise(r => setTimeout(r, 3000))]); // nomes medidos com a fonte certa
+    const m = new CerebroMapa(document.createElement('canvas'), {}); m.montar({ estrutura, porNode: {}, ligacoes: {} }); m.ro.disconnect();
+  } catch (e) { /* se falhar aqui, a tela do Cérebro calcula na hora e registra o erro */ } };
+  const quando = window.requestIdleCallback ? (f) => requestIdleCallback(f, { timeout: 5000 }) : (f) => setTimeout(f, 2000);
+  setTimeout(() => quando(vai), 1500);
+}
+function cerebroFalhou(e) { // nunca tela parada: explica e leva ao Meu edital
+  $('czSub').innerHTML = 'Não consegui desenhar seu cérebro neste aparelho agora. Seus temas estão em <a href="#" id="czIrEdital">Meu edital</a>.';
+  const a = $('czIrEdital'); if (a) a.onclick = (ev) => { ev.preventDefault(); irTab('vMapa'); };
+}
 async function loadCerebroFull() {
+  if (!cerebroGal) $('czSub').textContent = 'Acendendo seu cérebro…';
   const [{ data: mapa, error: e1 }, { data: home }, lig] = await Promise.all([
     sb.rpc('fn_meu_mapa', { p_edital: editalAtual.id }),
     sb.rpc('fn_home', { p_edital: editalAtual.id }),
@@ -2427,10 +2512,14 @@ async function loadCerebroFull() {
     base: () => $('czLegenda').offsetHeight + 16,
     direita: () => czCelular() ? 0 : 380,                                   // no desktop o cartão do tema fica à direita
     ocupadoBaixo: () => czCelular() && $('cvInfo').classList.contains('on') ? $('cvInfo').offsetHeight : 0,
-    onModo: czTitulo, onTema: cerebroCard });
-  cerebroGal.montar({ estrutura, porNode, ligacoes: lig });
-  czTitulo('cerebro'); cerebroCard(null);
-  cerebroGal.redimensionar(true); cerebroGal.iniciar();
+    onModo: czTitulo, onTema: cerebroCard, onFalha: cerebroFalhou });
+  try {
+    await new Promise(r => requestAnimationFrame(() => setTimeout(r, 0))); // deixa a tela pintar antes de calcular
+    if (document.fonts) { try { await Promise.race([document.fonts.load("800 11.5px 'Archivo'"), new Promise(r => setTimeout(r, 1500))]); await document.fonts.ready; } catch (e) { /* segue com a fonte que houver */ } }
+    cerebroGal.montar({ estrutura, porNode, ligacoes: lig });
+    czTitulo('cerebro'); cerebroCard(null);
+    cerebroGal.redimensionar(true); cerebroGal.iniciar();
+  } catch (e) { registrarErro('cerebro_montar: ' + e.message, e.stack); cerebroFalhou(e); return; }
   // entrada animada em toda abertura do Cérebro (30/09, pedido do Fábio; toque pula; desligada com "reduzir movimento")
   cerebroGal.entrada(3000);
   $('cvConqs').innerHTML = renderConquistas(cbDados);
