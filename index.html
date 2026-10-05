@@ -683,14 +683,13 @@ body.rg-barra-on main { padding-bottom:170px; }
         <p class="lead au-promessa" style="margin-top:0">Saiba o que estudar hoje, entenda seus erros e revise o que precisa consolidar.</p>
       </div>
       <div class="au-alvo" id="auAlvo"><div class="k-lbl">SEU CONCURSO</div><div class="au-alvo-n">PRF · Policial Rodoviário Federal</div><div class="au-alvo-v"></div></div>
-      <div class="k-lbl" style="color:var(--dim);margin-top:18px">O QUE ACONTECE AGORA</div>
-      <ol class="au-passos">
-        <li><b>Você cria sua conta.</b> Nome, e-mail e senha.</li>
-        <li><b>Faz um teste de até 20 questões.</b> Sem correção durante o teste.</li>
-        <li><b>Vê o mapa do seu cérebro</b> e suas três prioridades, com o motivo de cada uma.</li>
-      </ol>
-      <p class="au-regra">O diagnóstico é grátis. O dia a dia (sessões guiadas, explicações e revisões na hora certa) faz parte do convite do beta.</p>
-      <button class="btn" id="btnQuero">Descobrir meu mapa</button>
+      <p class="au-regra">O DOMINEI está em fase fechada: por enquanto, o acesso é só por convite.</p>
+      <button class="btn" id="btnQuero">Entrar</button>
+    </div>
+    <div class="card" id="auFechado" style="display:none">
+      <div class="au-form-t">Acesso fechado por enquanto</div>
+      <p class="au-regra" id="auFechadoTxt">Sua conta ainda não tem acesso. O DOMINEI está em fase fechada, só por convite.</p>
+      <button class="btn ghost" id="btnFechadoSair" type="button">Sair da conta</button>
     </div>
     <div class="card" id="auForm" style="display:none">
       <div class="au-form-t" id="auTitulo">Criar minha conta</div>
@@ -1004,6 +1003,8 @@ const esc = (s) => (s ?? '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','
 async function boot() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { mostrarEntrada(); return; }
+  const { data: acesso, error: eAc } = await sb.rpc('fn_app_acesso');
+  if (eAc || !acesso || !acesso.liberado) { mostrarFechado(eAc); return; } // fase fechada (05/10): fora da lista não entra
   tele.flush();
   $('btnSair').style.display = 'block';
   await carregarEditais();
@@ -1019,6 +1020,17 @@ async function boot() {
     return;
   }
   await mostrarHome();
+}
+// ---------- fase fechada (05/10/2026): conta sem liberação vê o aviso e sai ----------
+async function mostrarFechado(erro) {
+  show('vAuth');
+  $('auLanding').style.display = 'none'; $('auForm').style.display = 'none'; $('lnkEntrarTopo').style.display = 'none';
+  $('auFechado').style.display = 'block';
+  $('auFechadoTxt').textContent = erro ? 'Não consegui confirmar seu acesso agora. Confira sua internet e tente de novo.'
+    : 'Sua conta ainda não tem acesso. O DOMINEI está em fase fechada, só por convite.';
+  $('btnFechadoSair').textContent = erro ? 'Tentar de novo' : 'Sair da conta';
+  $('btnFechadoSair').onclick = async () => { if (erro) { location.reload(); return; } await sb.auth.signOut(); location.reload(); };
+  tele('acesso_fechado', { erro: !!erro });
 }
 // ---------- entrada (4.1/4.2): promessa → o que acontece → regra → conta ----------
 let modoAuth = 'cadastro';
@@ -1045,18 +1057,18 @@ function abrirForm(modo) {
   $('senha').placeholder = cad ? 'mínimo de 6 caracteres' : '••••••••';
   $('btnEntrar').textContent = cad ? 'Criar conta e começar' : 'Entrar';
   $('authMsg').textContent = ''; $('authMsg').style.color = '';
-  $('auAlt').innerHTML = cad ? 'Já tem conta? <a href="#" id="lnkModo">Entrar</a>' : 'Primeira vez aqui? <a href="#" id="lnkModo">Criar minha conta</a>';
-  $('lnkModo').onclick = (ev) => { ev.preventDefault(); abrirForm(cad ? 'login' : 'cadastro'); };
+  $('auAlt').innerHTML = 'O acesso ao DOMINEI está fechado: só contas convidadas entram.'; // sem "Criar minha conta" (05/10)
   (cad ? $('nome') : $('email')).focus();
   $('auForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-$('btnQuero').onclick = () => { tele('entrada_quero'); abrirForm('cadastro'); };
+$('btnQuero').onclick = () => { tele('entrada_quero'); abrirForm('login'); }; // fase fechada (05/10): só entrar
 $('lnkEntrarTopo').onclick = () => abrirForm('login');
 // dicionário humano para os erros do Auth (nunca a mensagem crua do Supabase)
 function humanizarAuth(err) {
   const m = String((err && err.message) || err || '');
   const d = [
     [/invalid login credentials/i, 'E-mail ou senha incorretos.'],
+    [/cadastro_fechado|database error saving new user/i, 'O DOMINEI está em fase fechada: novas contas só por convite.'],
     [/email not confirmed/i, 'Falta confirmar seu e-mail: abra o link que enviamos (veja também o spam).'],
     [/already registered|already been registered|user already exists/i, 'Este e-mail já tem conta. Toque em "Entrar".'],
     [/password should be at least|password.*(short|length)|weak password/i, 'A senha precisa ter pelo menos 6 caracteres.'],
