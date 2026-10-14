@@ -507,6 +507,18 @@ body.rg-barra-on main { padding-bottom:170px; }
 .mt-ic.mt-texto, .mt-ic.mt-foto { background-repeat:no-repeat; background-position:center; background-size:17px; }
 .mt-ic.mt-texto { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A9CBF5' stroke-width='1.8' stroke-linecap='round'%3E%3Crect x='5' y='3' width='14' height='18' rx='2'/%3E%3Cpath d='M9 8h6M9 12h6M9 16h4'/%3E%3C/svg%3E"); }
 .mt-ic.mt-foto { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A9CBF5' stroke-width='1.8' stroke-linejoin='round'%3E%3Cpath d='M4 8h3l2-3h6l2 3h3v11H4z'/%3E%3Ccircle cx='12' cy='13' r='3.5'/%3E%3C/svg%3E"); }
+.mt-ic.mt-capa { background-size:cover; background-position:center top; }
+.mt-ic.mt-capa[style] { background-image:none; } .mt-ic.mt-capa[style*="url"]::after { content:none; }
+.mt-tools { margin:8px 0 2px; }
+.mt-tools input[type=search] { width:100%; min-height:42px; background:#0A1322; border:1px solid var(--line); border-radius:10px; color:var(--text); font-family:inherit; font-size:14px; padding:8px 12px; }
+.mt-chips { display:flex; gap:6px; margin-top:8px; align-items:center; flex-wrap:wrap; }
+.mt-chips button { background:none; border:1px solid var(--line); color:var(--dim); border-radius:20px; padding:5px 10px; font-size:12px; font-weight:700; font-family:inherit; min-height:32px; cursor:pointer; }
+.mt-chips button.on { color:var(--text); border-color:#7FB8FF; background:rgba(127,184,255,.12); } .mt-chips button i { font-style:normal; font-weight:400; opacity:.75; margin-left:3px; }
+.mt-chips select { margin-left:auto; background:#0A1322; border:1px solid var(--line); color:var(--dim); border-radius:20px; padding:5px 8px; font-size:12px; font-family:inherit; min-height:32px; }
+.mt-recentes .mt-item { margin-bottom:6px; }
+.mt-ass { display:flex; align-items:center; justify-content:space-between; font-size:11.5px; font-weight:700; letter-spacing:.04em; color:#A9CBF5; margin:12px 2px 6px; text-transform:uppercase; }
+.mt-ass i { font-style:normal; color:var(--dim); font-weight:400; }
+.rg-disc .rg-in .mt-item { margin-left:0; }
 .mt-sheet { max-height:92dvh; overflow-y:auto; }
 .mt-sheet select, #mtTitulo, #mtTexto { width:100%; min-height:44px; background:#0A1322; border:1px solid var(--line); border-radius:10px; color:var(--text); font-family:inherit; font-size:15px; padding:10px 12px; }
 .mt-sheet select:disabled { opacity:.5; }
@@ -2802,37 +2814,77 @@ async function mtCarregar(forcar) {
   return mtCarregando;
 }
 const mtDoTema = (nodeId) => (mtDados?.itens || []).filter(m => (m.temas || []).includes(nodeId));
-function mtItemHtml(m, compacto) {
+const mtCapaUrl = {}; // caminho da capa → link temporário (1 h)
+function mtTitulo(m) { return m.titulo || (m.tipo === 'texto' ? (m.texto || '').replace(/\s+/g, ' ').slice(0, 70) : `${m.tipo === 'pdf' ? 'PDF' : 'Fotos'} · ${m.assunto}`); }
+function mtItemHtml(m, modo = 'completo') { // 'completo' (disciplina · assunto), 'assunto' (dentro da pasta: só os temas), 'compacto' (cartão do tema)
   const temas = rgTemas(), nomes = (m.temas || []).map(id => temas[id]?.t.nome).filter(Boolean);
   const qual = m.tipo === 'foto' ? plural((m.arquivos || []).length, 'foto', 'fotos') : m.tipo === 'pdf' ? 'PDF' : 'resumo digitado';
-  const tit = m.titulo || (m.tipo === 'texto' ? (m.texto || '').replace(/\s+/g, ' ').slice(0, 70) : m.assunto);
-  const onde = compacto ? '' : `${esc(m.disciplina)} · `;
-  const quais = !compacto && nomes.length ? ` · ${esc(nomes.length === 1 ? nomes[0] : plural(nomes.length, 'tema', 'temas'))}` : '';
-  return `<button type="button" class="mt-item" data-mt="${m.id}"><span class="mt-ic mt-${m.tipo}" aria-hidden="true"></span>
-    <span class="an">${esc(tit)}<small>${onde}${qual} · ${mtData(m.created_at)}${quais}</small></span></button>`;
+  const onde = modo === 'completo' ? `${esc(m.disciplina)} · ${esc(m.assunto)} · ` : '';
+  const quais = modo !== 'compacto' && nomes.length ? ` · ${esc(nomes.length === 1 ? nomes[0] : plural(nomes.length, 'tema', 'temas'))}` : '';
+  const capa = m.capa && mtCapaUrl[m.capa] ? ` style="background-image:url('${mtCapaUrl[m.capa]}')"` : '';
+  return `<button type="button" class="mt-item" data-mt="${m.id}"><span class="mt-ic mt-${m.tipo}${m.capa ? ' mt-capa' : ''}" data-capa="${m.capa || ''}"${capa} aria-hidden="true"></span>
+    <span class="an">${esc(mtTitulo(m))}<small>${onde}${qual} · ${mtData(m.created_at)}${quais}</small></span></button>`;
 }
-// lista da aba REGISTRAR
+// capas: pede os links temporários só das que estão na tela e ainda não têm link
+async function mtPintarCapas(raiz) {
+  const els = [...(raiz || document).querySelectorAll('.mt-ic.mt-capa[data-capa]')];
+  const faltam = [...new Set(els.map(e => e.dataset.capa).filter(c => c && !mtCapaUrl[c]))];
+  if (faltam.length) { try { const { data } = await sb.storage.from(MT_BUCKET).createSignedUrls(faltam, 3600);
+    (data || []).forEach(d => { if (d.signedUrl) mtCapaUrl[d.path || faltam[data.indexOf(d)]] = d.signedUrl; }); } catch (e) { /* fica o ícone */ } }
+  els.forEach(e => { const u = mtCapaUrl[e.dataset.capa]; if (u && !e.style.backgroundImage) e.style.backgroundImage = `url('${u}')`; });
+}
+// lista da aba REGISTRAR — o caderno espelha o edital (14/10): disciplina → assunto → materiais; recentes no topo; busca; filtro; ordem
+let mtBusca = '', mtFiltro = 'todos', mtOrdem = 'disciplina', mtAbertas = new Set(), mtLimite = 60;
+const mtBate = (m, q) => { // cada palavra da busca precisa aparecer em algum campo ("lei 8.112" acha "Lei nº 8.112/1990")
+  const t = rgTemas(), campos = [mtTitulo(m), m.titulo, m.texto, m.disciplina, m.assunto, ...(m.temas || []).map(id => t[id]?.t.nome)].filter(Boolean).map(semAcento).join(' \n ');
+  return q.split(/\s+/).filter(Boolean).every(w => campos.includes(w)); };
 function mtRenderLista() {
   const box = $('mtLista'); if (!box) return;
   if (!mtDados) { box.innerHTML = ''; return; }
-  const it = mtDados.itens || [];
-  box.innerHTML = it.length
-    ? `<div class="rg-sec">MEU CADERNO · ${plural(it.length, 'MATERIAL', 'MATERIAIS')}<span class="mt-uso">${mtTamanho(mtDados.bytes_usados || 0)} de 1 GB</span></div>` +
-      it.slice(0, mtVerTodos ? 500 : 5).map(m => mtItemHtml(m)).join('') +
-      (it.length > 5 && !mtVerTodos ? `<button type="button" class="ss-link" id="mtTodos">ver todos (${it.length})</button>` : '')
-    : `<p class="mt-vazio">Seu caderno ainda está vazio. Guarde aqui seus resumos (digitados ou fotos do caderno) e PDFs, cada um no assunto do edital. Eles acendem a luz de estudo no seu cérebro.</p>`;
+  const tudo = mtDados.itens || [];
+  if (!tudo.length) { box.innerHTML = `<p class="mt-vazio">Seu caderno ainda está vazio. Guarde aqui seus resumos (digitados ou fotos do caderno) e PDFs, cada um no assunto do edital. Eles acendem a luz de estudo no seu cérebro.</p>`; return; }
+  const q = semAcento(mtBusca.trim());
+  let it = tudo.filter(m => mtFiltro === 'todos' || m.tipo === mtFiltro);
+  if (q.length >= 2) it = it.filter(m => mtBate(m, q));
+  const nTipo = (t) => tudo.filter(m => m.tipo === t).length;
+  let html = `<div class="rg-sec">MEU CADERNO · ${plural(tudo.length, 'MATERIAL', 'MATERIAIS')}<span class="mt-uso">${mtTamanho(mtDados.bytes_usados || 0)} de 1 GB</span></div>
+    <div class="mt-tools"><input type="search" id="mtBuscaIn" placeholder="Buscar no caderno (título, texto, disciplina, tema)…" value="${esc(mtBusca)}" autocomplete="off" aria-label="Buscar no caderno">
+      <div class="mt-chips">${[['todos', 'Todos', tudo.length], ['texto', 'Textos', nTipo('texto')], ['foto', 'Fotos', nTipo('foto')], ['pdf', 'PDFs', nTipo('pdf')]]
+        .map(([k, l, n]) => `<button type="button" data-f="${k}" class="${mtFiltro === k ? 'on' : ''}">${l} <i>${n}</i></button>`).join('')}
+        <select id="mtOrdemSel" aria-label="Ordem"><option value="disciplina"${mtOrdem === 'disciplina' ? ' selected' : ''}>Por disciplina</option><option value="recentes"${mtOrdem === 'recentes' ? ' selected' : ''}>Mais recentes</option></select></div></div>`;
+  if (q.length >= 2 || mtOrdem === 'recentes') { // lista corrida (busca ou "mais recentes")
+    html += `<div class="rg-sec" style="margin-top:12px">${q.length >= 2 ? plural(it.length, 'MATERIAL ENCONTRADO', 'MATERIAIS ENCONTRADOS') : 'MAIS RECENTES'}</div>` +
+      (it.slice(0, mtLimite).map(m => mtItemHtml(m, 'completo')).join('') || '<p class="mt-vazio">Nada com esse nome no seu caderno.</p>') +
+      (it.length > mtLimite ? `<button type="button" class="ss-link" id="mtMais">ver mais (${it.length - mtLimite})</button>` : '');
+  } else { // por disciplina, na ordem do edital, tudo recolhido (recentes no topo)
+    if (tudo.length > 3) html += `<div class="rg-sec" style="margin-top:12px">RECENTES</div><div class="mt-recentes">${tudo.slice(0, 3).map(m => mtItemHtml(m, 'completo')).join('')}</div>`;
+    html += `<div class="rg-sec" style="margin-top:14px">POR DISCIPLINA</div>`;
+    rgDiscs().forEach(d => { const dm = it.filter(m => m.disciplina_id === d.disciplina_id); if (!dm.length) return;
+      const ass = d.assuntos.filter(a => dm.some(m => m.assunto_id === a.assunto_id));
+      html += `<details class="rg-disc" data-d="${d.disciplina_id}"${mtAbertas.has(d.disciplina_id) ? ' open' : ''}>
+        <summary><span class="dn">${esc(d.disciplina)}</span><span class="dc">${plural(dm.length, 'material', 'materiais')} · ${plural(ass.length, 'assunto', 'assuntos')}</span></summary>
+        <div class="rg-in">${ass.map(a => { const am = dm.filter(m => m.assunto_id === a.assunto_id);
+          return `<div class="mt-ass"><span>${esc(a.assunto)}</span><i>${am.length}</i></div>` + am.map(m => mtItemHtml(m, 'assunto')).join(''); }).join('')}</div></details>`; });
+  }
+  box.innerHTML = html;
   box.querySelectorAll('[data-mt]').forEach(b => b.onclick = () => mtVer(b.dataset.mt));
-  const t = $('mtTodos'); if (t) t.onclick = () => { mtVerTodos = true; mtRenderLista(); };
+  box.querySelectorAll('.rg-disc').forEach(el => el.ontoggle = () => { el.open ? mtAbertas.add(el.dataset.d) : mtAbertas.delete(el.dataset.d); if (el.open) mtPintarCapas(el); });
+  box.querySelectorAll('.mt-chips [data-f]').forEach(b => b.onclick = () => { mtFiltro = b.dataset.f; mtRenderLista(); });
+  const o = $('mtOrdemSel'); if (o) o.onchange = () => { mtOrdem = o.value; mtLimite = 60; mtRenderLista(); };
+  const m = $('mtMais'); if (m) m.onclick = () => { mtLimite += 60; mtRenderLista(); };
+  const bi = $('mtBuscaIn'); if (bi) { let t = null; bi.oninput = () => { clearTimeout(t); t = setTimeout(() => { const pos = bi.selectionStart; mtBusca = bi.value; mtLimite = 60; mtRenderLista();
+    const n = $('mtBuscaIn'); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) {} } }, 200); }; }
+  mtPintarCapas(box);
 }
 // seção "Seus materiais" no cartão do tema (Cérebro) e no detalhe do tema (Meu edital)
 async function mtSecao(el, nodeId, assuntoId, origem) {
   if (!el) return;
   const pinta = () => {
     const it = mtDoTema(nodeId);
-    el.innerHTML = `<div class="mt-k">SEUS MATERIAIS${it.length ? ' · ' + it.length : ''}</div>` + it.slice(0, 4).map(m => mtItemHtml(m, true)).join('') +
+    el.innerHTML = `<div class="mt-k">SEUS MATERIAIS${it.length ? ' · ' + it.length : ''}</div>` + it.slice(0, 4).map(m => mtItemHtml(m, 'compacto')).join('') +
       (it.length > 4 ? `<div class="mt-mais">e mais ${it.length - 4} na aba Registrar</div>` : '') +
       `<button type="button" class="mt-add">＋ Guardar resumo, foto ou PDF deste tema</button>`;
-    el.querySelectorAll('[data-mt]').forEach(b => b.onclick = () => mtVer(b.dataset.mt));
+    el.querySelectorAll('[data-mt]').forEach(b => b.onclick = () => mtVer(b.dataset.mt)); mtPintarCapas(el);
     el.querySelector('.mt-add').onclick = () => mtAbrir({ assunto_id: assuntoId, temas: [nodeId], origem });
   };
   if (mtDados && mtDados.edital === editalAtual.id) pinta();
@@ -2912,6 +2964,13 @@ function mtPrevia() {
   p.innerHTML = mtArquivos.map((f, i) => `<div class="mt-th"><img alt="Página ${i + 1}" src="${URL.createObjectURL(f)}"><button type="button" data-rm="${i}" aria-label="Tirar a página ${i + 1}">×</button></div>`).join('');
   p.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { mtArquivos.splice(+b.dataset.rm, 1); mtPrevia(); });
 }
+// miniatura para a lista: 160 px de largura, JPEG leve
+async function mtMiniatura(blob) {
+  const bmp = await createImageBitmap(blob); const k = Math.min(1, 160 / bmp.width), c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(bmp.width * k)); c.height = Math.max(1, Math.round(bmp.height * k));
+  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height); if (bmp.close) bmp.close();
+  const m = await new Promise(r => c.toBlob(r, 'image/jpeg', .7)); if (!m) throw new Error('sem miniatura'); return m;
+}
 // foto do caderno: reduz para ~1800 px e JPEG no próprio aparelho (de ~3 MB para ~300 KB)
 async function mtComprimir(f) {
   try {
@@ -2933,7 +2992,7 @@ $('mtGuardar').onclick = async () => {
   if (E.tipo === 'texto' && texto.trim().length < 3) return erro('Escreva ou cole o seu resumo.');
   if (E.tipo !== 'texto' && !mtArquivos.length) return erro(E.tipo === 'foto' ? 'Escolha ao menos uma foto.' : 'Escolha o PDF.');
   mtEnviando = true; const bt = $('mtGuardar'); bt.disabled = true; erro('');
-  const enviados = [];
+  const enviados = []; let capa = null;
   try {
     if (E.tipo !== 'texto') {
       const { data: { session } } = await sb.auth.getSession();
@@ -2948,11 +3007,17 @@ $('mtGuardar').onclick = async () => {
         const { error } = await sb.storage.from(MT_BUCKET).upload(path, blob, { contentType: tipo, upsert: false });
         if (error) throw new Error(/size|large|exceed/i.test(error.message) ? 'Um arquivo passa de 15 MB.' : 'O envio falhou. Confira a internet e tente de novo.');
         enviados.push(path);
+        if (E.tipo === 'foto' && i === 0) { // capa: miniatura da 1ª página (~10 KB), para a lista do caderno
+          try { const mini = await mtMiniatura(blob); const pc = `${pasta}/capa.jpg`;
+            const { error: ec } = await sb.storage.from(MT_BUCKET).upload(pc, mini, { contentType: 'image/jpeg', upsert: false });
+            if (!ec) { capa = pc; enviados.push(pc); } } catch (e) { /* sem capa: a lista mostra o ícone */ }
+        }
       }
     }
     bt.textContent = 'Guardando…';
+    const paginas = enviados.filter(x => x !== capa);
     const { data, error } = await sb.rpc('fn_material_guardar', { p_edital: editalAtual.id, p_assunto: E.assunto, p_temas: [...E.temas], p_tipo: E.tipo,
-      p_titulo: $('mtTitulo').value.trim() || null, p_texto: texto, p_arquivos: enviados.length ? enviados : null });
+      p_titulo: $('mtTitulo').value.trim() || null, p_texto: texto, p_arquivos: paginas.length ? paginas : null, p_capa: capa });
     if (error) throw new Error(mtErroTxt(error.message));
     if (mtDados && mtDados.edital === editalAtual.id) { mtDados.itens = [data, ...(mtDados.itens || [])]; mtDados.bytes_usados = (mtDados.bytes_usados || 0) + (data.bytes || 0); }
     tele('material_guardado', { tipo: E.tipo, temas: E.temas.size, arquivos: enviados.length });
@@ -2995,7 +3060,7 @@ async function mtVer(id) {
     $('mtExcluir').disabled = true;
     const { data, error } = await sb.rpc('fn_material_excluir', { p_id: m.id });
     if (error) { toast('Não consegui excluir. Tente de novo.'); $('mtExcluir').disabled = false; return; }
-    const paths = (data && data.arquivos) || []; if (paths.length) await sb.storage.from(MT_BUCKET).remove(paths);
+    const paths = ((data && data.arquivos) || []).filter(Boolean); if (paths.length) await sb.storage.from(MT_BUCKET).remove(paths); // páginas + capa
     mtDados.itens = mtDados.itens.filter(x => x.id !== m.id); mtDados.bytes_usados = Math.max(0, (mtDados.bytes_usados || 0) - (m.bytes || 0));
     tele('material_excluido', { tipo: m.tipo });
     $('mtVer').classList.remove('on'); toast('Material excluído.'); mtDepoisDeMudar();
