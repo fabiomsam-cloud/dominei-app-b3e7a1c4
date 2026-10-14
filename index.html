@@ -890,14 +890,10 @@ body.rg-barra-on main { padding-bottom:170px; }
   <!-- REGISTRAR ESTUDO (27/09: por assunto do edital; não pinta o mapa, não dispara conferência) -->
   <section class="view" id="vRegistrar">
     <div class="hj-hello">Registrar estudo</div>
-    <div class="hj-sub">Guarde seus resumos e marque o que estudou, sempre no assunto do edital. Isso acende a luz de estudo no seu cérebro; quem mostra o quanto você domina são as questões.</div>
+    <div class="hj-sub">Guarde seus resumos, fotos do caderno e PDFs, sempre no assunto do edital. Isso acende a luz de estudo no seu cérebro; quem mostra o quanto você domina são as questões.</div>
     <button class="btn mt-novo" id="mtNovo" type="button">＋ Guardar resumo, foto ou PDF</button>
     <div id="mtLista"></div>
-    <div class="rg-sec rg-marcar">MARCAR TEMAS ESTUDADOS <span>sem material</span></div>
-    <div class="rg-resumo" id="rgResumo"></div>
-    <input id="rgBusca" type="search" placeholder="Buscar tema (ex.: crase, remédios constitucionais)…" autocomplete="off" aria-label="Buscar tema">
-    <div id="rgRecentes"></div>
-    <div id="rgLista"></div>
+    <!-- 14/10: a lista de disciplinas e o registro manual por tema saíram (a disciplina e o assunto são escolhidos ao guardar o material) -->
   </section>
 </main>
 <div class="sheet" id="ssSheet"><div class="n">Fechar por aqui?</div><p id="ssSheetTxt"></p>
@@ -930,7 +926,7 @@ body.rg-barra-on main { padding-bottom:170px; }
   <div class="rg-seg" id="mtTipo"><button type="button" data-t="texto" class="on">Texto</button><button type="button" data-t="foto">Fotos</button><button type="button" data-t="pdf">PDF</button></div>
   <div class="k-lbl rg-k">DISCIPLINA</div><select id="mtDisc" aria-label="Disciplina"></select>
   <div class="k-lbl rg-k">ASSUNTO</div><select id="mtAss" aria-label="Assunto"></select>
-  <div id="mtTemasBox"><div class="k-lbl rg-k">TEMAS <span>desmarque o que não entrou</span></div><div id="mtTemas"></div></div>
+  <div id="mtTemasBox"><div class="k-lbl rg-k">TEMAS <span>marque o que entrou neste material</span></div><div id="mtTemas"></div></div>
   <div class="k-lbl rg-k">TÍTULO <span>opcional</span></div><input type="text" id="mtTitulo" maxlength="120" placeholder="Ex.: Resumo da aula 3">
   <div id="mtConteudo"></div>
   <div class="mt-erro" id="mtErro" role="alert"></div>
@@ -2652,13 +2648,10 @@ function rgMostrarBarra(on) {
   b.classList.toggle('on', !!on && n > 0);
   document.body.classList.toggle('rg-barra-on', !!on && n > 0);
 }
-async function loadRegistrar() {
-  $('rgLista').innerHTML = skeletonCard();
-  const { data, error } = await sb.rpc('fn_estudos_meus', { p_edital: editalAtual.id });
-  if (error) { $('rgLista').innerHTML = `<div class="acaocard"><div class="m">${esc(humanizar(error.message))}</div><button class="btn" onclick="loadRegistrar()">Tentar de novo</button></div>`; return; }
-  rgRegs = data || [];
-  renderRegistrar();
-  mtCarregar(true).then(mtRenderLista).catch(() => { $('mtLista').innerHTML = ''; });
+async function loadRegistrar() { // 14/10: só o caderno (o registro manual por tema saiu da tela; as funções ficam para o cartão do tema)
+  $('mtLista').innerHTML = skeletonCard();
+  try { await mtCarregar(true); mtRenderLista(); }
+  catch (e) { $('mtLista').innerHTML = `<div class="acaocard"><div class="m">${esc(humanizar(e.message))}</div><button class="btn" onclick="loadRegistrar()">Tentar de novo</button></div>`; }
 }
 function rgLinha(t, regs, opts = {}) {
   const u = regs && regs[0];
@@ -2677,6 +2670,7 @@ function renderRegistrar() {
   const pesoTot = ids.reduce((s, id) => s + (mapa[id].t.peso || 0), 0) || 1;
   const pct = Math.round(100 * ids.filter(id => por[id]).reduce((s, id) => s + (mapa[id].t.peso || 0), 0) / pesoTot);
   const semana = new Set(rgRegs.filter(r => Date.now() - new Date(r.created_at) < 7 * 864e5).map(r => r.node_id)).size;
+  if (!$('rgLista')) return; // 14/10: a lista não existe mais na tela
   $('rgResumo').innerHTML = `<div class="v">${feitos} de ${plural(total, 'tema', 'temas')} estudados</div>
     <div class="rg-bar"><i style="width:${pct}%"></i></div>
     <div class="m">${pct}% do peso do edital${semana ? ` · ${plural(semana, 'tema', 'temas')} nos últimos 7 dias` : ''}</div>`;
@@ -2716,7 +2710,7 @@ function renderRegistrar() {
   rgMostrarBarra(document.querySelector('.view.on')?.id === 'vRegistrar');
 }
 let rgBuscaT = null;
-$('rgBusca').oninput = () => { clearTimeout(rgBuscaT); rgBuscaT = setTimeout(renderRegistrar, 150); };
+if ($('rgBusca')) $('rgBusca').oninput = () => { clearTimeout(rgBuscaT); rgBuscaT = setTimeout(renderRegistrar, 150); };
 $('rgLimpar').onclick = () => { rgSel.clear(); renderRegistrar(); };
 $('rgAbrir').onclick = () => {
   if (!rgSel.size) return;
@@ -2851,8 +2845,9 @@ function mtAssuntos(modoTemas) {
 function mtTemas(modo) {
   const a = rgDiscs().flatMap(d => d.assuntos).find(x => x.assunto_id === mtEstado.assunto);
   if (!a) { $('mtTemasBox').style.display = 'none'; return; }
-  if (modo !== 'manter' || !mtEstado.temas.size) mtEstado.temas = new Set(a.topicos.map(t => t.node_id));
+  if (modo !== 'manter') mtEstado.temas = new Set(); // 14/10: começa vazio; o aluno marca o que entrou neste material
   mtEstado.temas = new Set([...mtEstado.temas].filter(id => a.topicos.some(t => t.node_id === id)));
+  if (a.topicos.length === 1) mtEstado.temas = new Set([a.topicos[0].node_id]); // assunto de um tema só: não há o que escolher
   $('mtTemasBox').style.display = a.topicos.length > 1 ? 'block' : 'none';
   $('mtTemas').innerHTML = a.topicos.map(t => `<button type="button" class="rg-row sub${mtEstado.temas.has(t.node_id) ? ' sel' : ''}" data-t="${t.node_id}" aria-pressed="${mtEstado.temas.has(t.node_id)}">
       <span class="ck" aria-hidden="true"></span><span class="an">${esc(t.nome)}</span></button>`).join('');
@@ -2914,7 +2909,7 @@ $('mtGuardar').onclick = async () => {
   if (mtEnviando) return;
   const E = mtEstado, erro = (m) => { $('mtErro').textContent = m; };
   if (!E.assunto) return erro('Escolha a disciplina e o assunto.');
-  if (!E.temas.size) return erro('Deixe pelo menos um tema marcado.');
+  if (!E.temas.size) return erro('Marque pelo menos um tema.');
   const texto = E.tipo === 'texto' ? $('mtTexto').value : null;
   if (E.tipo === 'texto' && texto.trim().length < 3) return erro('Escreva ou cole o seu resumo.');
   if (E.tipo !== 'texto' && !mtArquivos.length) return erro(E.tipo === 'foto' ? 'Escolha ao menos uma foto.' : 'Escolha o PDF.');
