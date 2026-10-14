@@ -526,6 +526,8 @@ body.rg-barra-on main { padding-bottom:170px; }
 .mt-cont { text-align:right; font-size:11px; color:var(--dim); margin-top:4px; }
 .mt-arq { position:relative; display:flex; align-items:center; justify-content:center; min-height:54px; border:1.5px dashed rgba(127,184,255,.45); border-radius:12px; color:#A9CBF5; font-weight:700; cursor:pointer; }
 .mt-arq input { position:absolute; width:1px; height:1px; opacity:0; }
+.mt-arq2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; } .mt-arq2 .mt-arq { min-height:50px; text-align:center; padding:0 8px; font-size:13.5px; }
+.mt-acts .btn.ghost + .btn.ghost { margin-top:8px; }
 .mt-prev { display:grid; grid-template-columns:repeat(auto-fill, minmax(72px, 1fr)); gap:8px; margin-top:10px; }
 .mt-th { position:relative; aspect-ratio:3/4; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
 .mt-th img { width:100%; height:100%; object-fit:cover; display:block; }
@@ -936,7 +938,7 @@ body.rg-barra-on main { padding-bottom:170px; }
 <div class="sheet mt-sheet" id="mtSheet" role="dialog" aria-modal="true" aria-labelledby="mtSheetT">
   <div class="n" id="mtSheetT">Guardar no meu caderno</div>
   <p>O material fica ligado ao assunto do edital e acende a luz de estudo desses temas. Só você vê.</p>
-  <div class="k-lbl rg-k">O QUE VOCÊ VAI GUARDAR?</div>
+  <div class="k-lbl rg-k" id="mtTipoLbl">O QUE VOCÊ VAI GUARDAR?</div>
   <div class="rg-seg" id="mtTipo"><button type="button" data-t="texto" class="on">Texto</button><button type="button" data-t="foto">Fotos</button><button type="button" data-t="pdf">PDF</button></div>
   <div class="k-lbl rg-k">DISCIPLINA</div><select id="mtDisc" aria-label="Disciplina"></select>
   <div class="k-lbl rg-k">ASSUNTO</div><select id="mtAss" aria-label="Assunto"></select>
@@ -2891,18 +2893,28 @@ async function mtSecao(el, nodeId, assuntoId, origem) {
   else { el.innerHTML = ''; try { await mtCarregar(); if (el.isConnected) pinta(); } catch (e) { /* sem materiais agora: a seção fica oculta */ } }
 }
 // ---- guardar ----
+// última disciplina e assunto usados neste edital (quem estuda um tema guarda vários materiais em sequência)
+const mtUltimoChave = () => 'dominei_caderno_ultimo_' + (editalAtual && editalAtual.id);
+function mtUltimo() { try { return JSON.parse(localStorage.getItem(mtUltimoChave()) || 'null'); } catch (e) { return null; } }
+function mtLembrar(disc, ass) { try { localStorage.setItem(mtUltimoChave(), JSON.stringify({ disc, ass })); } catch (e) { /* sem armazenamento */ } }
 function mtAbrir(pre = {}) {
-  mtEstado = { tipo: pre.tipo || 'texto', assunto: pre.assunto_id || null, temas: new Set(pre.temas || []) };
+  const ed = pre.editar || null; // material já guardado: só título, assunto e temas
+  mtEstado = { tipo: ed ? ed.tipo : (pre.tipo || 'texto'), assunto: ed ? ed.assunto_id : (pre.assunto_id || null), temas: new Set(ed ? (ed.temas || []) : (pre.temas || [])), editando: ed ? ed.id : null };
   mtArquivos = [];
-  const discs = rgDiscs(), disc = mtEstado.assunto ? discs.find(d => d.assuntos.some(a => a.assunto_id === mtEstado.assunto)) : null;
+  const discs = rgDiscs(), lembrado = !ed && !mtEstado.assunto ? mtUltimo() : null;
+  let disc = mtEstado.assunto ? discs.find(d => d.assuntos.some(a => a.assunto_id === mtEstado.assunto)) : null;
+  if (lembrado) { disc = discs.find(d => d.disciplina_id === lembrado.disc) || null; if (disc && disc.assuntos.some(a => a.assunto_id === lembrado.ass)) mtEstado.assunto = lembrado.ass; }
   $('mtDisc').innerHTML = `<option value="">Escolha a disciplina</option>` +
     discs.map(d => `<option value="${d.disciplina_id}"${disc && d.disciplina_id === disc.disciplina_id ? ' selected' : ''}>${esc(d.disciplina)}</option>`).join('');
   mtAssuntos(mtEstado.temas.size ? 'manter' : 'todos');
-  $('mtTitulo').value = ''; $('mtErro').textContent = '';
-  mtTipo(mtEstado.tipo);
-  $('cvInfo') && $('cvInfo').classList.remove('on');
+  $('mtTitulo').value = ed ? (ed.titulo || '') : ''; $('mtErro').textContent = '';
+  $('mtSheetT').textContent = ed ? 'Editar material' : 'Guardar no meu caderno';
+  $('mtTipoLbl').style.display = $('mtTipo').style.display = $('mtConteudo').style.display = ed ? 'none' : '';
+  $('mtGuardar').textContent = ed ? 'Salvar alterações' : 'Guardar';
+  if (!ed) mtTipo(mtEstado.tipo); else $('mtConteudo').innerHTML = '';
+  $('cvInfo') && $('cvInfo').classList.remove('on'); $('mtVer').classList.remove('on');
   $('mtSheet').classList.add('on'); $('mtSheet').scrollTop = 0;
-  tele('material_abrir', { origem: pre.origem || 'registrar' });
+  tele(ed ? 'material_editar_abrir' : 'material_abrir', { origem: pre.origem || 'registrar' });
 }
 function mtAssuntos(modoTemas) {
   const d = rgDiscs().find(x => x.disciplina_id === $('mtDisc').value);
@@ -2935,10 +2947,15 @@ function mtTipo(tipo) {
     c.innerHTML = `<div class="k-lbl rg-k">SEU RESUMO</div><textarea id="mtTexto" maxlength="60000" rows="9" placeholder="Escreva ou cole aqui o seu resumo"></textarea><div class="mt-cont" id="mtCont"></div>`;
     $('mtTexto').oninput = () => { $('mtCont').textContent = `${$('mtTexto').value.length.toLocaleString('pt-BR')} de 60.000 caracteres`; };
   } else {
-    c.innerHTML = `<div class="k-lbl rg-k">${tipo === 'foto' ? 'FOTOS <span>até 30 páginas</span>' : 'ARQUIVO PDF <span>até 15 MB</span>'}</div>
-      <label class="mt-arq"><input type="file" id="mtArq" ${tipo === 'foto' ? 'accept="image/*" multiple' : 'accept="application/pdf,.pdf"'}>
-        <span>${tipo === 'foto' ? 'Tirar ou escolher fotos' : 'Escolher o PDF'}</span></label><div class="mt-prev" id="mtPrev"></div>`;
+    c.innerHTML = tipo === 'foto'
+      ? `<div class="k-lbl rg-k">FOTOS <span>até 30 páginas · uma foto por página</span></div>
+         <div class="mt-arq2"><label class="mt-arq"><input type="file" id="mtCam" accept="image/*" capture="environment"><span id="mtCamTxt">Tirar foto</span></label>
+           <label class="mt-arq"><input type="file" id="mtArq" accept="image/*" multiple><span>Escolher da galeria</span></label></div><div class="mt-prev" id="mtPrev"></div>`
+      : `<div class="k-lbl rg-k">ARQUIVO PDF <span>até 15 MB</span></div>
+         <label class="mt-arq"><input type="file" id="mtArq" accept="application/pdf,.pdf"><span>Escolher o PDF</span></label><div class="mt-prev" id="mtPrev"></div>`;
     $('mtArq').onchange = (e) => { mtEscolheu(e.target.files); e.target.value = ''; };
+    const cam = $('mtCam'); if (cam) cam.onchange = (e) => { mtEscolheu(e.target.files); e.target.value = ''; // a próxima página é mais um toque, direto na câmera
+      $('mtCamTxt').textContent = mtArquivos.length ? `Tirar outra foto (${mtArquivos.length} ${mtArquivos.length === 1 ? 'página' : 'páginas'})` : 'Tirar foto'; };
   }
 }
 document.querySelectorAll('#mtTipo button').forEach(b => b.onclick = () => mtTipo(b.dataset.t));
@@ -2963,6 +2980,7 @@ function mtPrevia() {
   p.querySelectorAll('img').forEach(i => URL.revokeObjectURL(i.src));
   p.innerHTML = mtArquivos.map((f, i) => `<div class="mt-th"><img alt="Página ${i + 1}" src="${URL.createObjectURL(f)}"><button type="button" data-rm="${i}" aria-label="Tirar a página ${i + 1}">×</button></div>`).join('');
   p.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { mtArquivos.splice(+b.dataset.rm, 1); mtPrevia(); });
+  const ct = $('mtCamTxt'); if (ct) ct.textContent = mtArquivos.length ? `Tirar outra foto (${mtArquivos.length} ${mtArquivos.length === 1 ? 'página' : 'páginas'})` : 'Tirar foto';
 }
 // miniatura para a lista: 160 px de largura, JPEG leve
 async function mtMiniatura(blob) {
@@ -2983,11 +3001,30 @@ async function mtComprimir(f) {
   if (['image/jpeg', 'image/png', 'image/webp'].includes(f.type) && f.size <= MT_MAX_BYTES) return f;
   throw new Error('Não consegui ler uma das fotos. Tire a foto de novo pelo botão.');
 }
+// título automático quando o aluno não dá um: "Resumo · Veículos · 14/10"
+function mtTituloAuto(tipo, assuntoId, temasSet) {
+  const a = rgDiscs().flatMap(d => d.assuntos).find(x => x.assunto_id === assuntoId), ids = [...temasSet];
+  const alvo = ids.length === 1 && a ? (a.topicos.find(t => t.node_id === ids[0]) || {}).nome : (a && a.assunto);
+  const hoje = new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Manaus' });
+  return `${{ texto: 'Resumo', foto: 'Fotos', pdf: 'PDF' }[tipo]} · ${(alvo || 'material').slice(0, 60)} · ${dataCurta(hoje)}`;
+}
 $('mtGuardar').onclick = async () => {
   if (mtEnviando) return;
   const E = mtEstado, erro = (m) => { $('mtErro').textContent = m; };
   if (!E.assunto) return erro('Escolha a disciplina e o assunto.');
   if (!E.temas.size) return erro('Marque pelo menos um tema.');
+  if (E.editando) { // só título, assunto e temas
+    mtEnviando = true; const bt = $('mtGuardar'); bt.disabled = true; erro(''); bt.textContent = 'Salvando…';
+    try {
+      const { data, error } = await sb.rpc('fn_material_editar', { p_id: E.editando, p_titulo: $('mtTitulo').value.trim() || mtTituloAuto(E.tipo, E.assunto, E.temas), p_assunto: E.assunto, p_temas: [...E.temas] });
+      if (error) throw new Error(mtErroTxt(error.message));
+      if (mtDados) mtDados.itens = (mtDados.itens || []).map(m => m.id === data.id ? data : m);
+      mtLembrar($('mtDisc').value, E.assunto); tele('material_editado', { temas: E.temas.size });
+      $('mtSheet').classList.remove('on'); toast('Alterações salvas.'); mtDepoisDeMudar();
+    } catch (e) { erro(e.message || 'Não consegui salvar. Tente de novo.'); registrarErro('caderno_editar: ' + (e.message || ''), e.stack); }
+    finally { mtEnviando = false; bt.disabled = false; bt.textContent = 'Salvar alterações'; }
+    return;
+  }
   const texto = E.tipo === 'texto' ? $('mtTexto').value : null;
   if (E.tipo === 'texto' && texto.trim().length < 3) return erro('Escreva ou cole o seu resumo.');
   if (E.tipo !== 'texto' && !mtArquivos.length) return erro(E.tipo === 'foto' ? 'Escolha ao menos uma foto.' : 'Escolha o PDF.');
@@ -3017,10 +3054,10 @@ $('mtGuardar').onclick = async () => {
     bt.textContent = 'Guardando…';
     const paginas = enviados.filter(x => x !== capa);
     const { data, error } = await sb.rpc('fn_material_guardar', { p_edital: editalAtual.id, p_assunto: E.assunto, p_temas: [...E.temas], p_tipo: E.tipo,
-      p_titulo: $('mtTitulo').value.trim() || null, p_texto: texto, p_arquivos: paginas.length ? paginas : null, p_capa: capa });
+      p_titulo: $('mtTitulo').value.trim() || mtTituloAuto(E.tipo, E.assunto, E.temas), p_texto: texto, p_arquivos: paginas.length ? paginas : null, p_capa: capa });
     if (error) throw new Error(mtErroTxt(error.message));
     if (mtDados && mtDados.edital === editalAtual.id) { mtDados.itens = [data, ...(mtDados.itens || [])]; mtDados.bytes_usados = (mtDados.bytes_usados || 0) + (data.bytes || 0); }
-    tele('material_guardado', { tipo: E.tipo, temas: E.temas.size, arquivos: enviados.length });
+    tele('material_guardado', { tipo: E.tipo, temas: E.temas.size, arquivos: enviados.length }); mtLembrar($('mtDisc').value, E.assunto);
     $('mtSheet').classList.remove('on');
     toast(`Guardado no seu caderno. A luz de estudo acendeu em ${plural(E.temas.size, 'tema', 'temas')}.`);
     mtDepoisDeMudar();
@@ -3047,12 +3084,14 @@ async function mtVer(id) {
     <div class="mt-meta">${m.titulo ? MT_TIPO[m.tipo] + ' · ' : ''}guardado em ${mtData(m.created_at)}${m.bytes ? ' · ' + mtTamanho(m.bytes) : ''}</div>
     <div class="mt-temas">${nomes.map(x => `<span>${esc(x)}</span>`).join('')}</div>
     <div class="mt-corpo" id="mtCorpo">${m.tipo === 'texto' ? `<div class="mt-leitura">${esc(m.texto || '')}</div>` : '<p class="mt-vazio">Abrindo…</p>'}</div>
-    <div class="mt-acts">${m.tipo === 'texto' ? '<button class="btn ghost" id="mtCopiar" type="button">Copiar texto</button>' : ''}
+    <div class="mt-acts"><button class="btn ghost" id="mtEditar" type="button">Editar título, assunto ou temas</button>
+      ${m.tipo === 'texto' ? '<button class="btn ghost" id="mtCopiar" type="button">Copiar texto</button>' : ''}
       <button class="btn ghost mt-excluir" id="mtExcluir" type="button">Excluir material</button>
       <button class="ss-link" id="mtFechar" type="button">Fechar</button></div>`;
   $('cvInfo') && $('cvInfo').classList.remove('on');
   $('mtVer').classList.add('on'); $('mtVer').scrollTop = 0;
   $('mtFechar').onclick = () => $('mtVer').classList.remove('on');
+  $('mtEditar').onclick = () => mtAbrir({ editar: m, origem: 'ver' });
   if ($('mtCopiar')) $('mtCopiar').onclick = async () => { try { await navigator.clipboard.writeText(m.texto || ''); toast('Texto copiado.'); } catch (e) { toast('Não consegui copiar.'); } };
   let conf = false;
   $('mtExcluir').onclick = async () => {
