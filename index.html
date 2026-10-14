@@ -516,6 +516,11 @@ body.rg-barra-on main { padding-bottom:170px; }
 .mt-chips button.on { color:var(--text); border-color:#7FB8FF; background:rgba(127,184,255,.12); } .mt-chips button i { font-style:normal; font-weight:400; opacity:.75; margin-left:3px; }
 .mt-chips select { margin-left:auto; background:#0A1322; border:1px solid var(--line); color:var(--dim); border-radius:20px; padding:5px 8px; font-size:12px; font-family:inherit; min-height:32px; }
 .mt-recentes .mt-item { margin-bottom:6px; }
+.mt-dl-topo { display:block; width:100%; margin:6px 0 2px; background:none; border:1px dashed rgba(127,184,255,.45); border-radius:10px; padding:9px; color:#A9CBF5; font-weight:700; font-size:12.5px; cursor:pointer; font-family:inherit; min-height:40px; }
+.mt-dl { margin-left:8px; background:rgba(127,184,255,.12); border:1px solid rgba(127,184,255,.35); color:#A9CBF5; border-radius:8px; width:32px; height:32px; font-size:15px; cursor:pointer; font-family:inherit; flex:0 0 auto; }
+.rg-disc summary { display:flex; align-items:center; } .rg-disc summary .dc { margin-left:auto; }
+.mt-dl-resumo { font-size:14px; color:#C7D1DE; margin:12px 0 4px; } .mt-dl-resumo b { color:var(--text); } .mt-dl-aviso { color:#FFB36B; font-size:12.5px; }
+#mtBaixar .btn + .btn { margin-top:8px; }
 .mt-ass { display:flex; align-items:center; justify-content:space-between; font-size:11.5px; font-weight:700; letter-spacing:.04em; color:#A9CBF5; margin:12px 2px 6px; text-transform:uppercase; }
 .mt-ass i { font-style:normal; color:var(--dim); font-weight:400; }
 .rg-disc .rg-in .mt-item { margin-left:0; }
@@ -950,6 +955,19 @@ body.rg-barra-on main { padding-bottom:170px; }
   <button class="ss-link" id="mtCancelar" type="button">Cancelar</button>
 </div>
 <div class="sheet mt-sheet" id="mtVer" role="dialog" aria-modal="true" aria-label="Material guardado"><div id="mtVerIn"></div></div>
+<div class="sheet mt-sheet" id="mtBaixar" role="dialog" aria-modal="true" aria-labelledby="mtDlT">
+  <div class="n" id="mtDlT">Baixar meu caderno</div>
+  <p>O arquivo é montado no seu aparelho, com os seus materiais organizados por disciplina e assunto.</p>
+  <div class="k-lbl rg-k">O QUE BAIXAR?</div>
+  <div class="rg-seg" id="mtDlNivel"><button type="button" data-n="tudo" class="on">Tudo</button><button type="button" data-n="disc">Uma disciplina</button><button type="button" data-n="ass">Um assunto</button></div>
+  <div id="mtDlDiscBox"><div class="k-lbl rg-k">DISCIPLINA</div><select id="mtDlDisc" aria-label="Disciplina"></select></div>
+  <div id="mtDlAssBox"><div class="k-lbl rg-k">ASSUNTO</div><select id="mtDlAss" aria-label="Assunto"></select></div>
+  <div class="mt-dl-resumo" id="mtDlResumo"></div>
+  <div class="mt-erro" id="mtDlErro" role="alert"></div>
+  <button class="btn" id="mtDlZip" type="button">Baixar ZIP · arquivos originais em pastas</button>
+  <button class="btn ghost" id="mtDlPdf" type="button">Baixar PDF · para ler e imprimir</button>
+  <button class="ss-link" id="mtDlCancelar" type="button">Cancelar</button>
+</div>
 
 <nav class="tabbar" id="tabbar">
   <button data-v="vHoje" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 5 13.5h5L10 22l8-11.5h-5L13 2z"/></svg>HOJE</button>
@@ -2850,6 +2868,7 @@ function mtRenderLista() {
   if (q.length >= 2) it = it.filter(m => mtBate(m, q));
   const nTipo = (t) => tudo.filter(m => m.tipo === t).length;
   let html = `<div class="rg-sec">MEU CADERNO · ${plural(tudo.length, 'MATERIAL', 'MATERIAIS')}<span class="mt-uso">${mtTamanho(mtDados.bytes_usados || 0)} de 1 GB</span></div>
+    <button type="button" class="mt-dl-topo" id="mtDlTopo">⤓ Baixar meu caderno (ZIP ou PDF)</button>
     <div class="mt-tools"><input type="search" id="mtBuscaIn" placeholder="Buscar no caderno (título, texto, disciplina, tema)…" value="${esc(mtBusca)}" autocomplete="off" aria-label="Buscar no caderno">
       <div class="mt-chips">${[['todos', 'Todos', tudo.length], ['texto', 'Textos', nTipo('texto')], ['foto', 'Fotos', nTipo('foto')], ['pdf', 'PDFs', nTipo('pdf')]]
         .map(([k, l, n]) => `<button type="button" data-f="${k}" class="${mtFiltro === k ? 'on' : ''}">${l} <i>${n}</i></button>`).join('')}
@@ -2864,12 +2883,15 @@ function mtRenderLista() {
     rgDiscs().forEach(d => { const dm = it.filter(m => m.disciplina_id === d.disciplina_id); if (!dm.length) return;
       const ass = d.assuntos.filter(a => dm.some(m => m.assunto_id === a.assunto_id));
       html += `<details class="rg-disc" data-d="${d.disciplina_id}"${mtAbertas.has(d.disciplina_id) ? ' open' : ''}>
-        <summary><span class="dn">${esc(d.disciplina)}</span><span class="dc">${plural(dm.length, 'material', 'materiais')} · ${plural(ass.length, 'assunto', 'assuntos')}</span></summary>
+        <summary><span class="dn">${esc(d.disciplina)}</span><span class="dc">${plural(dm.length, 'material', 'materiais')} · ${plural(ass.length, 'assunto', 'assuntos')}</span><button type="button" class="mt-dl" data-dl-disc="${d.disciplina_id}" aria-label="Baixar ${esc(d.disciplina)}">⤓</button></summary>
         <div class="rg-in">${ass.map(a => { const am = dm.filter(m => m.assunto_id === a.assunto_id);
-          return `<div class="mt-ass"><span>${esc(a.assunto)}</span><i>${am.length}</i></div>` + am.map(m => mtItemHtml(m, 'assunto')).join(''); }).join('')}</div></details>`; });
+          return `<div class="mt-ass"><span>${esc(a.assunto)}</span><i>${am.length}</i><button type="button" class="mt-dl" data-dl-ass="${a.assunto_id}" data-dl-disc="${d.disciplina_id}" aria-label="Baixar ${esc(a.assunto)}">⤓</button></div>` + am.map(m => mtItemHtml(m, 'assunto')).join(''); }).join('')}</div></details>`; });
   }
   box.innerHTML = html;
   box.querySelectorAll('[data-mt]').forEach(b => b.onclick = () => mtVer(b.dataset.mt));
+  const dt = $('mtDlTopo'); if (dt) dt.onclick = () => mtAbrirBaixar({ nivel: 'tudo' });
+  box.querySelectorAll('.mt-dl').forEach(b => b.onclick = (e) => { e.preventDefault(); e.stopPropagation();
+    mtAbrirBaixar(b.dataset.dlAss ? { nivel: 'ass', disc: b.dataset.dlDisc, ass: b.dataset.dlAss } : { nivel: 'disc', disc: b.dataset.dlDisc }); });
   box.querySelectorAll('.rg-disc').forEach(el => el.ontoggle = () => { el.open ? mtAbertas.add(el.dataset.d) : mtAbertas.delete(el.dataset.d); if (el.open) mtPintarCapas(el); });
   box.querySelectorAll('.mt-chips [data-f]').forEach(b => b.onclick = () => { mtFiltro = b.dataset.f; mtRenderLista(); });
   const o = $('mtOrdemSel'); if (o) o.onchange = () => { mtOrdem = o.value; mtLimite = 60; mtRenderLista(); };
@@ -3075,6 +3097,151 @@ function mtDepoisDeMudar() { // atualiza a tela aberta (lista, mapa e luz de est
   else if (v === 'vCerebroFull') loadCerebroFull();
   else if (v === 'vMapa') loadMapa();
 }
+// ---------- DOWNLOAD (ponto 3, 14/10): ZIP organizado e PDF compilado, em três níveis; tudo montado no aparelho ----------
+let mtEscopo = { nivel: 'tudo', disc: null, ass: null }, mtBaixando = false;
+const MT_LIMITE_DL = 400 * 1024 * 1024; // acima disso o celular não aguenta montar na memória: baixar por disciplina
+const mtLibsOk = {};
+function mtLib(nome, url) { // biblioteca carregada só na hora do download
+  if (window[nome]) return Promise.resolve(window[nome]);
+  if (!mtLibsOk[nome]) mtLibsOk[nome] = new Promise((ok, err) => { const sc = document.createElement('script'); sc.src = url; sc.onload = () => ok(window[nome]); sc.onerror = () => { delete mtLibsOk[nome]; err(new Error('Não consegui carregar o montador. Confira a internet e tente de novo.')); }; document.head.appendChild(sc); });
+  return mtLibsOk[nome];
+}
+const mtNomeArq = (t) => (t || '').normalize('NFC').replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, ' ').trim().slice(0, 80) || 'material';
+const mtDataIso = (iso) => new Date(iso).toLocaleDateString('sv-SE');
+// WinAnsi (fontes padrão do PDF): troca o que não existe nelas
+const mtTxtPdf = (t) => String(t || '').replace(/★/g, '*').replace(/…/g, '...').replace(/→/g, '->').replace(/[\u2013\u2014]/g, '-').replace(/[\u201c\u201d]/g, '"').replace(/[\u2018\u2019]/g, "'").replace(/[^\u0000-\u00ff]/g, '?');
+function mtSelecao(escopo = mtEscopo) { // materiais do escopo, na ordem do edital (disciplina → assunto → mais novo primeiro)
+  const tudo = (mtDados && mtDados.itens) || [], temas = rgTemas(), grupos = [];
+  rgDiscs().forEach((d, di) => { if (escopo.nivel !== 'tudo' && d.disciplina_id !== escopo.disc) return;
+    d.assuntos.forEach(a => { if (escopo.nivel === 'ass' && a.assunto_id !== escopo.ass) return;
+      const ms = tudo.filter(m => m.disciplina_id === d.disciplina_id && m.assunto_id === a.assunto_id); if (!ms.length) return;
+      grupos.push({ d, di, a, ms: ms.map(m => ({ ...m, temasNomes: (m.temas || []).map(id => temas[id]?.t.nome).filter(Boolean) })) }); }); });
+  const itens = grupos.flatMap(g => g.ms), bytes = itens.reduce((s, m) => s + (m.bytes || 0), 0) + itens.filter(m => m.tipo === 'texto').reduce((s, m) => s + (m.texto || '').length, 0);
+  const rotulo = escopo.nivel === 'tudo' ? 'Meu Caderno' : escopo.nivel === 'disc' ? (grupos[0] ? grupos[0].d.disciplina : 'Disciplina') : (grupos[0] ? grupos[0].a.assunto : 'Assunto');
+  return { grupos, itens, bytes, rotulo, fotos: itens.filter(m => m.tipo === 'foto').reduce((s, m) => s + (m.arquivos || []).length, 0) };
+}
+function mtAbrirBaixar(pre = {}) {
+  if (!mtDados || !(mtDados.itens || []).length) { toast('Seu caderno ainda está vazio.'); return; }
+  mtEscopo = { nivel: pre.nivel || 'tudo', disc: pre.disc || null, ass: pre.ass || null };
+  const com = rgDiscs().filter(d => mtDados.itens.some(m => m.disciplina_id === d.disciplina_id));
+  if (mtEscopo.nivel !== 'tudo' && !mtEscopo.disc) mtEscopo.disc = com[0] && com[0].disciplina_id;
+  $('mtDlDisc').innerHTML = com.map(d => `<option value="${d.disciplina_id}"${d.disciplina_id === mtEscopo.disc ? ' selected' : ''}>${esc(d.disciplina)}</option>`).join('');
+  mtDlPintar(); $('mtDlErro').textContent = '';
+  $('mtVer').classList.remove('on'); $('mtBaixar').classList.add('on'); $('mtBaixar').scrollTop = 0;
+  tele('material_baixar_abrir', { nivel: mtEscopo.nivel });
+}
+function mtDlPintar() {
+  const n = mtEscopo.nivel; document.querySelectorAll('#mtDlNivel button').forEach(b => b.classList.toggle('on', b.dataset.n === n));
+  $('mtDlDiscBox').style.display = n === 'tudo' ? 'none' : ''; $('mtDlAssBox').style.display = n === 'ass' ? '' : 'none';
+  if (n === 'ass') { const d = rgDiscs().find(x => x.disciplina_id === mtEscopo.disc), com = d ? d.assuntos.filter(a => mtDados.itens.some(m => m.assunto_id === a.assunto_id)) : [];
+    if (!com.some(a => a.assunto_id === mtEscopo.ass)) mtEscopo.ass = com[0] && com[0].assunto_id;
+    $('mtDlAss').innerHTML = com.map(a => `<option value="${a.assunto_id}"${a.assunto_id === mtEscopo.ass ? ' selected' : ''}>${esc(a.assunto)}</option>`).join(''); }
+  const sel = mtSelecao(), grande = sel.bytes > MT_LIMITE_DL;
+  $('mtDlResumo').innerHTML = `<b>${plural(sel.itens.length, 'material', 'materiais')}</b> · ${mtTamanho(sel.bytes)}${sel.fotos ? ` · ${plural(sel.fotos, 'página de foto', 'páginas de foto')}` : ''}` +
+    (grande ? `<br><span class="mt-dl-aviso">Muito grande para montar no aparelho de uma vez: baixe por disciplina.</span>` : '');
+  $('mtDlZip').disabled = $('mtDlPdf').disabled = grande || !sel.itens.length;
+}
+document.querySelectorAll('#mtDlNivel button').forEach(b => b.onclick = () => { mtEscopo.nivel = b.dataset.n; if (b.dataset.n !== 'tudo' && !mtEscopo.disc) mtEscopo.disc = $('mtDlDisc').value; mtDlPintar(); });
+$('mtDlDisc').onchange = () => { mtEscopo.disc = $('mtDlDisc').value; mtEscopo.ass = null; mtDlPintar(); };
+$('mtDlAss').onchange = () => { mtEscopo.ass = $('mtDlAss').value; mtDlPintar(); };
+$('mtDlCancelar').onclick = () => { if (!mtBaixando) $('mtBaixar').classList.remove('on'); };
+// arquivos do escopo: links temporários em lotes + download com progresso
+async function mtBaixarArquivos(itens, progresso) {
+  const paths = itens.flatMap(m => (m.arquivos || []).map(a => a.path)), urls = {};
+  for (let i = 0; i < paths.length; i += 100) { const { data, error } = await sb.storage.from(MT_BUCKET).createSignedUrls(paths.slice(i, i + 100), 3600);
+    if (error) throw new Error('Não consegui acessar os arquivos agora. Tente de novo.'); (data || []).forEach((d, k) => { if (d.signedUrl) urls[d.path || paths[i + k]] = d.signedUrl; }); }
+  const blobs = {}; let n = 0;
+  for (const p of paths) { if (!urls[p]) continue; const r = await fetch(urls[p]); if (r.ok) blobs[p] = await r.blob(); n++; progresso && progresso(n, paths.length); }
+  return blobs;
+}
+async function mtGerarZip(sel, progresso) {
+  const JSZip = await mtLib('JSZip', 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js');
+  const blobs = await mtBaixarArquivos(sel.itens, progresso), zip = new JSZip(), raiz = zip.folder(mtNomeArq(`${sel.rotulo} DOMINEI - ${editalAtual.concurso}`)), indice = [];
+  sel.grupos.forEach(g => { const pd = raiz.folder(`${String(g.di + 1).padStart(2, '0')} ${mtNomeArq(g.d.disciplina)}`).folder(mtNomeArq(g.a.assunto));
+    g.ms.forEach(m => { const pt = pd.folder(mtNomeArq(m.temasNomes.length === 1 ? m.temasNomes[0] : (m.temasNomes.length ? `${m.temasNomes[0]} e mais ${m.temasNomes.length - 1}` : m.assunto)));
+      const base = `${mtDataIso(m.created_at)} ${mtNomeArq(mtTitulo(m))}`, nomes = [];
+      if (m.tipo === 'texto') { pt.file(`${base}.txt`, '\ufeff' + (m.texto || '')); nomes.push(`${base}.txt`); }
+      (m.arquivos || []).forEach((a, i) => { const b = blobs[a.path]; if (!b) return; const ext = { 'application/pdf': 'pdf', 'image/png': 'png', 'image/webp': 'webp' }[a.mime] || 'jpg';
+        const nome = (m.arquivos.length > 1 ? `${base} - p${String(i + 1).padStart(2, '0')}` : base) + '.' + ext; pt.file(nome, b); nomes.push(nome); });
+      indice.push({ m, g, nomes }); }); });
+  raiz.file('índice.html', `<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>${esc(sel.rotulo)} · DOMINEI</title>
+<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:30px auto;padding:0 16px;color:#111}h1{font-size:22px}h2{font-size:17px;margin:26px 0 6px}h3{font-size:14px;margin:14px 0 4px;color:#444}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #ddd;padding:6px 8px;text-align:left;font-size:13px;vertical-align:top}small{color:#666}</style>
+<h1>${esc(sel.rotulo)} · ${esc(editalAtual.concurso)}</h1><small>Gerado pelo DOMINEI em ${new Date().toLocaleDateString('pt-BR')} · ${plural(sel.itens.length, 'material', 'materiais')}</small>` +
+    sel.grupos.map(g => `<h2>${esc(g.d.disciplina)}</h2><h3>${esc(g.a.assunto)}</h3><table><tr><th>Material</th><th>Temas</th><th>Tipo</th><th>Data</th><th>Arquivo(s)</th></tr>` +
+      g.ms.map(m => { const e = indice.find(x => x.m === m); return `<tr><td>${esc(mtTitulo(m))}</td><td>${esc(m.temasNomes.join(', '))}</td><td>${MT_TIPO[m.tipo]}</td><td>${mtData(m.created_at)}</td><td>${(e ? e.nomes : []).map(esc).join('<br>')}</td></tr>`; }).join('') + '</table>').join('') + '</html>');
+  return zip.generateAsync({ type: 'blob', compression: 'STORE' }, (meta) => progresso && progresso(null, null, Math.round(meta.percent)));
+}
+async function mtGerarPdf(sel, progresso) {
+  const jspdf = await mtLib('jspdf', 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
+  const { data: mp } = await sb.rpc('fn_meu_mapa', { p_edital: editalAtual.id }); const est = {}; ((mp && mp.mapa) || []).forEach(n => est[n.node_id] = n);
+  const ROT = { dominado: 'Dominado', desenvolvimento: 'Em desenvolvimento', atencao: 'Precisa de atenção' };
+  const estadoDe = (id) => { const n = est[id] || {}; return ROT[n.estado] || (n.visto ? 'Estudado' : 'Ainda não explorado'); };
+  const blobs = await mtBaixarArquivos(sel.itens.filter(m => m.tipo === 'foto'), progresso), temas = rgTemas();
+  const doc = new jspdf.jsPDF({ unit: 'mm', format: 'a4' }), W = 210, H = 297, M = 18, LW = W - 2 * M; let y = M; const indice = [];
+  const nova = () => { doc.addPage(); y = M; };
+  const cabe = (h) => { if (y + h > H - M) nova(); };
+  const texto = (t, tam, estilo, cor, espaco) => { doc.setFont('helvetica', estilo || 'normal'); doc.setFontSize(tam); doc.setTextColor(...(cor || [20, 20, 20]));
+    const linhas = doc.splitTextToSize(mtTxtPdf(t), LW), lh = tam * .42; linhas.forEach(l => { cabe(lh); doc.text(l, M, y); y += lh; }); y += espaco || 0; };
+  // capa
+  doc.setFillColor(4, 7, 14); doc.rect(0, 0, W, H, 'F');
+  doc.setTextColor(234, 242, 236); doc.setFont('helvetica', 'bold'); doc.setFontSize(34); doc.text('DOMINEI', M, 60);
+  doc.setFontSize(26); doc.text(doc.splitTextToSize(mtTxtPdf(sel.rotulo), LW), M, 85);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(14); doc.setTextColor(170, 190, 215);
+  doc.text(mtTxtPdf(`${editalAtual.concurso} · ${editalAtual.cargo || ''}`), M, 110);
+  doc.text(mtTxtPdf(`${perfil.nome || 'Aluno(a)'} · ${plural(sel.itens.length, 'material', 'materiais')} · gerado em ${new Date().toLocaleDateString('pt-BR')}`), M, 120);
+  doc.setFontSize(11); doc.text('Resumos, fotos do caderno e PDFs organizados por disciplina e assunto,', M, 140); doc.text('com o estado de cada tema no seu cérebro na data de hoje.', M, 146);
+  // conteúdo
+  for (const g of sel.grupos) {
+    const novaDisc = !indice.length || indice[indice.length - 1].disc !== g.d.disciplina;
+    if (novaDisc) { nova(); indice.push({ disc: g.d.disciplina, pagina: doc.internal.getNumberOfPages() }); texto(g.d.disciplina, 22, 'bold', [20, 20, 20], 3); }
+    cabe(14); indice.push({ disc: g.d.disciplina, assunto: g.a.assunto, pagina: doc.internal.getNumberOfPages(), n: g.ms.length }); texto(g.a.assunto, 15, 'bold', [40, 60, 90], 2);
+    for (const m of g.ms) {
+      cabe(22); doc.setDrawColor(210, 215, 225); doc.line(M, y, W - M, y); y += 5;
+      texto(mtTitulo(m), 12.5, 'bold', [20, 20, 20], 1);
+      const meta = `${MT_TIPO[m.tipo]} · guardado em ${mtData(m.created_at)}` + (m.temasNomes.length ? ' · ' + (m.temas || []).map(id => `${temas[id]?.t.nome || 'tema'} (${estadoDe(id)})`).join(' · ') : '');
+      texto(meta, 9, 'normal', [110, 120, 135], 2);
+      if (m.tipo === 'texto') texto(m.texto || '', 10.5, 'normal', [30, 30, 30], 4);
+      else if (m.tipo === 'pdf') texto('Arquivo PDF: está no ZIP do caderno (o PDF compilado não embute outros PDFs).', 9.5, 'italic', [110, 120, 135], 4);
+      else for (const a of (m.arquivos || [])) { const b = blobs[a.path]; if (!b) continue;
+        const url = URL.createObjectURL(b); const img = await new Promise((ok, err) => { const i = new Image(); i.onload = () => ok(i); i.onerror = err; i.src = url; });
+        let w = LW, h = w * img.naturalHeight / img.naturalWidth; const maxH = H - 2 * M - 6; if (h > maxH) { h = maxH; w = h * img.naturalWidth / img.naturalHeight; }
+        cabe(h + 3); doc.addImage(img, (b.type === 'image/png') ? 'PNG' : 'JPEG', M, y, w, h, undefined, 'FAST'); y += h + 4; URL.revokeObjectURL(url); }
+      progresso && progresso(null, null, null, `Montando ${g.d.disciplina}…`);
+    }
+  }
+  // índice (inserido depois da capa) e rodapé
+  if (indice.length) { // disciplinas e assuntos; pode ocupar mais de uma página (inseridas logo após a capa, numeração ajustada)
+    const linhas = indice.map(i => i.assunto ? { t: `${i.assunto} (${plural(i.n, 'material', 'materiais')})`, tam: 10.5, estilo: 'normal', cor: [70, 80, 95], x: 6, p: i.pagina }
+                                          : { t: i.disc, tam: 12, estilo: 'bold', cor: [20, 20, 20], x: 0, p: i.pagina });
+    const alturaDe = (l) => doc.splitTextToSize(mtTxtPdf(l.t), LW - 22 - l.x).length * l.tam * .42 + 1.6;
+    let pags = 1, yy = M + 22 * .42 + 4; linhas.forEach(l => { const h = alturaDe(l); if (yy + h > H - M) { pags++; yy = M; } yy += h; });
+    let pag = 1; const abrir = () => { pag++; doc.insertPage(pag); doc.setPage(pag); y = M; }; abrir(); texto('Índice', 22, 'bold', [20, 20, 20], 4);
+    linhas.forEach(l => { const h = alturaDe(l); if (y + h > H - M) abrir();
+      doc.setFont('helvetica', l.estilo); doc.setFontSize(l.tam); doc.setTextColor(...l.cor);
+      const ls = doc.splitTextToSize(mtTxtPdf(l.t), LW - 22 - l.x); ls.forEach((t, k) => { doc.text(t, M + l.x, y + k * l.tam * .42); });
+      doc.text(String(l.p + pags), W - M, y, { align: 'right' }); y += h; }); }
+  const n = doc.internal.getNumberOfPages();
+  for (let i = 2; i <= n; i++) { doc.setPage(i); doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(140, 150, 165); doc.text(mtTxtPdf(`DOMINEI · ${sel.rotulo} · ${i} de ${n}`), W - M, H - 8, { align: 'right' }); }
+  return { blob: doc.output('blob'), paginas: n };
+}
+function mtSalvar(blob, nome) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 60000);
+}
+async function mtBaixar(formato) {
+  if (mtBaixando) return; const sel = mtSelecao(); if (!sel.itens.length) return;
+  const bt = $(formato === 'zip' ? 'mtDlZip' : 'mtDlPdf'), outro = $(formato === 'zip' ? 'mtDlPdf' : 'mtDlZip'), txt = bt.textContent;
+  mtBaixando = true; bt.disabled = outro.disabled = true; $('mtDlErro').textContent = '';
+  const progresso = (n, tot, pct, msg) => { bt.textContent = msg || (pct != null ? `Montando… ${pct}%` : (n != null ? `Baixando arquivos ${n} de ${tot}…` : 'Preparando…')); };
+  try {
+    progresso(); const nome = mtNomeArq(`${sel.rotulo} - DOMINEI - ${editalAtual.concurso}`);
+    if (formato === 'zip') { const blob = await mtGerarZip(sel, progresso); mtSalvar(blob, nome + '.zip'); tele('material_baixar', { formato, nivel: mtEscopo.nivel, n: sel.itens.length, bytes: blob.size }); toast('ZIP pronto: confira a pasta de downloads.'); }
+    else { const { blob, paginas } = await mtGerarPdf(sel, progresso); mtSalvar(blob, nome + '.pdf'); tele('material_baixar', { formato, nivel: mtEscopo.nivel, n: sel.itens.length, bytes: blob.size, paginas }); toast(`PDF pronto: ${plural(paginas, 'página', 'páginas')}.`); }
+  } catch (e) { $('mtDlErro').textContent = e.message || 'Não consegui montar o arquivo. Tente de novo.'; registrarErro('caderno_baixar: ' + (e.message || ''), e.stack); }
+  finally { mtBaixando = false; bt.textContent = txt; mtDlPintar(); }
+}
+$('mtDlZip').onclick = () => mtBaixar('zip');
+$('mtDlPdf').onclick = () => mtBaixar('pdf');
 // ---- ver / excluir ----
 async function mtVer(id) {
   const m = (mtDados?.itens || []).find(x => x.id === id); if (!m) return;
