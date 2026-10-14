@@ -893,7 +893,9 @@ body.rg-barra-on main { padding-bottom:170px; }
     <div class="hj-sub">Guarde seus resumos, fotos do caderno e PDFs, sempre no assunto do edital. Isso acende a luz de estudo no seu cérebro; quem mostra o quanto você domina são as questões.</div>
     <button class="btn mt-novo" id="mtNovo" type="button">＋ Guardar resumo, foto ou PDF</button>
     <div id="mtLista"></div>
-    <!-- 14/10: a lista de disciplinas e o registro manual por tema saíram (a disciplina e o assunto são escolhidos ao guardar o material) -->
+    <div id="rgHistorico"></div>
+    <!-- 14/10: a lista de disciplinas e o registro manual por tema saíram (a disciplina e o assunto são escolhidos ao guardar o material);
+         o histórico dos temas já marcados fica visível (pedido do Fábio, 14/10) -->
   </section>
 </main>
 <div class="sheet" id="ssSheet"><div class="n">Fechar por aqui?</div><p id="ssSheetTxt"></p>
@@ -2648,10 +2650,27 @@ function rgMostrarBarra(on) {
   b.classList.toggle('on', !!on && n > 0);
   document.body.classList.toggle('rg-barra-on', !!on && n > 0);
 }
-async function loadRegistrar() { // 14/10: só o caderno (o registro manual por tema saiu da tela; as funções ficam para o cartão do tema)
+async function loadRegistrar() { // 14/10: o caderno + o histórico do que já foi marcado como estudado (sem a lista de disciplinas)
   $('mtLista').innerHTML = skeletonCard();
   try { await mtCarregar(true); mtRenderLista(); }
   catch (e) { $('mtLista').innerHTML = `<div class="acaocard"><div class="m">${esc(humanizar(e.message))}</div><button class="btn" onclick="loadRegistrar()">Tentar de novo</button></div>`; }
+  const { data } = await sb.rpc('fn_estudos_meus', { p_edital: editalAtual.id });
+  rgRegs = data || []; rgHistorico();
+}
+let rgHistTodos = false;
+function rgHistorico() { // temas marcados como estudados sem material (o registro manual de antes): nunca some da tela
+  const box = $('rgHistorico'); if (!box) return;
+  const mapa = rgTemas(), lotes = [], vistos = new Set();
+  rgRegs.filter(r => r.fonte !== 'material').forEach(r => { if (!vistos.has(r.lote)) { vistos.add(r.lote); lotes.push(rgRegs.filter(x => x.lote === r.lote)); } });
+  if (!lotes.length) { box.innerHTML = ''; return; }
+  box.innerHTML = `<div class="rg-sec" style="margin-top:22px">TEMAS MARCADOS COMO ESTUDADOS · ${lotes.reduce((s, l) => s + l.length, 0)}</div>` +
+    lotes.slice(0, rgHistTodos ? 500 : 5).map(l => { const nomes = l.map(r => (mapa[r.node_id] || {}).t?.nome || 'Tema');
+      const txt = nomes.length <= 2 ? nomes.join(' e ') : `${nomes.slice(0, 2).join(', ')} e mais ${nomes.length - 2}`;
+      return `<div class="rg-rec"><div class="an">${esc(txt)}<small>${rgQuandoTxt(l[0])}${l[0].fonte ? ' · ' + RG_FONTE_ROT[l[0].fonte] : ''}</small></div>
+        <button type="button" data-lote="${l[0].lote}">desfazer</button></div>`; }).join('') +
+    (lotes.length > 5 && !rgHistTodos ? `<button type="button" class="ss-link" id="rgHistMais">ver todos (${lotes.length})</button>` : '');
+  box.querySelectorAll('[data-lote]').forEach(b => b.onclick = () => desfazerLote(b.dataset.lote));
+  const m = $('rgHistMais'); if (m) m.onclick = () => { rgHistTodos = true; rgHistorico(); };
 }
 function rgLinha(t, regs, opts = {}) {
   const u = regs && regs[0];
@@ -2757,7 +2776,7 @@ async function desfazerLote(lote) {
   if (error) { toast('Não consegui desfazer. Tente de novo.'); return; }
   const n = rgRegs.filter(r => r.lote === lote).length;
   rgRegs = rgRegs.filter(r => r.lote !== lote);
-  tele('estudo_desfeito', { lote, temas: n }); toast(`Registro desfeito (${plural(n, 'tema', 'temas')}).`); renderRegistrar();
+  tele('estudo_desfeito', { lote, temas: n }); toast(`Registro desfeito (${plural(n, 'tema', 'temas')}).`); renderRegistrar(); rgHistorico();
 }
 
 // ---------- MEU CADERNO (29/09/2026, fase A — pedido da equipe; decisão do Fábio) ----------
@@ -2943,6 +2962,7 @@ $('mtGuardar').onclick = async () => {
   } catch (e) {
     if (enviados.length) sb.storage.from(MT_BUCKET).remove(enviados).catch(() => {});
     erro(e.message || 'Não consegui guardar. Tente de novo.');
+    registrarErro('caderno_guardar: ' + (e.message || 'sem mensagem'), (e.stack || '') + ' | tipo=' + E.tipo + ' arquivos=' + mtArquivos.length + ' enviados=' + enviados.length); // 14/10: a falha fica registrada para a equipe
   } finally { mtEnviando = false; bt.disabled = false; bt.textContent = 'Guardar'; }
 };
 $('mtCancelar').onclick = () => $('mtSheet').classList.remove('on');
