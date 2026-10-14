@@ -496,7 +496,10 @@ body.rg-barra-on main { padding-bottom:170px; }
 /* ---------- MEU CADERNO (29/09) ---------- */
 .mt-novo { width:100%; margin:14px 0 4px; }
 .rg-marcar { margin-top:24px; } .rg-marcar span { font-weight:400; letter-spacing:.04em; font-family:inherit; font-size:11px; }
-.mt-uso { float:right; font-weight:400; letter-spacing:.04em; font-family:inherit; font-size:11px; color:var(--dim); }
+.mt-uso { float:right; font-weight:400; letter-spacing:.04em; font-family:inherit; font-size:11px; color:var(--dim); } .mt-uso.quase { color:#FFB36B; } .mt-uso.cheio { color:#FF8A8A; }
+.mt-espaco { font-size:12.5px; color:#FFB36B; margin:6px 0 10px; line-height:1.4; clear:both; padding-top:4px; }
+.mt-ass-d > summary { list-style:none; cursor:pointer; } .mt-ass-d > summary::-webkit-details-marker { display:none; } .mt-ass-d > summary::before { content:'▸'; color:var(--dim); margin-right:6px; font-size:11px; }
+.mt-ass-d[open] > summary::before { content:'▾'; } .mt-pasta { min-height:4px; }
 .mt-vazio { color:var(--dim); font-size:13px; line-height:1.5; margin:10px 2px; }
 .mt-item { display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:rgba(255,255,255,.035); border:1px solid var(--line); border-radius:11px; padding:9px 11px; margin-bottom:6px; color:var(--text); cursor:pointer; font-family:inherit; min-height:48px; }
 .mt-item:hover { border-color:rgba(127,184,255,.45); }
@@ -521,8 +524,8 @@ body.rg-barra-on main { padding-bottom:170px; }
 .rg-disc summary { display:flex; align-items:center; } .rg-disc summary .dc { margin-left:auto; }
 .mt-dl-resumo { font-size:14px; color:#C7D1DE; margin:12px 0 4px; } .mt-dl-resumo b { color:var(--text); } .mt-dl-aviso { color:#FFB36B; font-size:12.5px; }
 #mtBaixar .btn + .btn { margin-top:8px; }
-.mt-ass { display:flex; align-items:center; justify-content:space-between; font-size:11.5px; font-weight:700; letter-spacing:.04em; color:#A9CBF5; margin:12px 2px 6px; text-transform:uppercase; }
-.mt-ass i { font-style:normal; color:var(--dim); font-weight:400; }
+.mt-ass { display:flex; align-items:center; font-size:11.5px; font-weight:700; letter-spacing:.04em; color:#A9CBF5; margin:12px 2px 6px; text-transform:uppercase; }
+.mt-ass i { font-style:normal; color:var(--dim); font-weight:400; margin-left:auto; }
 .rg-disc .rg-in .mt-item { margin-left:0; }
 .mt-sheet { max-height:92dvh; overflow-y:auto; }
 .mt-sheet select, #mtTitulo, #mtTexto { width:100%; min-height:44px; background:#0A1322; border:1px solid var(--line); border-radius:10px; color:var(--text); font-family:inherit; font-size:15px; padding:10px 12px; }
@@ -943,6 +946,7 @@ body.rg-barra-on main { padding-bottom:170px; }
 <div class="sheet mt-sheet" id="mtSheet" role="dialog" aria-modal="true" aria-labelledby="mtSheetT">
   <div class="n" id="mtSheetT">Guardar no meu caderno</div>
   <p>O material fica ligado ao assunto do edital e acende a luz de estudo desses temas. Só você vê.</p>
+  <p class="mt-espaco" id="mtEspaco" style="display:none"></p>
   <div class="k-lbl rg-k" id="mtTipoLbl">O QUE VOCÊ VAI GUARDAR?</div>
   <div class="rg-seg" id="mtTipo"><button type="button" data-t="texto" class="on">Texto</button><button type="button" data-t="foto">Fotos</button><button type="button" data-t="pdf">PDF</button></div>
   <div class="k-lbl rg-k">DISCIPLINA</div><select id="mtDisc" aria-label="Disciplina"></select>
@@ -2823,19 +2827,29 @@ const mtData = (iso) => dataCurta(new Date(iso).toLocaleDateString('sv-SE'));
 // as mensagens das funções do caderno já são frases para o aluno; o resto passa pelo humanizar
 const mtErroTxt = (msg) => /Escolha ao menos|Escreva ou cole|Envie de 1 a 30|Envie um PDF|limite de 1 GB|Arquivo não encontrado|Tipo de arquivo não confere|Assunto fora do edital/i.test(msg || '')
   ? String(msg) : humanizar(msg);
+// 14/10 (ponto 4): o servidor manda só o RESUMO (total, por tipo, pastas com contagem, 3 recentes com prévia);
+// os materiais vêm sob demanda (pasta aberta, busca, filtro, tema, download) e ficam em cache até algo mudar.
+let mtItens = {}; // id → material (texto completo só depois de abrir ou baixar)
 async function mtCarregar(forcar) {
   if (mtDados && !forcar && mtDados.edital === editalAtual.id) return mtDados;
   if (mtCarregando && !forcar) return mtCarregando;
   mtCarregando = (async () => {
     const { data, error } = await sb.rpc('fn_materiais_meus', { p_edital: editalAtual.id });
     mtCarregando = null; if (error) throw error;
-    mtDados = { ...data, edital: editalAtual.id }; return mtDados;
+    mtDados = { ...data, edital: editalAtual.id, cache: {} }; mtGuardarItens(data.recentes || []); return mtDados;
   })();
   return mtCarregando;
 }
-const mtDoTema = (nodeId) => (mtDados?.itens || []).filter(m => (m.temas || []).includes(nodeId));
+function mtGuardarItens(lista) { (lista || []).forEach(m => { const velho = mtItens[m.id]; mtItens[m.id] = velho && velho.texto != null && m.texto == null ? { ...m, texto: velho.texto } : m; }); return lista; }
+function mtInvalidar() { mtDados = null; } // algo mudou: o próximo uso recarrega o resumo e as pastas
+async function mtItensDe(chave, params, forcar) { // lista sob demanda, em cache por chave
+  const d = await mtCarregar(); if (!forcar && d.cache[chave]) return d.cache[chave];
+  const { data, error } = await sb.rpc('fn_materiais_itens', { p_edital: editalAtual.id, ...params }); if (error) throw error;
+  const lista = mtGuardarItens(data || []); if (mtDados === d) d.cache[chave] = lista; return lista;
+}
+const mtPastaN = (f) => (mtDados?.pastas || []).filter(f).reduce((s, p) => s + (p.n || 0), 0);
 const mtCapaUrl = {}; // caminho da capa → link temporário (1 h)
-function mtTitulo(m) { return m.titulo || (m.tipo === 'texto' ? (m.texto || '').replace(/\s+/g, ' ').slice(0, 70) : `${m.tipo === 'pdf' ? 'PDF' : 'Fotos'} · ${m.assunto}`); }
+function mtTitulo(m) { return m.titulo || (m.tipo === 'texto' ? (m.texto || m.previa || '').replace(/\s+/g, ' ').slice(0, 70) : `${m.tipo === 'pdf' ? 'PDF' : 'Fotos'} · ${m.assunto}`); }
 function mtItemHtml(m, modo = 'completo') { // 'completo' (disciplina · assunto), 'assunto' (dentro da pasta: só os temas), 'compacto' (cartão do tema)
   const temas = rgTemas(), nomes = (m.temas || []).map(id => temas[id]?.t.nome).filter(Boolean);
   const qual = m.tipo === 'foto' ? plural((m.arquivos || []).length, 'foto', 'fotos') : m.tipo === 'pdf' ? 'PDF' : 'resumo digitado';
@@ -2854,65 +2868,84 @@ async function mtPintarCapas(raiz) {
   els.forEach(e => { const u = mtCapaUrl[e.dataset.capa]; if (u && !e.style.backgroundImage) e.style.backgroundImage = `url('${u}')`; });
 }
 // lista da aba REGISTRAR — o caderno espelha o edital (14/10): disciplina → assunto → materiais; recentes no topo; busca; filtro; ordem
-let mtBusca = '', mtFiltro = 'todos', mtOrdem = 'disciplina', mtAbertas = new Set(), mtLimite = 60;
-const mtBate = (m, q) => { // cada palavra da busca precisa aparecer em algum campo ("lei 8.112" acha "Lei nº 8.112/1990")
-  const t = rgTemas(), campos = [mtTitulo(m), m.titulo, m.texto, m.disciplina, m.assunto, ...(m.temas || []).map(id => t[id]?.t.nome)].filter(Boolean).map(semAcento).join(' \n ');
-  return q.split(/\s+/).filter(Boolean).every(w => campos.includes(w)); };
+let mtBusca = '', mtFiltro = 'todos', mtOrdem = 'disciplina', mtAbertas = new Set(), mtAssAbertos = new Set(), mtLimite = 60, mtPedido = 0;
+const MT_PAGINA = 60;
+const mtUsoPct = () => mtDados && mtDados.limite_bytes ? (mtDados.bytes_usados || 0) / mtDados.limite_bytes : 0;
+function mtUsoHtml() { // aviso a partir de 80% do 1 GB
+  const pct = mtUsoPct(), txt = `${mtTamanho(mtDados.bytes_usados || 0)} de 1 GB`;
+  return pct >= 1 ? `<span class="mt-uso cheio">${txt} · cheio</span>` : pct >= .8 ? `<span class="mt-uso quase">${txt} · ${Math.round(pct * 100)}%</span>` : `<span class="mt-uso">${txt}</span>`;
+}
+async function mtListaCorrida(chave, params) { // busca / filtro / mais recentes: vem do servidor, 60 por vez
+  const box = $('mtLista'), meu = ++mtPedido, alvo = () => box.querySelector('#mtCorrida');
+  try { const lista = await mtItensDe(chave, { ...params, p_limite: mtLimite }); if (meu !== mtPedido || !alvo()) return;
+    alvo().innerHTML = (lista.map(m => mtItemHtml(m, 'completo')).join('') || `<p class="mt-vazio">${params.p_busca ? 'Nada com esse nome no seu caderno.' : 'Nada por aqui.'}</p>`) +
+      (lista.length >= mtLimite ? `<button type="button" class="ss-link" id="mtMais">ver mais</button>` : '');
+    const mais = $('mtMais'); if (mais) mais.onclick = () => { mtLimite += MT_PAGINA; delete mtDados.cache[chave]; mtRenderLista(); };
+    alvo().querySelectorAll('[data-mt]').forEach(b => b.onclick = () => mtVer(b.dataset.mt)); mtPintarCapas(alvo());
+  } catch (e) { if (alvo()) alvo().innerHTML = `<p class="mt-vazio">Não consegui carregar agora. Tente de novo.</p>`; }
+}
+async function mtAbrirPasta(el, assuntoId) { // materiais de um assunto só quando a pasta abre
+  const alvo = el.querySelector('.mt-pasta'); if (!alvo || alvo.dataset.ok) return; alvo.innerHTML = skeletonCard();
+  try { const lista = await mtItensDe('a:' + assuntoId, { p_assunto: assuntoId, p_limite: 200 }); if (!alvo.isConnected) return;
+    alvo.innerHTML = lista.map(m => mtItemHtml(m, 'assunto')).join('') + (lista.length >= 200 ? '<p class="mt-vazio">Mostrando os 200 mais recentes deste assunto: use a busca para achar os outros.</p>' : ''); alvo.dataset.ok = '1';
+    alvo.querySelectorAll('[data-mt]').forEach(b => b.onclick = () => mtVer(b.dataset.mt)); mtPintarCapas(alvo);
+  } catch (e) { alvo.innerHTML = `<p class="mt-vazio">Não consegui abrir esta pasta agora.</p>`; }
+}
 function mtRenderLista() {
   const box = $('mtLista'); if (!box) return;
   if (!mtDados) { box.innerHTML = ''; return; }
-  const tudo = mtDados.itens || [];
-  if (!tudo.length) { box.innerHTML = `<p class="mt-vazio">Seu caderno ainda está vazio. Guarde aqui seus resumos (digitados ou fotos do caderno) e PDFs, cada um no assunto do edital. Eles acendem a luz de estudo no seu cérebro.</p>`; return; }
-  const q = semAcento(mtBusca.trim());
-  let it = tudo.filter(m => mtFiltro === 'todos' || m.tipo === mtFiltro);
-  if (q.length >= 2) it = it.filter(m => mtBate(m, q));
-  const nTipo = (t) => tudo.filter(m => m.tipo === t).length;
-  let html = `<div class="rg-sec">MEU CADERNO · ${plural(tudo.length, 'MATERIAL', 'MATERIAIS')}<span class="mt-uso">${mtTamanho(mtDados.bytes_usados || 0)} de 1 GB</span></div>
+  const total = mtDados.total || 0, porTipo = mtDados.por_tipo || {};
+  if (!total) { box.innerHTML = `<p class="mt-vazio">Seu caderno ainda está vazio. Guarde aqui seus resumos (digitados ou fotos do caderno) e PDFs, cada um no assunto do edital. Eles acendem a luz de estudo no seu cérebro.</p>`; return; }
+  const q = mtBusca.trim();
+  const nTipo = (t) => porTipo[t] || 0;
+  let html = `<div class="rg-sec">MEU CADERNO · ${plural(total, 'MATERIAL', 'MATERIAIS')}${mtUsoHtml()}</div>` +
+    (mtUsoPct() >= .8 ? `<p class="mt-espaco">${mtUsoPct() >= 1 ? 'Seu caderno chegou ao limite de 1 GB: para guardar fotos ou PDFs novos, exclua materiais antigos.' : 'Seu caderno está quase cheio: a partir de 1 GB, fotos e PDFs novos não entram. Exclua o que não precisa mais ou baixe o ZIP para guardar fora.'}</p>` : '');
+  html += `
     <button type="button" class="mt-dl-topo" id="mtDlTopo">⤓ Baixar meu caderno (ZIP ou PDF)</button>
     <div class="mt-tools"><input type="search" id="mtBuscaIn" placeholder="Buscar no caderno (título, texto, disciplina, tema)…" value="${esc(mtBusca)}" autocomplete="off" aria-label="Buscar no caderno">
-      <div class="mt-chips">${[['todos', 'Todos', tudo.length], ['texto', 'Textos', nTipo('texto')], ['foto', 'Fotos', nTipo('foto')], ['pdf', 'PDFs', nTipo('pdf')]]
+      <div class="mt-chips">${[['todos', 'Todos', total], ['texto', 'Textos', nTipo('texto')], ['foto', 'Fotos', nTipo('foto')], ['pdf', 'PDFs', nTipo('pdf')]]
         .map(([k, l, n]) => `<button type="button" data-f="${k}" class="${mtFiltro === k ? 'on' : ''}">${l} <i>${n}</i></button>`).join('')}
         <select id="mtOrdemSel" aria-label="Ordem"><option value="disciplina"${mtOrdem === 'disciplina' ? ' selected' : ''}>Por disciplina</option><option value="recentes"${mtOrdem === 'recentes' ? ' selected' : ''}>Mais recentes</option></select></div></div>`;
-  if (q.length >= 2 || mtOrdem === 'recentes') { // lista corrida (busca ou "mais recentes")
-    html += `<div class="rg-sec" style="margin-top:12px">${q.length >= 2 ? plural(it.length, 'MATERIAL ENCONTRADO', 'MATERIAIS ENCONTRADOS') : 'MAIS RECENTES'}</div>` +
-      (it.slice(0, mtLimite).map(m => mtItemHtml(m, 'completo')).join('') || '<p class="mt-vazio">Nada com esse nome no seu caderno.</p>') +
-      (it.length > mtLimite ? `<button type="button" class="ss-link" id="mtMais">ver mais (${it.length - mtLimite})</button>` : '');
-  } else { // por disciplina, na ordem do edital, tudo recolhido (recentes no topo)
-    if (tudo.length > 3) html += `<div class="rg-sec" style="margin-top:12px">RECENTES</div><div class="mt-recentes">${tudo.slice(0, 3).map(m => mtItemHtml(m, 'completo')).join('')}</div>`;
+  let corrida = null;
+  if (q.length >= 2 || mtFiltro !== 'todos' || mtOrdem === 'recentes') { // lista corrida: busca, filtro por tipo ou "mais recentes" (servidor)
+    corrida = { chave: `l:${mtFiltro}:${q.length >= 2 ? q : ''}:${mtLimite}`, params: { p_tipo: mtFiltro === 'todos' ? null : mtFiltro, p_busca: q.length >= 2 ? q : null } };
+    html += `<div class="rg-sec" style="margin-top:12px">${q.length >= 2 ? 'ENCONTRADOS' : mtFiltro !== 'todos' ? { texto: 'RESUMOS DIGITADOS', foto: 'FOTOS DO CADERNO', pdf: 'PDFS' }[mtFiltro] : 'MAIS RECENTES'}</div><div id="mtCorrida">${skeletonCard()}</div>`;
+  } else { // por disciplina, na ordem do edital; só contagens até a pasta abrir (recentes no topo)
+    const rec = mtDados.recentes || [];
+    if (total > 3 && rec.length) html += `<div class="rg-sec" style="margin-top:12px">RECENTES</div><div class="mt-recentes">${rec.map(m => mtItemHtml(m, 'completo')).join('')}</div>`;
     html += `<div class="rg-sec" style="margin-top:14px">POR DISCIPLINA</div>`;
-    rgDiscs().forEach(d => { const dm = it.filter(m => m.disciplina_id === d.disciplina_id); if (!dm.length) return;
-      const ass = d.assuntos.filter(a => dm.some(m => m.assunto_id === a.assunto_id));
+    rgDiscs().forEach(d => { const nd = mtPastaN(p => p.disciplina_id === d.disciplina_id); if (!nd) return;
+      const ass = d.assuntos.filter(a => mtPastaN(p => p.assunto_id === a.assunto_id));
       html += `<details class="rg-disc" data-d="${d.disciplina_id}"${mtAbertas.has(d.disciplina_id) ? ' open' : ''}>
-        <summary><span class="dn">${esc(d.disciplina)}</span><span class="dc">${plural(dm.length, 'material', 'materiais')} · ${plural(ass.length, 'assunto', 'assuntos')}</span><button type="button" class="mt-dl" data-dl-disc="${d.disciplina_id}" aria-label="Baixar ${esc(d.disciplina)}">⤓</button></summary>
-        <div class="rg-in">${ass.map(a => { const am = dm.filter(m => m.assunto_id === a.assunto_id);
-          return `<div class="mt-ass"><span>${esc(a.assunto)}</span><i>${am.length}</i><button type="button" class="mt-dl" data-dl-ass="${a.assunto_id}" data-dl-disc="${d.disciplina_id}" aria-label="Baixar ${esc(a.assunto)}">⤓</button></div>` + am.map(m => mtItemHtml(m, 'assunto')).join(''); }).join('')}</div></details>`; });
+        <summary><span class="dn">${esc(d.disciplina)}</span><span class="dc">${plural(nd, 'material', 'materiais')} · ${plural(ass.length, 'assunto', 'assuntos')}</span><button type="button" class="mt-dl" data-dl-disc="${d.disciplina_id}" aria-label="Baixar ${esc(d.disciplina)}">⤓</button></summary>
+        <div class="rg-in">${ass.map(a => `<details class="mt-ass-d" data-a="${a.assunto_id}"${mtAssAbertos.has(a.assunto_id) ? ' open' : ''}><summary class="mt-ass"><span>${esc(a.assunto)}</span><i>${mtPastaN(p => p.assunto_id === a.assunto_id)}</i><button type="button" class="mt-dl" data-dl-ass="${a.assunto_id}" data-dl-disc="${d.disciplina_id}" aria-label="Baixar ${esc(a.assunto)}">⤓</button></summary><div class="mt-pasta"></div></details>`).join('')}</div></details>`; });
   }
   box.innerHTML = html;
   box.querySelectorAll('[data-mt]').forEach(b => b.onclick = () => mtVer(b.dataset.mt));
+  box.querySelectorAll('.mt-ass-d').forEach(el => { el.ontoggle = () => { el.open ? mtAssAbertos.add(el.dataset.a) : mtAssAbertos.delete(el.dataset.a); if (el.open) mtAbrirPasta(el, el.dataset.a); }; if (el.open) mtAbrirPasta(el, el.dataset.a); });
+  if (corrida) mtListaCorrida(corrida.chave, corrida.params);
   const dt = $('mtDlTopo'); if (dt) dt.onclick = () => mtAbrirBaixar({ nivel: 'tudo' });
   box.querySelectorAll('.mt-dl').forEach(b => b.onclick = (e) => { e.preventDefault(); e.stopPropagation();
     mtAbrirBaixar(b.dataset.dlAss ? { nivel: 'ass', disc: b.dataset.dlDisc, ass: b.dataset.dlAss } : { nivel: 'disc', disc: b.dataset.dlDisc }); });
   box.querySelectorAll('.rg-disc').forEach(el => el.ontoggle = () => { el.open ? mtAbertas.add(el.dataset.d) : mtAbertas.delete(el.dataset.d); if (el.open) mtPintarCapas(el); });
-  box.querySelectorAll('.mt-chips [data-f]').forEach(b => b.onclick = () => { mtFiltro = b.dataset.f; mtRenderLista(); });
-  const o = $('mtOrdemSel'); if (o) o.onchange = () => { mtOrdem = o.value; mtLimite = 60; mtRenderLista(); };
-  const m = $('mtMais'); if (m) m.onclick = () => { mtLimite += 60; mtRenderLista(); };
-  const bi = $('mtBuscaIn'); if (bi) { let t = null; bi.oninput = () => { clearTimeout(t); t = setTimeout(() => { const pos = bi.selectionStart; mtBusca = bi.value; mtLimite = 60; mtRenderLista();
+  box.querySelectorAll('.mt-chips [data-f]').forEach(b => b.onclick = () => { mtFiltro = b.dataset.f; mtLimite = MT_PAGINA; mtRenderLista(); });
+  const o = $('mtOrdemSel'); if (o) o.onchange = () => { mtOrdem = o.value; mtLimite = MT_PAGINA; mtRenderLista(); };
+  const bi = $('mtBuscaIn'); if (bi) { let t = null; bi.oninput = () => { clearTimeout(t); t = setTimeout(() => { const pos = bi.selectionStart; mtBusca = bi.value; mtLimite = MT_PAGINA; mtRenderLista();
     const n = $('mtBuscaIn'); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) {} } }, 200); }; }
   mtPintarCapas(box);
 }
 // seção "Seus materiais" no cartão do tema (Cérebro) e no detalhe do tema (Meu edital)
 async function mtSecao(el, nodeId, assuntoId, origem) {
   if (!el) return;
-  const pinta = () => {
-    const it = mtDoTema(nodeId);
-    el.innerHTML = `<div class="mt-k">SEUS MATERIAIS${it.length ? ' · ' + it.length : ''}</div>` + it.slice(0, 4).map(m => mtItemHtml(m, 'compacto')).join('') +
-      (it.length > 4 ? `<div class="mt-mais">e mais ${it.length - 4} na aba Registrar</div>` : '') +
+  const pinta = (it) => {
+    el.innerHTML = `<div class="mt-k">SEUS MATERIAIS${it.length ? ' · ' + (it.length > 4 ? '4+' : it.length) : ''}</div>` + it.slice(0, 4).map(m => mtItemHtml(m, 'compacto')).join('') +
+      (it.length > 4 ? `<div class="mt-mais">e mais na aba Registrar</div>` : '') +
       `<button type="button" class="mt-add">＋ Guardar resumo, foto ou PDF deste tema</button>`;
     el.querySelectorAll('[data-mt]').forEach(b => b.onclick = () => mtVer(b.dataset.mt)); mtPintarCapas(el);
     el.querySelector('.mt-add').onclick = () => mtAbrir({ assunto_id: assuntoId, temas: [nodeId], origem });
   };
-  if (mtDados && mtDados.edital === editalAtual.id) pinta();
-  else { el.innerHTML = ''; try { await mtCarregar(); if (el.isConnected) pinta(); } catch (e) { /* sem materiais agora: a seção fica oculta */ } }
+  pinta([]); // o botão de guardar aparece na hora; os materiais do tema chegam em seguida
+  try { const it = await mtItensDe('t:' + nodeId, { p_tema: nodeId, p_limite: 5 }); if (el.isConnected) pinta(it); } catch (e) { /* fica só o botão */ }
 }
 // ---- guardar ----
 // última disciplina e assunto usados neste edital (quem estuda um tema guarda vários materiais em sequência)
@@ -2933,6 +2966,8 @@ function mtAbrir(pre = {}) {
   $('mtSheetT').textContent = ed ? 'Editar material' : 'Guardar no meu caderno';
   $('mtTipoLbl').style.display = $('mtTipo').style.display = $('mtConteudo').style.display = ed ? 'none' : '';
   $('mtGuardar').textContent = ed ? 'Salvar alterações' : 'Guardar';
+  const pct = ed ? 0 : mtUsoPct(); $('mtEspaco').style.display = pct >= .8 ? '' : 'none';
+  $('mtEspaco').textContent = pct >= 1 ? 'Seu caderno chegou ao limite de 1 GB: resumos digitados ainda entram; para fotos ou PDFs, exclua materiais antigos.' : `Seu caderno está com ${Math.round(pct * 100)}% do espaço (1 GB). Fotos e PDFs novos param de entrar quando encher.`;
   if (!ed) mtTipo(mtEstado.tipo); else $('mtConteudo').innerHTML = '';
   $('cvInfo') && $('cvInfo').classList.remove('on'); $('mtVer').classList.remove('on');
   $('mtSheet').classList.add('on'); $('mtSheet').scrollTop = 0;
@@ -3040,7 +3075,7 @@ $('mtGuardar').onclick = async () => {
     try {
       const { data, error } = await sb.rpc('fn_material_editar', { p_id: E.editando, p_titulo: $('mtTitulo').value.trim() || mtTituloAuto(E.tipo, E.assunto, E.temas), p_assunto: E.assunto, p_temas: [...E.temas] });
       if (error) throw new Error(mtErroTxt(error.message));
-      if (mtDados) mtDados.itens = (mtDados.itens || []).map(m => m.id === data.id ? data : m);
+      mtGuardarItens([data]); mtInvalidar();
       mtLembrar($('mtDisc').value, E.assunto); tele('material_editado', { temas: E.temas.size });
       $('mtSheet').classList.remove('on'); toast('Alterações salvas.'); mtDepoisDeMudar();
     } catch (e) { erro(e.message || 'Não consegui salvar. Tente de novo.'); registrarErro('caderno_editar: ' + (e.message || ''), e.stack); }
@@ -3050,6 +3085,7 @@ $('mtGuardar').onclick = async () => {
   const texto = E.tipo === 'texto' ? $('mtTexto').value : null;
   if (E.tipo === 'texto' && texto.trim().length < 3) return erro('Escreva ou cole o seu resumo.');
   if (E.tipo !== 'texto' && !mtArquivos.length) return erro(E.tipo === 'foto' ? 'Escolha ao menos uma foto.' : 'Escolha o PDF.');
+  if (E.tipo !== 'texto' && mtUsoPct() >= 1) return erro('Seu caderno chegou ao limite de 1 GB. Exclua materiais antigos para guardar fotos ou PDFs novos.');
   mtEnviando = true; const bt = $('mtGuardar'); bt.disabled = true; erro('');
   const enviados = []; let capa = null;
   try {
@@ -3078,7 +3114,7 @@ $('mtGuardar').onclick = async () => {
     const { data, error } = await sb.rpc('fn_material_guardar', { p_edital: editalAtual.id, p_assunto: E.assunto, p_temas: [...E.temas], p_tipo: E.tipo,
       p_titulo: $('mtTitulo').value.trim() || mtTituloAuto(E.tipo, E.assunto, E.temas), p_texto: texto, p_arquivos: paginas.length ? paginas : null, p_capa: capa });
     if (error) throw new Error(mtErroTxt(error.message));
-    if (mtDados && mtDados.edital === editalAtual.id) { mtDados.itens = [data, ...(mtDados.itens || [])]; mtDados.bytes_usados = (mtDados.bytes_usados || 0) + (data.bytes || 0); }
+    mtGuardarItens([data]); mtInvalidar();
     tele('material_guardado', { tipo: E.tipo, temas: E.temas.size, arquivos: enviados.length }); mtLembrar($('mtDisc').value, E.assunto);
     $('mtSheet').classList.remove('on');
     toast(`Guardado no seu caderno. A luz de estudo acendeu em ${plural(E.temas.size, 'tema', 'temas')}.`);
@@ -3114,8 +3150,9 @@ const MT_PDF_SIMB = [[/[★☆]/g, '*'], [/…/g, '...'], [/[→⇒⇨➔➜➝�
   [/^([ \t]*)[✓✔☑✅]\s*/gm, '$1• '], [/[✓✔☑✅]/g, '(ok)'], [/[✗✘❌❎]/g, 'x'], [/^([ \t]*)[●○■□▪▫◆◇▸▹▶►➢➤➣‣⁃]\s*/gm, '$1• '], [/[●○■□▪▫◆◇▸▹▶►➢➤➣‣⁃]/g, '•'],
   [/≤/g, '<='], [/≥/g, '>='], [/≠/g, '!='], [/≈/g, '~'], [/[⚠❗❕]/g, '(!)'], [/[\u200b\u200c\u200d\ufe0f\u00a0]/g, ' ']];
 const mtTxtPdf = (t) => { let x = String(t || ''); MT_PDF_SIMB.forEach(([re, r]) => { x = x.replace(re, r); }); return x.replace(/[^\u0000-\u00ff\u2022]/g, '').replace(/[ \t]{2,}/g, ' '); };
+let mtDlItens = []; // materiais do escopo escolhido, completos (texto inteiro), vindos do servidor ao abrir a folha
 function mtSelecao(escopo = mtEscopo) { // materiais do escopo, na ordem do edital (disciplina → assunto → mais novo primeiro)
-  const tudo = (mtDados && mtDados.itens) || [], temas = rgTemas(), grupos = [];
+  const tudo = mtDlItens, temas = rgTemas(), grupos = [];
   rgDiscs().forEach((d, di) => { if (escopo.nivel !== 'tudo' && d.disciplina_id !== escopo.disc) return;
     d.assuntos.forEach(a => { if (escopo.nivel === 'ass' && a.assunto_id !== escopo.ass) return;
       const ms = tudo.filter(m => m.disciplina_id === d.disciplina_id && m.assunto_id === a.assunto_id); if (!ms.length) return;
@@ -3125,21 +3162,29 @@ function mtSelecao(escopo = mtEscopo) { // materiais do escopo, na ordem do edit
   return { grupos, itens, bytes, rotulo, fotos: itens.filter(m => m.tipo === 'foto').reduce((s, m) => s + (m.arquivos || []).length, 0) };
 }
 function mtAbrirBaixar(pre = {}) {
-  if (!mtDados || !(mtDados.itens || []).length) { toast('Seu caderno ainda está vazio.'); return; }
+  if (!mtDados || !mtDados.total) { toast('Seu caderno ainda está vazio.'); return; }
   mtEscopo = { nivel: pre.nivel || 'tudo', disc: pre.disc || null, ass: pre.ass || null };
-  const com = rgDiscs().filter(d => mtDados.itens.some(m => m.disciplina_id === d.disciplina_id));
+  const com = rgDiscs().filter(d => mtPastaN(p => p.disciplina_id === d.disciplina_id));
   if (mtEscopo.nivel !== 'tudo' && !mtEscopo.disc) mtEscopo.disc = com[0] && com[0].disciplina_id;
   $('mtDlDisc').innerHTML = com.map(d => `<option value="${d.disciplina_id}"${d.disciplina_id === mtEscopo.disc ? ' selected' : ''}>${esc(d.disciplina)}</option>`).join('');
   mtDlPintar(); $('mtDlErro').textContent = '';
   $('mtVer').classList.remove('on'); $('mtBaixar').classList.add('on'); $('mtBaixar').scrollTop = 0;
   tele('material_baixar_abrir', { nivel: mtEscopo.nivel });
 }
-function mtDlPintar() {
+let mtDlPedido = 0;
+async function mtDlPintar() {
   const n = mtEscopo.nivel; document.querySelectorAll('#mtDlNivel button').forEach(b => b.classList.toggle('on', b.dataset.n === n));
   $('mtDlDiscBox').style.display = n === 'tudo' ? 'none' : ''; $('mtDlAssBox').style.display = n === 'ass' ? '' : 'none';
-  if (n === 'ass') { const d = rgDiscs().find(x => x.disciplina_id === mtEscopo.disc), com = d ? d.assuntos.filter(a => mtDados.itens.some(m => m.assunto_id === a.assunto_id)) : [];
+  if (n === 'ass') { const d = rgDiscs().find(x => x.disciplina_id === mtEscopo.disc), com = d ? d.assuntos.filter(a => mtPastaN(p => p.assunto_id === a.assunto_id)) : [];
     if (!com.some(a => a.assunto_id === mtEscopo.ass)) mtEscopo.ass = com[0] && com[0].assunto_id;
     $('mtDlAss').innerHTML = com.map(a => `<option value="${a.assunto_id}"${a.assunto_id === mtEscopo.ass ? ' selected' : ''}>${esc(a.assunto)}</option>`).join(''); }
+  // contagem imediata pelas pastas; os materiais completos chegam em seguida
+  const nPasta = mtPastaN(p => n === 'tudo' || (n === 'disc' ? p.disciplina_id === mtEscopo.disc : p.assunto_id === mtEscopo.ass));
+  $('mtDlResumo').innerHTML = `<b>${plural(nPasta, 'material', 'materiais')}</b> · preparando…`; $('mtDlZip').disabled = $('mtDlPdf').disabled = true;
+  const meu = ++mtDlPedido, chave = `dl:${n}:${n === 'tudo' ? '' : n === 'disc' ? mtEscopo.disc : mtEscopo.ass}`;
+  try { const lista = await mtItensDe(chave, { p_disciplina: n === 'disc' ? mtEscopo.disc : null, p_assunto: n === 'ass' ? mtEscopo.ass : null, p_completo: true, p_limite: 2000 });
+    if (meu !== mtDlPedido) return; mtDlItens = lista;
+  } catch (e) { if (meu !== mtDlPedido) return; $('mtDlResumo').innerHTML = ''; $('mtDlErro').textContent = 'Não consegui listar os materiais agora. Tente de novo.'; return; }
   const sel = mtSelecao(), grande = sel.bytes > MT_LIMITE_DL;
   $('mtDlResumo').innerHTML = `<b>${plural(sel.itens.length, 'material', 'materiais')}</b> · ${mtTamanho(sel.bytes)}${sel.fotos ? ` · ${plural(sel.fotos, 'página de foto', 'páginas de foto')}` : ''}` +
     (grande ? `<br><span class="mt-dl-aviso">Muito grande para montar no aparelho de uma vez: baixe por disciplina.</span>` : '');
@@ -3248,7 +3293,12 @@ $('mtDlZip').onclick = () => mtBaixar('zip');
 $('mtDlPdf').onclick = () => mtBaixar('pdf');
 // ---- ver / excluir ----
 async function mtVer(id) {
-  const m = (mtDados?.itens || []).find(x => x.id === id); if (!m) return;
+  let m = mtItens[id];
+  if (!m || (m.tipo === 'texto' && m.texto == null)) { // texto completo só ao abrir
+    const { data, error } = await sb.rpc('fn_material_ver', { p_id: id });
+    if (error || !data) { toast('Não consegui abrir agora. Tente de novo.'); return; }
+    m = mtItens[id] = { ...(m || {}), ...data };
+  }
   const temas = rgTemas(), nomes = (m.temas || []).map(i => temas[i]?.t.nome).filter(Boolean);
   $('mtVerIn').innerHTML = `<div class="mt-bc">${esc(m.disciplina).toUpperCase()} · ${esc(m.assunto).toUpperCase()}</div>
     <div class="n">${esc(m.titulo || MT_TIPO[m.tipo])}</div>
@@ -3271,7 +3321,7 @@ async function mtVer(id) {
     const { data, error } = await sb.rpc('fn_material_excluir', { p_id: m.id });
     if (error) { toast('Não consegui excluir. Tente de novo.'); $('mtExcluir').disabled = false; return; }
     const paths = ((data && data.arquivos) || []).filter(Boolean); if (paths.length) await sb.storage.from(MT_BUCKET).remove(paths); // páginas + capa
-    mtDados.itens = mtDados.itens.filter(x => x.id !== m.id); mtDados.bytes_usados = Math.max(0, (mtDados.bytes_usados || 0) - (m.bytes || 0));
+    delete mtItens[m.id]; mtInvalidar();
     tele('material_excluido', { tipo: m.tipo });
     $('mtVer').classList.remove('on'); toast('Material excluído.'); mtDepoisDeMudar();
   };
