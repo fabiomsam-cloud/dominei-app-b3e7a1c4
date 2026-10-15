@@ -248,10 +248,11 @@ body.tabs main { padding-bottom:96px; }
 .rg-disc { border:1px solid var(--line); border-radius:13px; background:var(--glass); margin-bottom:8px; }
 .rg-disc > summary { list-style:none; cursor:pointer; padding:12px 14px; min-height:48px; display:flex; align-items:center; gap:10px; }
 .rg-disc > summary::-webkit-details-marker { display:none; }
-.rg-disc > summary .dn { flex:1; font-weight:700; font-size:var(--fs-corpo); }
+.rg-disc > summary .dn { flex:1; min-width:0; font-weight:700; font-size:var(--fs-corpo); line-height:1.3; }
+.rg-disc > summary .dn small { display:block; font-weight:400; color:var(--dim); font-size:var(--fs-meta); margin-top:2px; }
 .rg-disc > summary .dc { font-family:var(--mono); font-size:var(--fs-rotulo); color:var(--dim); white-space:nowrap; }
-.rg-disc > summary::after { content:'›'; color:var(--dim); font-size:var(--fs-leitura); transition:transform .2s; }
-.rg-disc[open] > summary::after { transform:rotate(90deg); }
+.rg-disc > summary::after { content:''; flex:0 0 auto; width:7px; height:7px; margin:0 6px 0 2px; border-right:1.5px solid var(--dim); border-bottom:1.5px solid var(--dim); transform:rotate(-45deg); transition:transform .2s; }
+.rg-disc[open] > summary::after { transform:rotate(45deg); }
 .rg-disc .rg-in { padding:0 8px 8px; }
 .rg-row { display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:none; border:none; color:var(--text); padding:10px 8px; min-height:52px; border-radius:10px; cursor:pointer; font-family:inherit; }
 .rg-row:hover { background:rgba(132,170,214,.06); }
@@ -495,12 +496,26 @@ body.rg-barra-on main { padding-bottom:170px; }
 .rv-hero .legend span::before { display:none; }
 
 /* ---------- MEU CADERNO (29/09) ---------- */
-.mt-novo { width:100%; margin:14px 0 4px; }
+.mt-novo { width:100%; margin:14px 0 4px; display:flex; align-items:center; justify-content:center; gap:8px; }
+.mt-novo svg, .mt-add svg { flex:0 0 auto; }
+/* estado vazio = primeira ação (clarify 14/10): mesmos ladrilhos azuis dos materiais guardados */
+.mt-vazio-t { font-family:'Archivo'; font-variation-settings:'wdth' 92,'wght' 800; font-size:var(--fs-leitura); margin:22px 2px 4px; }
+.mt-atalhos { display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+.mt-atalhos button { display:flex; align-items:center; gap:12px; width:100%; min-height:56px; padding:10px 14px; text-align:left; background:rgba(255,255,255,.035); border:1px solid var(--line); border-radius:12px; color:var(--text); font-size:var(--fs-corpo); font-weight:700; }
+.mt-atalhos button:hover, .mt-atalhos button:focus-visible { border-color:rgba(127,184,255,.45); }
+.mt-atalhos button small { display:block; color:var(--dim); font-weight:400; font-size:var(--fs-meta); margin-top:2px; }
+.mt-atalhos .mt-ic { flex:0 0 36px; height:36px; background-image:none; color:#A9CBF5; }
+.mt-atalhos .mt-ic::after { content:none; }
+/* cabeçalho da lista: contagem + espaço + baixar numa linha (polish 14/10) */
+.mt-cab { display:flex; align-items:center; gap:8px; margin:18px 2px 4px; color:var(--dim); font-size:var(--fs-meta); }
+.mt-cab .mt-uso { float:none; font-size:var(--fs-meta); letter-spacing:0; }
+.mt-baixar { margin-left:auto; display:inline-flex; align-items:center; gap:6px; min-height:44px; padding:0 4px 0 10px; background:none; color:#A9CBF5; font-weight:700; font-size:var(--fs-meta); }
+.mt-sec { font-size:var(--fs-meta); font-weight:700; color:var(--dim); margin:18px 2px 8px; }
 .rg-marcar { margin-top:24px; } .rg-marcar span { font-weight:400; letter-spacing:.04em; font-family:inherit; font-size:var(--fs-rotulo); }
 .mt-uso { float:right; font-weight:400; letter-spacing:.04em; font-family:inherit; font-size:var(--fs-rotulo); color:var(--dim); } .mt-uso.quase { color:#FFB36B; } .mt-uso.cheio { color:#FF8A8A; }
 .mt-espaco { font-size:var(--fs-meta); color:#FFB36B; margin:6px 0 10px; line-height:1.4; clear:both; padding-top:4px; }
-.mt-ass-d > summary { list-style:none; cursor:pointer; } .mt-ass-d > summary::-webkit-details-marker { display:none; } .mt-ass-d > summary::before { content:'▸'; color:var(--dim); margin-right:6px; font-size:var(--fs-rotulo); }
-.mt-ass-d[open] > summary::before { content:'▾'; } .mt-pasta { min-height:4px; }
+.mt-ass-d > summary { list-style:none; cursor:pointer; } .mt-ass-d > summary::-webkit-details-marker { display:none; } .mt-ass-d > summary::before { content:''; flex:0 0 auto; width:6px; height:6px; margin:0 10px 0 2px; border-right:1.5px solid var(--dim); border-bottom:1.5px solid var(--dim); transform:rotate(-45deg); transition:transform .2s; }
+.mt-ass-d[open] > summary::before { transform:rotate(45deg); } .mt-pasta { min-height:4px; }
 .mt-vazio { color:var(--dim); font-size:var(--fs-meta); line-height:1.5; margin:10px 2px; }
 .mt-item { display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:rgba(255,255,255,.035); border:1px solid var(--line); border-radius:11px; padding:9px 11px; margin-bottom:6px; color:var(--text); cursor:pointer; font-family:inherit; min-height:48px; }
 .mt-item:hover { border-color:rgba(127,184,255,.45); }
@@ -514,18 +529,19 @@ body.rg-barra-on main { padding-bottom:170px; }
 .mt-ic.mt-capa { background-size:cover; background-position:center top; }
 .mt-ic.mt-capa[style] { background-image:none; } .mt-ic.mt-capa[style*="url"]::after { content:none; }
 .mt-tools { margin:8px 0 2px; }
-.mt-tools input[type=search] { width:100%; min-height:42px; background:#0A1322; border:1px solid var(--line); border-radius:10px; color:var(--text); font-family:inherit; font-size:var(--fs-corpo); padding:8px 12px; }
+.mt-tools input[type=search] { width:100%; min-height:44px; background:#0A1322; border:1px solid var(--line); border-radius:10px; color:var(--text); font-family:inherit; font-size:var(--fs-corpo); padding:8px 12px; }
 .mt-chips { display:flex; gap:6px; margin-top:8px; align-items:center; flex-wrap:wrap; }
-.mt-chips button { background:none; border:1px solid var(--line); color:var(--dim); border-radius:20px; padding:5px 10px; font-size:var(--fs-meta); font-weight:700; font-family:inherit; min-height:32px; cursor:pointer; }
+.mt-chips button { background:none; border:1px solid var(--line); color:var(--dim); border-radius:22px; padding:5px 12px; font-size:var(--fs-meta); font-weight:700; font-family:inherit; min-height:44px; cursor:pointer; }
 .mt-chips button.on { color:var(--text); border-color:#7FB8FF; background:rgba(127,184,255,.12); } .mt-chips button i { font-style:normal; font-weight:400; opacity:.75; margin-left:3px; }
-.mt-chips select { margin-left:auto; background:#0A1322; border:1px solid var(--line); color:var(--dim); border-radius:20px; padding:5px 8px; font-size:var(--fs-meta); font-family:inherit; min-height:32px; }
+.mt-chips select { margin-left:auto; background:#0A1322; border:1px solid var(--line); color:var(--dim); border-radius:22px; padding:5px 10px; font-size:var(--fs-meta); font-family:inherit; min-height:44px; }
 .mt-recentes .mt-item { margin-bottom:6px; }
 .mt-dl-topo { display:block; width:100%; margin:6px 0 2px; background:none; border:1px dashed rgba(127,184,255,.45); border-radius:10px; padding:9px; color:#A9CBF5; font-weight:700; font-size:var(--fs-meta); cursor:pointer; font-family:inherit; min-height:40px; }
-.mt-dl { margin-left:8px; background:rgba(127,184,255,.12); border:1px solid rgba(127,184,255,.35); color:#A9CBF5; border-radius:8px; width:32px; height:32px; font-size:var(--fs-corpo); cursor:pointer; font-family:inherit; flex:0 0 auto; }
+.mt-dl { margin-left:2px; background:none; border:none; color:#A9CBF5; border-radius:10px; width:44px; height:44px; display:grid; place-items:center; cursor:pointer; flex:0 0 auto; }
+.mt-dl:hover, .mt-dl:focus-visible { background:rgba(127,184,255,.12); }
 .rg-disc summary { display:flex; align-items:center; } .rg-disc summary .dc { margin-left:auto; }
 .mt-dl-resumo { font-size:var(--fs-corpo); color:#C7D1DE; margin:12px 0 4px; } .mt-dl-resumo b { color:var(--text); } .mt-dl-aviso { color:#FFB36B; font-size:var(--fs-meta); }
 #mtBaixar .btn + .btn { margin-top:8px; }
-.mt-ass { display:flex; align-items:center; font-size:var(--fs-rotulo); font-weight:700; letter-spacing:.04em; color:#A9CBF5; margin:12px 2px 6px; text-transform:uppercase; }
+.mt-ass { display:flex; align-items:center; font-size:var(--fs-meta); font-weight:700; color:#A9CBF5; margin:4px 2px 2px; min-height:44px; }
 .mt-ass i { font-style:normal; color:var(--dim); font-weight:400; margin-left:auto; }
 .rg-disc .rg-in .mt-item { margin-left:0; }
 .mt-sheet { max-height:92dvh; overflow-y:auto; }
@@ -711,7 +727,7 @@ body.rg-barra-on main { padding-bottom:170px; }
   <div class="brand">DOMINE<i>I</i></div>
   <div class="sn-k">NAVEGAÇÃO</div>
   <button data-v="vHoje" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 5 13.5h5L10 22l8-11.5h-5L13 2z"/></svg>Hoje</button>
-  <button data-v="vRegistrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>Registrar estudo</button>
+  <button data-v="vRegistrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M8 13h8M8 16.5h5"/></svg>Meu Material</button>
   <button data-v="vMapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>Meu edital</button>
   <button data-v="vCerebroFull"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="2.4"/><circle cx="12" cy="4.2" r="1.6"/><circle cx="19.3" cy="9.2" r="1.6"/><circle cx="16.9" cy="18.4" r="1.6"/><circle cx="7.1" cy="18.4" r="1.6"/><circle cx="4.7" cy="9.2" r="1.6"/><path d="M12 9.6V5.8M14 13.5l3.5 3.6M10 13.5l-3.5 3.6M14.2 11l3.6-1.2M9.8 11 6.2 9.8"/></svg>Cérebro</button>
   <div class="sn-foot">
@@ -942,9 +958,9 @@ body.rg-barra-on main { padding-bottom:170px; }
 
   <!-- REGISTRAR ESTUDO (27/09: por assunto do edital; não pinta o mapa, não dispara conferência) -->
   <section class="view" id="vRegistrar">
-    <div class="hj-hello">Registrar estudo</div>
-    <div class="hj-sub">Guarde seus resumos, fotos do caderno e PDFs, sempre no assunto do edital. Isso acende a luz de estudo no seu cérebro; quem mostra o quanto você domina são as questões.</div>
-    <button class="btn mt-novo" id="mtNovo" type="button">＋ Guardar resumo, foto ou PDF</button>
+    <div class="hj-hello">Meu Material</div>
+    <div class="hj-sub">Resumos, fotos das suas anotações e PDFs, cada um no assunto do edital. Guardar acende o azul no seu cérebro; o verde só vem das questões.</div>
+    <button class="btn mt-novo" id="mtNovo" type="button"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Guardar resumo, foto ou PDF</button>
     <div id="mtLista"></div>
     <div id="rgHistorico"></div>
     <!-- 14/10: a lista de disciplinas e o registro manual por tema saíram (a disciplina e o assunto são escolhidos ao guardar o material);
@@ -975,7 +991,7 @@ body.rg-barra-on main { padding-bottom:170px; }
 
 <!-- Meu Caderno: guardar e ver material (fora da seção: a animação da .view prenderia o position:fixed) -->
 <div class="sheet mt-sheet" id="mtSheet" role="dialog" aria-modal="true" aria-labelledby="mtSheetT">
-  <div class="n" id="mtSheetT">Guardar no meu caderno</div>
+  <div class="n" id="mtSheetT">Guardar no Meu Material</div>
   <p>O material fica ligado ao assunto do edital e acende a luz de estudo desses temas. Só você vê.</p>
   <p class="mt-espaco" id="mtEspaco" style="display:none"></p>
   <div class="k-lbl rg-k" id="mtTipoLbl">O QUE VOCÊ VAI GUARDAR?</div>
@@ -991,7 +1007,7 @@ body.rg-barra-on main { padding-bottom:170px; }
 </div>
 <div class="sheet mt-sheet" id="mtVer" role="dialog" aria-modal="true" aria-label="Material guardado"><div id="mtVerIn"></div></div>
 <div class="sheet mt-sheet" id="mtBaixar" role="dialog" aria-modal="true" aria-labelledby="mtDlT">
-  <div class="n" id="mtDlT">Baixar meu caderno</div>
+  <div class="n" id="mtDlT">Baixar o Meu Material</div>
   <p>O arquivo é montado no seu aparelho, com os seus materiais organizados por disciplina e assunto.</p>
   <div class="k-lbl rg-k">O QUE BAIXAR?</div>
   <div class="rg-seg" id="mtDlNivel"><button type="button" data-n="tudo" class="on">Tudo</button><button type="button" data-n="disc">Uma disciplina</button><button type="button" data-n="ass">Um assunto</button></div>
@@ -1006,7 +1022,7 @@ body.rg-barra-on main { padding-bottom:170px; }
 
 <nav class="tabbar" id="tabbar">
   <button data-v="vHoje" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 5 13.5h5L10 22l8-11.5h-5L13 2z"/></svg>Hoje</button>
-  <button data-v="vRegistrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>Registrar</button>
+  <button data-v="vRegistrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M8 13h8M8 16.5h5"/></svg>Meu Material</button>
   <button data-v="vMapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>Meu edital</button>
   <button data-v="vCerebroFull"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="2.4"/><circle cx="12" cy="4.2" r="1.6"/><circle cx="19.3" cy="9.2" r="1.6"/><circle cx="16.9" cy="18.4" r="1.6"/><circle cx="7.1" cy="18.4" r="1.6"/><circle cx="4.7" cy="9.2" r="1.6"/><path d="M12 9.6V5.8M14 13.5l3.5 3.6M10 13.5l-3.5 3.6M14.2 11l3.6-1.2M9.8 11 6.2 9.8"/></svg>Cérebro</button>
 </nav>
@@ -1646,7 +1662,7 @@ function renderPlano() {
     card.innerHTML = `<div class="acaocard"><div class="k">HOJE</div><div class="n">Seu plano de hoje está em dia.</div>
       <div class="m">Pode descansar. ${pr ? `Se quiser adiantar, o próximo da fila é <b style="color:var(--text)">${esc(pr.nome)}</b>. ${esc(montarMotivo(pr))}` : 'Se quiser adiantar, escolha um tema no Meu edital.'}</div>
       <button class="btn" id="btnAdiantar">${pr ? 'Adiantar este tema' : 'Abrir o Meu edital'}</button>
-      <button class="ss-link" id="btnCaderno" type="button">Guardar algo no Meu Caderno</button></div>`;
+      <button class="ss-link" id="btnCaderno" type="button">Guardar algo no Meu Material</button></div>`;
     $('btnAdiantar').onclick = async () => {
       if (!pr) { irTab('vMapa'); return; }
       tele('hoje_adiantar', { node_id: pr.node_id, motivo: pr.motivo_cod });
@@ -2793,7 +2809,7 @@ function rgHistorico() { // temas marcados como estudados sem material (o regist
   const mapa = rgTemas(), lotes = [], vistos = new Set();
   rgRegs.filter(r => r.fonte !== 'material').forEach(r => { if (!vistos.has(r.lote)) { vistos.add(r.lote); lotes.push(rgRegs.filter(x => x.lote === r.lote)); } });
   if (!lotes.length) { box.innerHTML = ''; return; }
-  box.innerHTML = `<div class="rg-sec" style="margin-top:22px">TEMAS MARCADOS COMO ESTUDADOS · ${lotes.reduce((s, l) => s + l.length, 0)}</div>` +
+  box.innerHTML = `<div class="mt-sec" style="margin-top:24px">Temas marcados como estudados · ${lotes.reduce((s, l) => s + l.length, 0)}</div>` +
     lotes.slice(0, rgHistTodos ? 500 : 5).map(l => { const nomes = l.map(r => (mapa[r.node_id] || {}).t?.nome || 'Tema');
       const txt = nomes.length <= 2 ? nomes.join(' e ') : `${nomes.slice(0, 2).join(', ')} e mais ${nomes.length - 2}`;
       return `<div class="rg-rec"><div class="an">${esc(txt)}<small>${rgQuandoTxt(l[0])}${l[0].fonte ? ' · ' + RG_FONTE_ROT[l[0].fonte] : ''}</small></div>
@@ -2830,7 +2846,7 @@ function renderRegistrar() {
     const nomes = l.map(r => (mapa[r.node_id] || {}).t?.nome || 'Tema');
     const txt = nomes.length <= 2 ? nomes.join(' e ') : `${nomes.slice(0, 2).join(', ')} e mais ${nomes.length - 2}`;
     return `<div class="rg-rec"><div class="an">${esc(txt)}<small>${rgQuandoTxt(l[0])}${l[0].fonte ? ' · ' + RG_FONTE_ROT[l[0].fonte] : ''}</small></div>
-      ${l[0].fonte === 'material' ? '<span class="mt-rec">no seu caderno</span>' : `<button type="button" data-lote="${l[0].lote}">desfazer</button>`}</div>`; }).join('') : '';
+      ${l[0].fonte === 'material' ? '<span class="mt-rec">no Meu Material</span>' : `<button type="button" data-lote="${l[0].lote}">desfazer</button>`}</div>`; }).join('') : '';
   const q = semAcento($('rgBusca').value.trim());
   if (q.length >= 2) {
     const achados = ids.filter(id => semAcento(mapa[id].t.nome).includes(q) || semAcento(mapa[id].a.assunto).includes(q));
@@ -2913,7 +2929,7 @@ async function desfazerLote(lote) {
 // O aluno guarda resumo digitado, fotos do caderno ou PDF, sempre ligado a disciplina + assunto + temas (ele escolhe; nada é
 // lido por IA). Guardar registra o estudo dos temas → acende a LUZ DE ESTUDO (azul) no Cérebro. Não vira base de questão.
 // Arquivos no armazenamento privado (pasta do aluno); fotos comprimidas no aparelho antes de subir; limite de 1 GB por aluno.
-const MT_TIPO = { texto: 'Resumo digitado', foto: 'Fotos do caderno', pdf: 'PDF' };
+const MT_TIPO = { texto: 'Resumo digitado', foto: 'Fotos das anotações', pdf: 'PDF' };
 const MT_BUCKET = 'materiais-alunos', MT_MAX_FOTOS = 30, MT_MAX_BYTES = 15 * 1024 * 1024;
 let mtDados = null, mtCarregando = null, mtEstado = null, mtArquivos = [], mtEnviando = false, mtVerTodos = false;
 const mtTamanho = (b) => b >= 1048576 ? (b / 1048576).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round((b || 0) / 1024)) + ' KB';
@@ -2972,7 +2988,7 @@ function mtUsoHtml() { // aviso a partir de 80% do 1 GB
 async function mtListaCorrida(chave, params) { // busca / filtro / mais recentes: vem do servidor, 60 por vez
   const box = $('mtLista'), meu = ++mtPedido, alvo = () => box.querySelector('#mtCorrida');
   try { const lista = await mtItensDe(chave, { ...params, p_limite: mtLimite }); if (meu !== mtPedido || !alvo()) return;
-    alvo().innerHTML = (lista.map(m => mtItemHtml(m, 'completo')).join('') || `<p class="mt-vazio">${params.p_busca ? 'Nada com esse nome no seu caderno.' : 'Nada por aqui.'}</p>`) +
+    alvo().innerHTML = (lista.map(m => mtItemHtml(m, 'completo')).join('') || `<p class="mt-vazio">${params.p_busca ? 'Nada com esse nome no seu material.' : params.p_tipo ? { texto: 'Nenhum resumo digitado ainda.', foto: 'Nenhuma foto guardada ainda.', pdf: 'Nenhum PDF guardado ainda.' }[params.p_tipo] : 'Nada por aqui.'}</p>`) +
       (lista.length >= mtLimite ? `<button type="button" class="ss-link" id="mtMais">ver mais</button>` : '');
     const mais = $('mtMais'); if (mais) mais.onclick = () => { mtLimite += MT_PAGINA; delete mtDados.cache[chave]; mtRenderLista(); };
     alvo().querySelectorAll('[data-mt]').forEach(b => b.onclick = () => mtVer(b.dataset.mt)); mtPintarCapas(alvo());
@@ -2989,30 +3005,35 @@ function mtRenderLista() {
   const box = $('mtLista'); if (!box) return;
   if (!mtDados) { box.innerHTML = ''; return; }
   const total = mtDados.total || 0, porTipo = mtDados.por_tipo || {};
-  if (!total) { box.innerHTML = `<p class="mt-vazio">Seu caderno ainda está vazio. Guarde aqui seus resumos (digitados ou fotos do caderno) e PDFs, cada um no assunto do edital. Eles acendem a luz de estudo no seu cérebro.</p>`; return; }
+  $('mtNovo').style.display = total ? '' : 'none'; // vazio: os atalhos abaixo são a ação (o botão geral volta com o 1º material)
+  if (!total) { box.innerHTML = `<p class="mt-vazio-t">Nada guardado ainda.</p><p class="mt-vazio" style="margin-top:0">Comece pelo que está à mão. Você escolhe a disciplina e o assunto na hora de guardar.</p>
+    <div class="mt-atalhos">
+      <button type="button" data-tipo="texto"><span class="mt-ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span>Digitar um resumo<small>ou colar de outro lugar</small></span></button>
+      <button type="button" data-tipo="foto"><span class="mt-ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span><span>Fotografar suas anotações<small>uma ou várias páginas</small></span></button>
+      <button type="button" data-tipo="pdf"><span class="mt-ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></span><span>Enviar um PDF<small>apostila, slide ou lei seca</small></span></button></div>`;
+    box.querySelectorAll('[data-tipo]').forEach(b => b.onclick = () => mtAbrir({ tipo: b.dataset.tipo, origem: 'registrar_vazio' })); return; }
   const q = mtBusca.trim();
   const nTipo = (t) => porTipo[t] || 0;
-  let html = `<div class="rg-sec">MEU CADERNO · ${plural(total, 'MATERIAL', 'MATERIAIS')}${mtUsoHtml()}</div>` +
-    (mtUsoPct() >= .8 ? `<p class="mt-espaco">${mtUsoPct() >= 1 ? 'Seu caderno chegou ao limite de 1 GB: para guardar fotos ou PDFs novos, exclua materiais antigos.' : 'Seu caderno está quase cheio: a partir de 1 GB, fotos e PDFs novos não entram. Exclua o que não precisa mais ou baixe o ZIP para guardar fora.'}</p>` : '');
-  html += `
-    <button type="button" class="mt-dl-topo" id="mtDlTopo">⤓ Baixar meu caderno (ZIP ou PDF)</button>
-    <div class="mt-tools"><input type="search" id="mtBuscaIn" placeholder="Buscar no caderno (título, texto, disciplina, tema)…" value="${esc(mtBusca)}" autocomplete="off" aria-label="Buscar no caderno">
+  let html = `<div class="mt-cab"><span>${plural(total, 'material', 'materiais')} · ${mtUsoHtml()}</span><button type="button" class="mt-baixar" id="mtDlTopo"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>Baixar</button></div>` +
+    (mtUsoPct() >= .8 ? `<p class="mt-espaco">${mtUsoPct() >= 1 ? 'Seu espaço de 1 GB acabou: para guardar fotos ou PDFs novos, exclua materiais antigos.' : 'Seu espaço está quase cheio: a partir de 1 GB, fotos e PDFs novos não entram. Exclua o que não precisa mais ou baixe o ZIP para guardar fora.'}</p>` : '');
+  if (total >= 8 || q || mtFiltro !== 'todos' || mtOrdem !== 'disciplina') html += `
+    <div class="mt-tools"><input type="search" id="mtBuscaIn" placeholder="Buscar no seu material" value="${esc(mtBusca)}" autocomplete="off" aria-label="Buscar no seu material">
       <div class="mt-chips">${[['todos', 'Todos', total], ['texto', 'Textos', nTipo('texto')], ['foto', 'Fotos', nTipo('foto')], ['pdf', 'PDFs', nTipo('pdf')]]
         .map(([k, l, n]) => `<button type="button" data-f="${k}" class="${mtFiltro === k ? 'on' : ''}">${l} <i>${n}</i></button>`).join('')}
         <select id="mtOrdemSel" aria-label="Ordem"><option value="disciplina"${mtOrdem === 'disciplina' ? ' selected' : ''}>Por disciplina</option><option value="recentes"${mtOrdem === 'recentes' ? ' selected' : ''}>Mais recentes</option></select></div></div>`;
   let corrida = null;
   if (q.length >= 2 || mtFiltro !== 'todos' || mtOrdem === 'recentes') { // lista corrida: busca, filtro por tipo ou "mais recentes" (servidor)
     corrida = { chave: `l:${mtFiltro}:${q.length >= 2 ? q : ''}:${mtLimite}`, params: { p_tipo: mtFiltro === 'todos' ? null : mtFiltro, p_busca: q.length >= 2 ? q : null } };
-    html += `<div class="rg-sec" style="margin-top:12px">${q.length >= 2 ? 'ENCONTRADOS' : mtFiltro !== 'todos' ? { texto: 'RESUMOS DIGITADOS', foto: 'FOTOS DO CADERNO', pdf: 'PDFS' }[mtFiltro] : 'MAIS RECENTES'}</div><div id="mtCorrida">${skeletonCard()}</div>`;
+    html += `<div class="mt-sec">${q.length >= 2 ? 'Encontrados' : mtFiltro !== 'todos' ? { texto: 'Resumos digitados', foto: 'Fotos das anotações', pdf: 'PDFs' }[mtFiltro] : 'Mais recentes'}</div><div id="mtCorrida">${skeletonCard()}</div>`;
   } else { // por disciplina, na ordem do edital; só contagens até a pasta abrir (recentes no topo)
     const rec = mtDados.recentes || [];
-    if (total > 3 && rec.length) html += `<div class="rg-sec" style="margin-top:12px">RECENTES</div><div class="mt-recentes">${rec.map(m => mtItemHtml(m, 'completo')).join('')}</div>`;
-    html += `<div class="rg-sec" style="margin-top:14px">POR DISCIPLINA</div>`;
+    if (total > 3 && rec.length) html += `<div class="mt-sec">Recentes</div><div class="mt-recentes">${rec.map(m => mtItemHtml(m, 'completo')).join('')}</div>`;
+    html += `<div class="mt-sec">Por disciplina</div>`;
     rgDiscs().forEach(d => { const nd = mtPastaN(p => p.disciplina_id === d.disciplina_id); if (!nd) return;
       const ass = d.assuntos.filter(a => mtPastaN(p => p.assunto_id === a.assunto_id));
       html += `<details class="rg-disc" data-d="${d.disciplina_id}"${mtAbertas.has(d.disciplina_id) ? ' open' : ''}>
-        <summary><span class="dn">${esc(d.disciplina)}</span><span class="dc">${plural(nd, 'material', 'materiais')} · ${plural(ass.length, 'assunto', 'assuntos')}</span><button type="button" class="mt-dl" data-dl-disc="${d.disciplina_id}" aria-label="Baixar ${esc(d.disciplina)}">⤓</button></summary>
-        <div class="rg-in">${ass.map(a => `<details class="mt-ass-d" data-a="${a.assunto_id}"${mtAssAbertos.has(a.assunto_id) ? ' open' : ''}><summary class="mt-ass"><span>${esc(a.assunto)}</span><i>${mtPastaN(p => p.assunto_id === a.assunto_id)}</i><button type="button" class="mt-dl" data-dl-ass="${a.assunto_id}" data-dl-disc="${d.disciplina_id}" aria-label="Baixar ${esc(a.assunto)}">⤓</button></summary><div class="mt-pasta"></div></details>`).join('')}</div></details>`; });
+        <summary><span class="dn">${esc(d.disciplina)}<small>${plural(nd, 'material', 'materiais')} · ${plural(ass.length, 'assunto', 'assuntos')}</small></span><button type="button" class="mt-dl" data-dl-disc="${d.disciplina_id}" aria-label="Baixar ${esc(d.disciplina)}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg></button></summary>
+        <div class="rg-in">${ass.map(a => `<details class="mt-ass-d" data-a="${a.assunto_id}"${mtAssAbertos.has(a.assunto_id) ? ' open' : ''}><summary class="mt-ass"><span>${esc(a.assunto)}</span><i>${mtPastaN(p => p.assunto_id === a.assunto_id)}</i><button type="button" class="mt-dl" data-dl-ass="${a.assunto_id}" data-dl-disc="${d.disciplina_id}" aria-label="Baixar ${esc(a.assunto)}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg></button></summary><div class="mt-pasta"></div></details>`).join('')}</div></details>`; });
   }
   box.innerHTML = html;
   box.querySelectorAll('[data-mt]').forEach(b => b.onclick = () => mtVer(b.dataset.mt));
@@ -3033,8 +3054,8 @@ async function mtSecao(el, nodeId, assuntoId, origem) {
   if (!el) return;
   const pinta = (it) => {
     el.innerHTML = `<div class="mt-k">SEUS MATERIAIS${it.length ? ' · ' + (it.length > 4 ? '4+' : it.length) : ''}</div>` + it.slice(0, 4).map(m => mtItemHtml(m, 'compacto')).join('') +
-      (it.length > 4 ? `<div class="mt-mais">e mais na aba Registrar</div>` : '') +
-      `<button type="button" class="mt-add">＋ Guardar resumo, foto ou PDF deste tema</button>`;
+      (it.length > 4 ? `<div class="mt-mais">e mais na aba Meu Material</div>` : '') +
+      `<button type="button" class="mt-add"><svg viewBox="0 0 24 24" width="16" height="16" style="vertical-align:-3px;margin-right:6px" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Guardar resumo, foto ou PDF deste tema</button>`;
     el.querySelectorAll('[data-mt]').forEach(b => b.onclick = () => mtVer(b.dataset.mt)); mtPintarCapas(el);
     el.querySelector('.mt-add').onclick = () => mtAbrir({ assunto_id: assuntoId, temas: [nodeId], origem });
   };
@@ -3057,11 +3078,11 @@ function mtAbrir(pre = {}) {
     discs.map(d => `<option value="${d.disciplina_id}"${disc && d.disciplina_id === disc.disciplina_id ? ' selected' : ''}>${esc(d.disciplina)}</option>`).join('');
   mtAssuntos(mtEstado.temas.size ? 'manter' : 'todos');
   $('mtTitulo').value = ed ? (ed.titulo || '') : ''; $('mtErro').textContent = '';
-  $('mtSheetT').textContent = ed ? 'Editar material' : 'Guardar no meu caderno';
+  $('mtSheetT').textContent = ed ? 'Editar material' : 'Guardar no Meu Material';
   $('mtTipoLbl').style.display = $('mtTipo').style.display = $('mtConteudo').style.display = ed ? 'none' : '';
   $('mtGuardar').textContent = ed ? 'Salvar alterações' : 'Guardar';
   const pct = ed ? 0 : mtUsoPct(); $('mtEspaco').style.display = pct >= .8 ? '' : 'none';
-  $('mtEspaco').textContent = pct >= 1 ? 'Seu caderno chegou ao limite de 1 GB: resumos digitados ainda entram; para fotos ou PDFs, exclua materiais antigos.' : `Seu caderno está com ${Math.round(pct * 100)}% do espaço (1 GB). Fotos e PDFs novos param de entrar quando encher.`;
+  $('mtEspaco').textContent = pct >= 1 ? 'Seu espaço de 1 GB acabou: resumos digitados ainda entram; para fotos ou PDFs, exclua materiais antigos.' : `Você já usou ${Math.round(pct * 100)}% do seu espaço (1 GB). Fotos e PDFs novos param de entrar quando encher.`;
   if (!ed) mtTipo(mtEstado.tipo); else $('mtConteudo').innerHTML = '';
   $('cvInfo') && $('cvInfo').classList.remove('on'); $('mtVer').classList.remove('on');
   $('mtSheet').classList.add('on'); $('mtSheet').scrollTop = 0;
@@ -3179,7 +3200,7 @@ $('mtGuardar').onclick = async () => {
   const texto = E.tipo === 'texto' ? $('mtTexto').value : null;
   if (E.tipo === 'texto' && texto.trim().length < 3) return erro('Escreva ou cole o seu resumo.');
   if (E.tipo !== 'texto' && !mtArquivos.length) return erro(E.tipo === 'foto' ? 'Escolha ao menos uma foto.' : 'Escolha o PDF.');
-  if (E.tipo !== 'texto' && mtUsoPct() >= 1) return erro('Seu caderno chegou ao limite de 1 GB. Exclua materiais antigos para guardar fotos ou PDFs novos.');
+  if (E.tipo !== 'texto' && mtUsoPct() >= 1) return erro('Seu espaço de 1 GB acabou. Exclua materiais antigos para guardar fotos ou PDFs novos.');
   mtEnviando = true; const bt = $('mtGuardar'); bt.disabled = true; erro('');
   const enviados = []; let capa = null;
   try {
@@ -3211,7 +3232,7 @@ $('mtGuardar').onclick = async () => {
     mtGuardarItens([data]); mtInvalidar();
     tele('material_guardado', { tipo: E.tipo, temas: E.temas.size, arquivos: enviados.length }); mtLembrar($('mtDisc').value, E.assunto);
     $('mtSheet').classList.remove('on');
-    toast(`Guardado no seu caderno. A luz de estudo acendeu em ${plural(E.temas.size, 'tema', 'temas')}.`);
+    toast(`Guardado no Meu Material. A luz de estudo acendeu em ${plural(E.temas.size, 'tema', 'temas')}.`);
     mtDepoisDeMudar();
   } catch (e) {
     if (enviados.length) sb.storage.from(MT_BUCKET).remove(enviados).catch(() => {});
@@ -3252,11 +3273,11 @@ function mtSelecao(escopo = mtEscopo) { // materiais do escopo, na ordem do edit
       const ms = tudo.filter(m => m.disciplina_id === d.disciplina_id && m.assunto_id === a.assunto_id); if (!ms.length) return;
       grupos.push({ d, di, a, ms: ms.map(m => ({ ...m, temasNomes: (m.temas || []).map(id => temas[id]?.t.nome).filter(Boolean) })) }); }); });
   const itens = grupos.flatMap(g => g.ms), bytes = itens.reduce((s, m) => s + (m.bytes || 0), 0) + itens.filter(m => m.tipo === 'texto').reduce((s, m) => s + (m.texto || '').length, 0);
-  const rotulo = escopo.nivel === 'tudo' ? 'Meu Caderno' : escopo.nivel === 'disc' ? (grupos[0] ? grupos[0].d.disciplina : 'Disciplina') : (grupos[0] ? grupos[0].a.assunto : 'Assunto');
+  const rotulo = escopo.nivel === 'tudo' ? 'Meu Material' : escopo.nivel === 'disc' ? (grupos[0] ? grupos[0].d.disciplina : 'Disciplina') : (grupos[0] ? grupos[0].a.assunto : 'Assunto');
   return { grupos, itens, bytes, rotulo, fotos: itens.filter(m => m.tipo === 'foto').reduce((s, m) => s + (m.arquivos || []).length, 0) };
 }
 function mtAbrirBaixar(pre = {}) {
-  if (!mtDados || !mtDados.total) { toast('Seu caderno ainda está vazio.'); return; }
+  if (!mtDados || !mtDados.total) { toast('Você ainda não guardou nenhum material.'); return; }
   mtEscopo = { nivel: pre.nivel || 'tudo', disc: pre.disc || null, ass: pre.ass || null };
   const com = rgDiscs().filter(d => mtPastaN(p => p.disciplina_id === d.disciplina_id));
   if (mtEscopo.nivel !== 'tudo' && !mtEscopo.disc) mtEscopo.disc = com[0] && com[0].disciplina_id;
@@ -3332,7 +3353,7 @@ async function mtGerarPdf(sel, progresso) {
   doc.setFont('helvetica', 'normal'); doc.setFontSize(14); doc.setTextColor(170, 190, 215);
   doc.text(mtTxtPdf(`${editalAtual.concurso} · ${editalAtual.cargo || ''}`), M, 110);
   doc.text(mtTxtPdf(`${perfil.nome || 'Aluno(a)'} · ${plural(sel.itens.length, 'material', 'materiais')} · gerado em ${new Date().toLocaleDateString('pt-BR')}`), M, 120);
-  doc.setFontSize(11); doc.text('Resumos, fotos do caderno e PDFs organizados por disciplina e assunto,', M, 140); doc.text('com o estado de cada tema no seu cérebro na data de hoje.', M, 146);
+  doc.setFontSize(11); doc.text('Resumos, fotos das anotações e PDFs organizados por disciplina e assunto,', M, 140); doc.text('com o estado de cada tema no seu cérebro na data de hoje.', M, 146);
   // conteúdo
   for (const g of sel.grupos) {
     const novaDisc = !indice.length || indice[indice.length - 1].disc !== g.d.disciplina;
@@ -3344,7 +3365,7 @@ async function mtGerarPdf(sel, progresso) {
       const meta = `${MT_TIPO[m.tipo]} · guardado em ${mtData(m.created_at)}` + (m.temasNomes.length ? ' · ' + (m.temas || []).map(id => `${temas[id]?.t.nome || 'tema'} (${estadoDe(id)})`).join(' · ') : '');
       texto(meta, 9, 'normal', [110, 120, 135], 2);
       if (m.tipo === 'texto') texto(m.texto || '', 10.5, 'normal', [30, 30, 30], 4);
-      else if (m.tipo === 'pdf') texto('Arquivo PDF: está no ZIP do caderno (o PDF compilado não embute outros PDFs).', 9.5, 'italic', [110, 120, 135], 4);
+      else if (m.tipo === 'pdf') texto('Arquivo PDF: está no ZIP do Meu Material (o PDF compilado não embute outros PDFs).', 9.5, 'italic', [110, 120, 135], 4);
       else for (const a of (m.arquivos || [])) { const b = blobs[a.path]; if (!b) continue;
         const url = URL.createObjectURL(b); const img = await new Promise((ok, err) => { const i = new Image(); i.onload = () => ok(i); i.onerror = err; i.src = url; });
         let w = LW, h = w * img.naturalHeight / img.naturalWidth; const maxH = H - 2 * M - 6; if (h > maxH) { h = maxH; w = h * img.naturalWidth / img.naturalHeight; }
