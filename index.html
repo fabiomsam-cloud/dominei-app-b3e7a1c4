@@ -83,6 +83,28 @@ button { font-family:inherit; cursor:pointer; border:none; }
   background:linear-gradient(90deg, rgba(47,224,141,.13), rgba(47,224,141,.02));
   border-color:rgba(47,224,141,.28); }
 #sidenav svg, .tabbar svg { width:19px; height:19px; flex-shrink:0; }
+.sn-perfil { display:flex; align-items:center; gap:10px; width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:rgba(255,255,255,.03); color:var(--text); text-align:left; cursor:pointer; font-family:inherit; margin-bottom:18px; }
+.sn-perfil b { display:block; font-size:var(--fs-meta); } .sn-perfil small { display:block; color:var(--dim); font-size:var(--fs-rotulo); margin-top:2px; } .sn-perfil:hover { border-color:var(--line-v); }
+.av { width:36px; height:36px; border-radius:50%; flex:none; background:linear-gradient(160deg, #1D3A5A, #0E1A2E); border:1px solid var(--line-v); color:var(--verde); font:800 15px 'Archivo', sans-serif; display:inline-flex; align-items:center; justify-content:center; }
+header .av { cursor:pointer; min-width:44px; min-height:44px; width:44px; height:44px; font-size:17px; }
+/* PERFIL (15/10) */
+.pf-topo { display:flex; align-items:center; gap:14px; margin:6px 0 18px; } .pf-topo .av { width:64px; height:64px; font-size:26px; }
+.pf-nome { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; font-family:'Archivo'; font-variation-settings:'wdth' 92,'wght' 800; font-size:var(--fs-pagina); line-height:1.1; } .pf-nome .ss-link { margin:0; font-size:var(--fs-rotulo); }
+.pf-grid { display:grid; grid-template-columns:1fr; gap:14px; } .pf-grid > div { display:grid; gap:14px; align-content:start; }
+.pf-conc { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-top:8px; } .pf-conc h2 { font-size:var(--fs-titulo); } .pf-conc .sub { color:var(--dim); font-size:var(--fs-meta); margin-top:2px; }
+.pf-badge { font-size:11px; font-weight:700; letter-spacing:.06em; color:var(--verde); background:rgba(47,224,141,.12); border:1px solid var(--line-v); padding:4px 9px; border-radius:999px; white-space:nowrap; }
+.pf-linha { display:flex; gap:16px; flex-wrap:wrap; margin:14px 0 4px; } .pf-linha b { display:block; font-family:'Archivo'; font-variation-settings:'wdth' 92,'wght' 800; font-size:var(--fs-titulo); line-height:1; } .pf-linha small { color:var(--dim); font-size:var(--fs-rotulo); }
+.pf-prova { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:14px; padding:12px 14px; border-radius:11px; background:rgba(255,255,255,.04); border:1px solid var(--line); font-size:var(--fs-meta); }
+.pf-prova b { color:var(--amarelo); } .pf-prova .ss-link { margin:0; white-space:nowrap; } .pf-prova input { margin:0; width:auto; }
+.pf-lista { display:grid; gap:8px; margin-top:12px; }
+.pf-item { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-radius:11px; background:rgba(255,255,255,.04); border:1px solid var(--line); width:100%; text-align:left; color:var(--text); font-family:inherit; cursor:pointer; }
+.pf-item.on { border-color:var(--line-v); background:rgba(47,224,141,.06); cursor:default; } .pf-item .n { font-weight:700; font-size:var(--fs-meta); } .pf-item small { display:block; color:var(--dim); font-size:var(--fs-rotulo); margin-top:2px; }
+.pf-item .x { color:var(--verde); font-size:var(--fs-rotulo); font-weight:700; white-space:nowrap; }
+.pf-ret { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; margin-top:12px; } .pf-ret div { background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:11px; padding:12px; min-width:0; }
+.pf-ret b { display:block; font-family:'Archivo'; font-variation-settings:'wdth' 92,'wght' 800; font-size:var(--fs-titulo); line-height:1; } .pf-ret small { color:var(--dim); font-size:var(--fs-rotulo); display:block; margin-top:4px; line-height:1.3; }
+.pf-ret b.am { color:var(--amarelo); } .pf-ret b.vd { color:var(--verde); } .pf-ret b.vm { color:var(--vermelho); }
+.pf-rod { display:flex; justify-content:center; gap:22px; margin-top:14px; flex-wrap:wrap; } .pf-rod .ss-link { margin:0; } .pf-rod .vm { color:var(--vermelho); }
+.hj-prazo { display:inline-flex; align-items:center; gap:8px; margin:-6px 0 14px; padding:6px 12px; border-radius:999px; background:rgba(242,179,61,.1); border:1px solid rgba(242,179,61,.35); color:var(--amarelo); font-size:var(--fs-rotulo); font-weight:700; }
 .sn-foot { margin-top:auto; padding:16px 10px 4px; border-top:1px solid var(--line);
   font-size:var(--fs-rotulo); color:var(--faint); line-height:1.7; }
 .sn-foot b { display:block; color:var(--dim); font-family:var(--mono); font-size:var(--fs-rotulo); letter-spacing:.06em; }
@@ -732,6 +754,7 @@ body.rg-barra-on main { padding-bottom:170px; }
 
   body:not(.tabs) main { max-width:560px; }
 
+  #vConta.on { display:block; max-width:1120px; } .pf-grid { grid-template-columns:1.2fr 1fr; }
   /* HOJE em grade (v2, 15/10: duas colunas) */
   #vHoje.on { display:block; max-width:1120px; }
   #vHoje .hj-grid { grid-template-columns:1.25fr 1fr; align-items:start; }
@@ -777,17 +800,13 @@ body.rg-barra-on main { padding-bottom:170px; }
 <body>
 <aside id="sidenav">
   <div class="brand">DOMINE<i>I</i></div>
+  <button class="sn-perfil" id="snPerfil" type="button" aria-label="Abrir meu perfil"><span class="av" id="snAv">·</span><span><b id="snNome">—</b><small id="snEdital">—</small></span></button>
   <div class="sn-k">NAVEGAÇÃO</div>
   <button data-v="vHoje" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 5 13.5h5L10 22l8-11.5h-5L13 2z"/></svg>Hoje</button>
   <button data-v="vRegistrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M8 13h8M8 16.5h5"/></svg>Meu Material</button>
   <button data-v="vMapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>Meu edital</button>
   <button data-v="vCerebroFull"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="2.4"/><circle cx="12" cy="4.2" r="1.6"/><circle cx="19.3" cy="9.2" r="1.6"/><circle cx="16.9" cy="18.4" r="1.6"/><circle cx="7.1" cy="18.4" r="1.6"/><circle cx="4.7" cy="9.2" r="1.6"/><path d="M12 9.6V5.8M14 13.5l3.5 3.6M10 13.5l-3.5 3.6M14.2 11l3.6-1.2M9.8 11 6.2 9.8"/></svg>Cérebro</button>
-  <div class="sn-foot">
-    <b>ALVO ATIVO</b>
-    <span id="snEdital">—</span>
-    <button id="btnConta2">minha conta</button>
-    <button id="btnSair2">sair da conta</button>
-  </div>
+
 </aside>
 <header>
   <div class="brand">DOMINE<i>I</i></div>
@@ -1005,15 +1024,14 @@ body.rg-barra-on main { padding-bottom:170px; }
 
   <!-- CONTA (F7) -->
   <section class="view" id="vConta">
-    <div class="pagetitle">Conta</div>
-    <div class="pagesub" id="ctEmail"></div>
-    <div class="card" id="ctAssin" style="margin-top:16px"></div>
-    <div class="card" style="margin-top:12px">
-      <div class="imp-k">SEUS DADOS (LGPD)</div>
-      <p style="font-size:14px;color:var(--dim);line-height:1.55">Tudo que o DOMINEI mediu é seu — inclusive para levar embora. Baixe a cópia completa em JSON quando quiser.</p>
-      <button class="btn ghost" id="btnExportar" style="margin-top:12px">Baixar meus dados</button>
-    </div>
-    <button class="btn ghost" id="btnSair3" style="margin-top:12px;color:var(--vermelho);border-color:rgba(237,90,90,.35)">Sair da conta</button>
+    <div class="pf-topo"><span class="av" id="pfAv">·</span><div><div class="pf-nome"><span id="pfNome">—</span><button class="ss-link" id="pfEditar" type="button">editar nome</button></div><div class="pagesub" id="pfSub"></div></div></div>
+    <div class="pf-grid"><div>
+      <div class="card" id="pfConc"></div>
+      <div class="card" id="pfRet"></div>
+    </div><div>
+      <div class="card" id="pfAcesso"></div>
+      <div class="card" id="pfConta"></div>
+    </div></div>
   </section>
 
   <!-- REGISTRAR ESTUDO (27/09: por assunto do edital; não pinta o mapa, não dispara conferência) -->
@@ -1146,6 +1164,7 @@ async function boot() {
   if (!session) { mostrarEntrada(); return; }
   const { data: acesso, error: eAc } = await sb.rpc('fn_app_acesso');
   if (eAc || !acesso || !acesso.liberado) { mostrarFechado(eAc); return; } // fase fechada (05/10): fora da lista não entra
+  if (acesso.exclusao_pedida_em) { mostrarExclusao(acesso.exclusao_pedida_em); return; } // 15/10: conta em exclusão (7 dias)
   tele.flush();
   $('btnSair').style.display = 'block';
   await carregarEditais();
@@ -1161,6 +1180,15 @@ async function boot() {
     return;
   }
   await mostrarHome();
+}
+// ---------- exclusão pedida (15/10/2026): a conta some do app; 7 dias para cancelar ----------
+function mostrarExclusao(quando) {
+  show('vAuth'); $('auLanding').style.display = 'none'; $('auForm').style.display = 'none'; $('lnkEntrarTopo').style.display = 'none';
+  $('auFechado').style.display = 'block'; $('auFechado').querySelector('.au-form-t').textContent = 'Conta em exclusão';
+  $('auFechadoTxt').textContent = `Você pediu para excluir a conta em ${new Date(quando).toLocaleDateString('pt-BR')}. Ela será apagada de vez em ${new Date(new Date(quando).getTime() + 7 * 864e5).toLocaleDateString('pt-BR')}. Quer voltar atrás?`;
+  $('btnFechadoSair').textContent = 'Cancelar a exclusão e continuar';
+  $('btnFechadoSair').onclick = async () => { const { error } = await sb.rpc('fn_conta_excluir_cancelar'); if (error) { toast(humanizar(error.message)); return; } location.reload(); };
+  tele('conta_exclusao_tela');
 }
 // ---------- fase fechada (05/10/2026): conta sem liberação vê o aviso e sai ----------
 async function mostrarFechado(erro) {
@@ -1540,9 +1568,9 @@ let perfil = {}, sessEstudo = null, ssT0 = null, fbAtual = null;
 function entrarModoAluno() {
   document.body.classList.add('tabs');
   $('tabbar').classList.add('on');
-  $('snEdital').textContent = `${editalAtual.concurso} — ${editalAtual.cargo || ''}`;
-  $('btnSair').textContent = 'conta';
-  $('btnSair').onclick = abrirConta;
+  pfPintarAtalhos();
+  $('btnSair').innerHTML = `<span class="av">${esc(pfInicial())}</span>`; $('btnSair').className = 'sair pf-av'; $('btnSair').setAttribute('aria-label', 'Abrir meu perfil');
+  $('btnSair').onclick = abrirConta; $('snPerfil').onclick = abrirConta;
   irTab('vHoje');
 }
 function irTab(v) {
@@ -1557,15 +1585,89 @@ function irTab(v) {
 }
 document.querySelectorAll('.tabbar button, #sidenav button[data-v]')
   .forEach(b => b.onclick = () => irTab(b.dataset.v));
-$('btnSair2').onclick = async () => { await sb.auth.signOut(); location.reload(); };
+// (15/10) $('btnSair2').onclick = async () => { await sb.auth.signOut(); location.reload(); };
 
 // ---------- CONTA (F7) ----------
 function abrirConta() {
   document.querySelectorAll('.tabbar button, #sidenav button[data-v]').forEach(b => b.classList.remove('on'));
   show('vConta'); loadConta();
 }
-$('btnConta2').onclick = abrirConta;
-async function loadConta() {
+const pfInicial = () => ((perfil && perfil.nome) || '').trim().charAt(0).toUpperCase() || '·';
+function pfPintarAtalhos() { // cartão da lateral: inicial, nome e concurso/prazo
+  $('snAv').textContent = pfInicial(); $('snNome').textContent = (perfil && perfil.nome) || 'Meu perfil';
+  const d = perfil && perfil.dias_para_prova; $('snEdital').textContent = `${editalAtual ? editalAtual.concurso : ''}${d != null && d >= 0 ? ` · faltam ${plural(d, 'dia', 'dias')}` : ''}`;
+}
+async function loadConta() { await loadPerfil(); }
+let pfDados = null;
+async function loadPerfil() {
+  const { data, error } = await sb.rpc('fn_perfil');
+  if (error) { toast(humanizar(error.message)); return; }
+  pfDados = data; perfil = { ...(perfil || {}), nome: data.nome, data_prova: data.data_prova, dias_para_prova: data.dias_para_prova }; pfPintarAtalhos();
+  $('pfAv').textContent = pfInicial(); $('pfNome').textContent = data.nome || 'Sem nome';
+  $('pfSub').textContent = `${data.email || ''}${data.desde ? ' · no DOMINEI desde ' + new Date(data.desde).toLocaleDateString('pt-BR') : ''}`;
+  $('pfEditar').onclick = async () => { const n = prompt('Como quer ser chamado?', data.nome || ''); if (n == null) return;
+    const { error: e } = await sb.rpc('fn_perfil_salvar', { p_nome: n }); if (e) { toast(humanizar(e.message)); return; } tele('perfil_nome'); loadPerfil(); };
+  // concurso ativo + data da prova + trocar
+  const at = (data.concursos || []).find(c => c.ativo), r = data.retrato || {}, dp = data.dias_para_prova;
+  $('pfConc').innerHTML = `<div class="imp-k" style="margin-bottom:0">MEU CONCURSO</div>
+    ${at ? `<div class="pf-conc"><div><h2>${esc(at.concurso)}</h2><div class="sub">${esc(at.cargo || '')}${at.banca ? ' · ' + esc(at.banca) : ''}</div></div><span class="pf-badge">ATIVO</span></div>
+    <div class="pf-linha"><div><b>${r.total ? Math.round(100 * r.medidos / r.total) : 0}%</b><small>dos temas medidos</small></div><div><b>${r.medidos || 0}</b><small>de ${r.total || 0} temas explorados</small></div><div><b>${home ? home.streak || 0 : '–'}</b><small>dias seguidos</small></div></div>` : '<p class="pagesub">Você ainda não tem um concurso ativo.</p>'}
+    <div class="pf-prova" id="pfProva">${data.data_prova ? `<span>Minha prova: <b>${new Date(data.data_prova + 'T12:00:00').toLocaleDateString('pt-BR')}</b>${dp != null ? (dp > 0 ? ` · faltam <b>${plural(dp, 'dia', 'dias')}</b>` : dp === 0 ? ' · <b>é hoje</b>' : ' · já passou') : ''}</span><button class="ss-link" id="pfProvaEd" type="button">alterar</button>`
+      : `<span style="color:var(--dim)">Sem data da prova. Com ela, a HOJE mostra a contagem.</span><button class="ss-link" id="pfProvaEd" type="button">informar</button>`}</div>
+    <button class="btn ghost" id="pfTrocar" type="button" style="margin-top:12px">Trocar de concurso</button>
+    <div class="pf-lista" id="pfLista" style="display:none">${(data.concursos || []).map(c => `<button type="button" class="pf-item${c.ativo ? ' on' : ''}" data-c="${c.id}" ${c.ativo ? 'disabled' : ''}><div><div class="n">${esc(c.concurso)}${c.cargo ? ' · ' + esc(c.cargo) : ''}</div><small>${c.ativo ? `ativo · ${c.medidos} temas explorados` : c.conhecido ? `você já traz ${plural(c.medidos, 'tema medido', 'temas medidos')} deste edital` : 'novo para você · teste de até 20 questões'}</small></div><span class="x">${c.ativo ? '✓ ativo' : c.conhecido ? 'Ativar →' : 'Começar →'}</span></button>`).join('')}
+      <button type="button" class="pf-item" id="pfPedir"><div><div class="n">Não achou o seu?</div><small>peça: os mais pedidos entram primeiro</small></div><span class="x" style="color:var(--dim)">Pedir</span></button></div>`;
+  $('pfProvaEd').onclick = () => pfEditarProva(data.data_prova);
+  $('pfTrocar').onclick = () => { const l = $('pfLista'); l.style.display = l.style.display === 'none' ? 'grid' : 'none'; };
+  $('pfLista').querySelectorAll('[data-c]').forEach(b => b.onclick = () => pfTrocar(b.dataset.c));
+  $('pfPedir').onclick = () => { const q = prompt('Qual concurso e cargo?'); if (q && q.trim()) sb.rpc('fn_edital_solicitar', { p_concurso: q.trim(), p_detalhe: null }).then(({ error: e }) => toast(e ? 'Não consegui registrar o pedido agora.' : 'Pedido registrado. Obrigado!')); };
+  // retrato + conquistas
+  const d = { medidos: r.medidos || 0, verdes: r.dominados || 0, atencao: r.atencao || 0, total: r.total || 0, streak: home ? home.streak || 0 : 0, setorOk: !!(cbDados && cbDados.setorOk), indice: 0 };
+  $('pfRet').innerHTML = `<div class="imp-k" style="margin-bottom:0">SEU RETRATO</div>
+    <div class="pf-ret"><div><b>${r.questoes || 0}</b><small>questões respondidas</small></div><div><b>${r.maior_sequencia || 0}</b><small>maior sequência (dias)</small></div><div><b>${r.materiais || 0}</b><small>materiais guardados</small></div>
+      <div><b class="vd">${r.dominados || 0}</b><small>dominados</small></div><div><b class="am">${r.desenvolvimento || 0}</b><small>em desenvolvimento</small></div><div><b class="vm">${r.atencao || 0}</b><small>precisam de atenção</small></div></div>
+    ${renderConquistas(d)}`;
+  // acesso
+  const a = data.assinatura;
+  $('pfAcesso').innerHTML = `<div class="imp-k">ACESSO</div>` + (a ? `<div style="font-size:var(--fs-meta)"><b>${a.plano === 'anual_297' ? 'DOMINEI Anual' : a.plano === 'beta' ? 'Beta' : esc(a.plano)}</b> · ${a.status === 'ativa' ? 'válido' : esc(a.status)}${a.fim ? ' até ' + new Date(a.fim).toLocaleDateString('pt-BR') : ''}${a.status === 'cancelada' ? ' (não renova)' : ''}. Depois disso o DOMINEI avisa aqui.</div>`
+    : (data.demo ? '<div style="font-size:var(--fs-meta)">Conta de demonstração.</div>' : '<div style="font-size:var(--fs-meta)">Acesso por convite. Quando mudar, o DOMINEI avisa aqui.</div>'));
+  // conta: sair e excluir (7 dias de arrependimento)
+  const ex = data.exclusao_pedida_em;
+  $('pfConta').innerHTML = `<div class="imp-k">CONTA</div>
+    ${ex ? `<p style="font-size:var(--fs-meta);color:var(--amarelo);line-height:1.5">Exclusão pedida em ${new Date(ex).toLocaleDateString('pt-BR')}: a conta e tudo que o DOMINEI mediu somem em ${new Date(new Date(ex).getTime() + 7 * 864e5).toLocaleDateString('pt-BR')}. Até lá dá para voltar atrás.</p>`
+        : `<p style="font-size:var(--fs-meta);color:var(--dim);line-height:1.5">Tudo que o DOMINEI mediu é seu. Se pedir para excluir a conta, ela some do app na hora e é apagada de vez em 7 dias — nesse prazo dá para cancelar entrando de novo.</p>`}
+    <div class="pf-rod"><button class="ss-link" id="pfSair" type="button">Sair da conta</button>${data.demo ? '' : ex ? `<button class="ss-link" id="pfExCancel" type="button">Cancelar exclusão</button>` : `<button class="ss-link vm" id="pfExcluir" type="button">Excluir minha conta</button>`}</div>`;
+  $('pfSair').onclick = async () => { await sb.auth.signOut(); location.reload(); };
+  const bx = $('pfExcluir'); if (bx) bx.onclick = pfExcluir;
+  const bc = $('pfExCancel'); if (bc) bc.onclick = async () => { const { error: e } = await sb.rpc('fn_conta_excluir_cancelar'); if (e) { toast(humanizar(e.message)); return; } toast('Exclusão cancelada. Bom ter você de volta.'); loadPerfil(); };
+  tele('perfil_aberto');
+}
+async function pfEditarProva(atual) {
+  const v = prompt('Data da sua prova (dd/mm/aaaa). Deixe em branco para apagar.', atual ? new Date(atual + 'T12:00:00').toLocaleDateString('pt-BR') : '');
+  if (v == null) return;
+  const m = v.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (v.trim() && !m) { toast('Escreva a data como dd/mm/aaaa.'); return; }
+  const { error } = await sb.rpc('fn_perfil_salvar', m ? { p_data_prova: `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` } : { p_limpar_data: true });
+  if (error) { toast(humanizar(error.message)); return; }
+  tele('perfil_data_prova', { tem: !!m }); loadPerfil();
+}
+async function pfTrocar(id) {
+  const c = (pfDados.concursos || []).find(x => x.id === id); if (!c) return;
+  const { data, error } = await sb.rpc('fn_edital_ativar', { p_edital: id });
+  if (error) { toast(humanizar(error.message)); return; }
+  if (data.modo === 'ativado') { tele('concurso_trocado', { edital: id }); toast(`${c.concurso} ativado.`); setTimeout(() => location.reload(), 600); return; }
+  // novo para o aluno: diagnóstico curto deste edital; ao concluir, ele vira o ativo
+  const e = editais.find(x => x.id === id); if (!e) { toast('Concurso indisponível agora.'); return; }
+  editalAtual = e; if (!(await carregarEstrutura())) return;
+  tele('concurso_novo_diagnostico', { edital: id }); $('tabbar').classList.remove('on'); montarFase0(); show('vFase0');
+}
+async function pfExcluir() {
+  const ok = confirm('Excluir sua conta? Ela some do app agora e é apagada de vez em 7 dias (cérebro, materiais e histórico). Nesse prazo, entrar de novo e tocar em "Cancelar exclusão" desfaz.');
+  if (!ok) return;
+  const { error } = await sb.rpc('fn_conta_excluir_pedir'); if (error) { toast(humanizar(error.message)); return; }
+  tele('conta_exclusao_pedida'); await sb.auth.signOut(); location.reload();
+}
+async function loadContaAntiga() {
   const { data: { session } } = await sb.auth.getSession();
   $('ctEmail').textContent = session.user.email;
   const { data, error } = await sb.rpc('fn_minha_conta');
@@ -1583,16 +1685,7 @@ async function loadConta() {
          ? `<a class="btn" style="display:block;text-align:center;text-decoration:none" href="${esc(data.checkout_url)}" target="_blank" rel="noopener">Assinar o DOMINEI</a>`
          : '<span class="imp-badge run">VENDAS ABREM EM BREVE</span>'}`;
 }
-$('btnExportar').onclick = async () => {
-  const { data, error } = await sb.rpc('fn_exportar_meus_dados');
-  if (error) { toast(humanizar(error.message)); return; }
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = 'meus-dados-dominei.json';
-  a.click(); URL.revokeObjectURL(a.href);
-  toast('Cópia dos seus dados baixada.');
-};
-$('btnSair3').onclick = async () => { await sb.auth.signOut(); location.reload(); };
+// (15/10) $('btnSair3').onclick = async () => { await sb.auth.signOut(); location.reload(); };
 
 // ---------- FILA DE EDITAIS (F7 · D9) ----------
 async function loadSolicitados() {
@@ -1626,9 +1719,9 @@ async function revelacaoAgir(modo) {
   estrutura = est || estrutura;
   tele('revelacao_botao', { modo, node_id: p1 && p1.node_id });
   document.body.classList.add('tabs');
-  $('snEdital').textContent = `${editalAtual.concurso} — ${editalAtual.cargo || ''}`;
-  $('btnSair').textContent = 'conta';
-  $('btnSair').onclick = abrirConta;
+  pfPintarAtalhos();
+  $('btnSair').innerHTML = `<span class="av">${esc(pfInicial())}</span>`; $('btnSair').className = 'sair pf-av'; $('btnSair').setAttribute('aria-label', 'Abrir meu perfil');
+  $('btnSair').onclick = abrirConta; $('snPerfil').onclick = abrirConta;
   const { data, error } = await sb.rpc('fn_home', { p_edital: editalAtual.id });
   if (error || !data || data.acesso === false || !data.plano || !p1) { entrarModoAluno(); return; }
   home = data; planoAtual = data.plano;
@@ -1691,6 +1784,9 @@ async function loadHoje() {
   $('hjSub').textContent = retorno ? `Faz ${plural(data.dias_sem_estudar, 'dia', 'dias')}. Nada se perdeu.`
     : `${editalAtual.concurso}${editalAtual.cargo ? ' · ' + editalAtual.cargo : ''}`;
   hjDias(data); hjDominio(); hjCerebro(); // v2: os três contadores viraram domínio pelo peso; revisão nunca vira contador de pendências
+  perfil = { ...(perfil || {}), data_prova: data.data_prova, dias_para_prova: data.dias_para_prova }; pfPintarAtalhos();
+  const dp = data.dias_para_prova, old = $('hjPrazo'); if (old) old.remove();
+  if (data.data_prova && dp != null && dp >= 0) $('hjSub').insertAdjacentHTML('afterend', `<div class="hj-prazo" id="hjPrazo">⏳ ${dp === 0 ? 'a prova é hoje' : `faltam ${plural(dp, 'dia', 'dias')} para a prova`}</div>`);
   if (data.acesso === false) {
     const p = (data.prioridades || [])[0];
     $('hjCard').innerHTML = `<div class="acaocard"><div class="k">SUA PRIORIDADE DE HOJE</div>
