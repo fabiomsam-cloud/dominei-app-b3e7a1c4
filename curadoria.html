@@ -97,6 +97,19 @@
   .b-no { background:transparent; color:var(--vermelho); border:1px solid rgba(237,90,90,.45); }
   .b-no:hover { background:rgba(237,90,90,.1); }
   .subform { background:rgba(8,14,26,.6); border:1px solid var(--line); border-radius:11px; padding:14px; margin-top:10px; }
+  .d-nav { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+  .d-nav button { background:transparent; border:1px solid var(--line); color:var(--dim); padding:7px 12px; border-radius:999px; font-size:12px; cursor:pointer; }
+  .d-nav button.on { color:var(--verde); border-color:var(--line-v); background:rgba(47,224,141,.1); }
+  .d-sec { font-size:13.5px; line-height:1.55; color:var(--text); max-width:860px; }
+  .d-sec p { margin:8px 0; } .d-sec ul, .d-sec ol { margin:6px 0 10px; padding-left:22px; } .d-sec li { margin:6px 0; }
+  .d-sec b { color:#fff; } .d-sec i { color:#BFD0FF; font-style:normal; } .d-sec code { font-family:var(--mono); background:rgba(255,255,255,.06); padding:1px 5px; border-radius:4px; }
+  .d-sec pre { font-family:var(--mono); font-size:12px; background:rgba(8,14,26,.8); border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin:8px 0; white-space:pre; overflow:auto; }
+  .d-lead { color:#C7D1DE; font-size:14px; } .d-nota { color:var(--dim); font-size:12.5px; }
+  .d-aviso { border-left:3px solid var(--amarelo); background:rgba(242,179,61,.08); padding:8px 12px; border-radius:6px; margin-top:10px; font-size:12.5px; }
+  .d-passos > li { margin:10px 0; } .d-passos > li > b { color:var(--verde); }
+  .d-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px; } .d-grid > div { background:rgba(8,14,26,.5); border:1px solid var(--line); border-radius:10px; padding:12px; } .d-grid b { color:var(--verde); }
+  .d-tab { width:100%; border-collapse:collapse; margin:8px 0; font-size:13px; } .d-tab th, .d-tab td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top; } .d-tab th { color:var(--dim); font-size:11px; letter-spacing:.06em; }
+  .d-dot { display:inline-block; width:14px; height:14px; border-radius:50%; box-shadow:0 0 10px currentColor; }
   .row2 { display:flex; gap:10px; } .row2 > * { flex:1; }
   .badge { font-size:9.5px; font-weight:700; padding:3px 10px; border-radius:6px; text-transform:uppercase;
     font-family:var(--mono); letter-spacing:.1em; color:var(--blue);
@@ -190,10 +203,11 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-10-15a'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-10-15b'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
+const EDGE_ROTULOS = SB_URL + '/functions/v1/rotulos-curtos', EDGE_RESUMOS = SB_URL + '/functions/v1/resumir-topicos', EDGE_EXPLICAR = SB_URL + '/functions/v1/explicar-itens';
 const sb = supabase.createClient(SB_URL, SB_KEY);
 const $ = (id) => document.getElementById(id);
 const PAGE = 50;                       // regra da casa: toda lista paginada
@@ -242,6 +256,7 @@ const IC = {
   auditoria: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5M8.5 11l2 2 3.5-3.5"/></svg>',
   beta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>',
   solicitacoes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-8M12 12l-3 3M12 12l3 3"/><path d="M4 4h16M4 8h16"/></svg>',
+  docs: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7"/></svg>',
 };
 
 // ---------- registry de abas + hash deep-link ----------
@@ -255,6 +270,7 @@ const TABS = [
   { id: 'solicitacoes', label: 'Solicitações', ic: 'solicitacoes', load: loadSolicitacoes },
   { id: 'auditoria',    label: 'Auditoria',    ic: 'auditoria',    load: loadAuditoria },
   { id: 'beta',         label: 'Beta',         ic: 'beta',         load: loadBeta },
+  { id: 'docs',         label: 'Documentação', ic: 'docs',         load: loadDocs },
 ];
 let abaAtual = null, hashParams = {};
 
@@ -443,11 +459,13 @@ async function renderEdital(id) {
       <span style="flex:1"></span>
       <button class="b-edit" onclick="abrirImportEstrutura('${id}')">Importar estrutura</button>
       <button class="b-split" onclick="abrirGerarSondas('${id}')">Gerar sondas agora</button>
+      <button class="b-ok" onclick="abrirPreparar('${id}')">Preparar edital</button>
     </div>
     <div class="hint">Sondas são AUTOMÁTICAS: edital <b>publicado</b> entra na fábrica (a cada 10 min um lote,
       até cobrir todos os tópicos). O botão acima só acelera.</div>
     <div id="estBox"></div>
     <div id="gsBox"></div>
+    <div id="prepBox"></div>
     <div id="edArvore">${(d.estrutura || []).map((disc, i) => `
       <div class="disc" id="disc-${i}">
         <div class="dh" onclick="$('disc-${i}').classList.toggle('open')">
@@ -659,6 +677,72 @@ async function abrirGerarSondas(edital) {
       renderEdital(edital);
     } catch (e) { $('gsOut').textContent = 'erro: ' + e.message; }
   };
+}
+
+// =====================================================================
+// PREPARAR EDITAL (15/10/2026) — nomes curtos, resumos e explicações em lotes, com o que falta na tela
+// =====================================================================
+let prepParar = false;
+async function abrirPreparar(edital) {
+  const box = $('prepBox'); prepParar = false;
+  box.innerHTML = `<div class="subform"><div class="nome" style="margin-bottom:4px">Preparar edital</div>
+    <div class="hint" style="margin-top:0">Depois de importar a estrutura e publicar, isto completa o que o aluno vê: nome curto de cada tema no Cérebro,
+      resumo de estudo ("Ainda não estudei isso") e explicação das questões. Roda em lotes até acabar ou bater o teto de gasto do dia; pode fechar e voltar depois.</div>
+    <div id="prepEstado" class="meta">conferindo…</div>
+    <div class="acts" style="margin-top:10px"><button class="b-ok" id="prepRun">Rodar o que falta</button><button class="b-ghost" id="prepStop" style="display:none">Parar</button></div>
+    <div class="meta mono" id="prepLog" style="margin-top:8px;white-space:pre-wrap"></div></div>`;
+  $('prepRun').onclick = () => rodarPreparo(edital);
+  $('prepStop').onclick = () => { prepParar = true; $('prepStop').textContent = 'parando após o lote…'; };
+  await pintarPreparo(edital);
+}
+async function pintarPreparo(edital) {
+  const { data: d, error } = await sb.rpc('fn_admin_edital_preparo', { p_edital: edital });
+  if (error) { $('prepEstado').textContent = 'erro: ' + error.message; return null; }
+  const pend = { rotulos: d.topicos - d.com_rotulo, resumos: d.topicos - d.com_resumo, explicacoes: d.itens_sem_explicacao };
+  const linha = (ok, txt) => `<div style="color:${ok ? 'var(--verde)' : 'var(--amarelo)'}">${ok ? '✓' : '•'} ${txt}</div>`;
+  $('prepEstado').innerHTML =
+    (d.status !== 'publicado' ? `<div style="color:var(--amarelo)">• Edital em "${esc(d.status)}": as sondas só entram na fábrica automática depois de <b>publicado</b>.</div>` : '') +
+    linha(pend.rotulos === 0, `Nomes curtos: ${d.com_rotulo} de ${d.topicos} temas${pend.rotulos ? ` (faltam ${pend.rotulos})` : ''}`) +
+    linha(pend.resumos === 0, `Resumos de estudo: ${d.com_resumo} de ${d.topicos} temas${pend.resumos ? ` (faltam ${pend.resumos})` : ''}`) +
+    linha(pend.explicacoes === 0, `Explicações: ${d.itens_aprovados - pend.explicacoes} de ${d.itens_aprovados} questões aprovadas${pend.explicacoes ? ` (faltam ${pend.explicacoes})` : ''}`) +
+    linha(d.com_sonda >= d.topicos, `Sondas: ${d.com_sonda} de ${d.topicos} temas com questão (fábrica automática a cada 10 min)`) +
+    `<div class="meta" style="margin-top:6px">Gasto de IA hoje: US$ ${Number(d.gasto_hoje_usd).toFixed(2)} de ${Number(d.teto_usd).toFixed(2)}</div>`;
+  const nada = !pend.rotulos && !pend.resumos && !pend.explicacoes;
+  if ($('prepRun')) { $('prepRun').disabled = nada; $('prepRun').textContent = nada ? 'Tudo pronto' : 'Rodar o que falta'; }
+  return pend;
+}
+async function rodarPreparo(edital) {
+  const log = (t) => { $('prepLog').textContent += t + '\n'; };
+  $('prepRun').disabled = true; $('prepStop').style.display = ''; $('prepLog').textContent = ''; prepParar = false;
+  const token = (await sb.rpc('fn_admin_jobs_token')).data;
+  const chamar = async (url, body) => { const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-jobs-token': token }, body: JSON.stringify({ ...body, edital_id: edital, origem: 'painel' }) }); return r.json(); };
+  const etapas = [
+    { nome: 'Nomes curtos', url: EDGE_ROTULOS, body: { lote: 80 }, feitos: (j) => j.rotulos },
+    { nome: 'Resumos', url: EDGE_RESUMOS, body: { apenas_trilha: false, lote: 10 }, feitos: (j) => j.resumos },
+    { nome: 'Explicações', url: EDGE_EXPLICAR, body: { apenas_trilha: false, lote: 20 }, feitos: (j) => j.explicados },
+  ];
+  let custo = 0, teto = false;
+  try {
+    for (const et of etapas) {
+      if (prepParar || teto) break;
+      for (let rodada = 1; rodada <= 60; rodada++) {
+        if (prepParar) break;
+        log(`${et.nome}: lote ${rodada}…`);
+        let j; try { j = await chamar(et.url, et.body); } catch (e) { log(`  falhou (${e.message}); tentando de novo em 5 s`); await new Promise(r => setTimeout(r, 5000)); continue; }
+        if (j.error) { log(`  erro: ${j.error}`); break; }
+        if (j.status === 'teto_diario') { log(`  teto de gasto do dia atingido (US$ ${j.gasto_hoje_usd} de ${j.teto_usd}). Continua amanhã.`); teto = true; break; }
+        if (j.status === 'completo') { log(`  completo.`); break; }
+        custo += Number(j.custo_usd || 0);
+        log(`  ${et.feitos(j) ?? 0} feitos · restam ${j.restantes ?? '?'} · US$ ${Number(j.custo_usd || 0).toFixed(3)}`);
+        if ((j.restantes ?? 1) <= 0 || (et.feitos(j) ?? 0) === 0) break;
+        await pintarPreparo(edital);
+      }
+    }
+  } finally {
+    log(`— fim · custo desta rodada US$ ${custo.toFixed(3)}`);
+    $('prepStop').style.display = 'none'; $('prepStop').textContent = 'Parar'; $('prepRun').disabled = false;
+    await pintarPreparo(edital); carregarEditais();
+  }
 }
 
 // =====================================================================
@@ -1515,6 +1599,114 @@ async function salvarRotulo(id) {
 }
 
 // ---------- BETA (etapa 5 · 0.7): funil, dias com sessão, lista de espera + convite, eventos e erros ----------
+// =====================================================================
+// DOCUMENTAÇÃO (15/10/2026) — passo a passo de um concurso novo + como a plataforma funciona para o aluno
+// =====================================================================
+const DOCS = [
+  { id: 'novo', t: 'Incluir um concurso novo', h: `
+<p class="d-lead">Quatro passos no painel. Depois do 4º, o concurso já aparece para o aluno; o 5º completa o conteúdo com IA.</p>
+<ol class="d-passos">
+  <li><b>Criar o edital</b> — aba <i>Editais</i> → <i>+ Novo edital</i> → concurso, cargo, banca (se souber) e data da prova → <i>Criar (rascunho)</i>.</li>
+  <li><b>Verticalizar o edital</b> (fora do painel, num editor de texto) — transformar o conteúdo programático em <i>disciplina → assunto → tema</i>. Regra de ouro do tema: <i>"consigo escrever 5 questões que medem isso e só isso?"</i> Se não, é detalhe do pai. Alvo: 300 a 800 temas por edital (o PRF tem 209). Formato:
+<pre>Direito Constitucional | 20 questões
+&gt; Direitos fundamentais
+- Direitos e deveres individuais e coletivos | remédios constitucionais, habeas corpus
+- Nacionalidade e cidadania
+Informática | 10 questões
+&gt; Segurança da informação
+- Vírus, worms e pragas virtuais</pre>
+<ul><li>O número depois de <code>|</code> na disciplina é o <b>quadro de provas do edital</b> (quantas questões a disciplina tem). Com o quadro completo, os pesos já nascem na proporção oficial. Sem ele, todas pesam igual.</li>
+<li>Sinônimos depois de <code>|</code> no tema ajudam a busca e o encaixe de questões.</li>
+<li>Tema com o <b>mesmo nome</b> de outro edital reaproveita o mesmo nó: o que o aluno já domina transfere entre concursos. Vale copiar nomes de editais já cadastrados quando o conteúdo é o mesmo.</li></ul></li>
+  <li><b>Importar a estrutura</b> — abrir o edital → <i>Importar estrutura</i> → colar o texto → <i>Pré-visualizar</i> (confira disciplinas, assuntos, temas e o quadro) → <i>Confirmar import</i>.</li>
+  <li><b>Publicar</b> — botão de status <i>publicado</i>. A partir daí: o concurso aparece na escolha do aluno, e a <b>fábrica de sondas</b> começa sozinha (a cada 10 minutos um lote de questões geradas e verificadas por IA, até todo tema ter pelo menos uma). <i>Gerar sondas agora</i> só acelera.</li>
+  <li><b>Preparar edital</b> — botão no edital. Mostra o que falta e roda, em lotes: <b>nome curto</b> de cada tema (o que aparece no Cérebro), <b>resumo de estudo</b> de cada tema (o que o aluno lê quando diz "Ainda não estudei isso") e <b>explicação</b> de cada questão (feedback da sessão). Respeita o teto de gasto de IA do dia (hoje US$ 5): se parar no teto, é só voltar no dia seguinte e rodar de novo. Pode fechar a tela no meio; nada se perde.</li>
+</ol>
+<p><b>Depois disso, rotina da equipe:</b> aba <i>Propostas</i> (fila do que a IA sugeriu, da menor confiança para a maior), <i>Qualidade</i> (reports dos alunos e itens suspensos), <i>Auditoria → Nomes curtos</i> (ajustar nomes que ficaram estranhos) e, no edital, ajustar o peso de um tema quando o professor discorda (override).</p>
+<p><b>Opcional, com provas reais:</b> aba <i>Provas</i> cadastra provas recentes da <u>mesma banca</u> e roda o refino de pesos (quanto cada tema cai de verdade; é o que acende a ★ "caiu N× nas provas"). Prova de outra banca ou com mais de 6 anos: não cadastrar.</p>
+<div class="d-aviso">O que ainda não está no painel: a análise fina das provas (Ovos de Ouro) e o pipeline de propostas em massa rodam em sessão com o Claude Code, a pedido do Fábio.</div>` },
+  { id: 'entrada', t: 'Como o aluno entra', h: `
+<p class="d-lead">A plataforma está em fase fechada: só entra quem foi convidado.</p>
+<ol class="d-passos">
+  <li><b>Convidar</b> — aba <i>Beta</i> → e-mail → <i>Convidar</i>. Isso libera o e-mail para criar conta e dá uma assinatura beta de 90 dias. Sem convite, a pessoa vê "Acesso fechado por enquanto".</li>
+  <li><b>Primeiro acesso</b> em <b>dominei.app</b> — a pessoa cria a conta com o e-mail convidado, escolhe o concurso (só editais <i>publicados</i> aparecem) e responde o <b>"Antes do teste"</b>: autoavaliação rápida por disciplina (nunca vi / já estudei / domino), que só ajusta o ponto de partida.</li>
+  <li><b>Diagnóstico</b> — de 8 a 20 questões, sem correção durante o teste, focadas nos 15 temas mais pesados do edital; para quando já mediu o suficiente.</li>
+  <li><b>Revelação</b> — o cérebro acende pela primeira vez com as cores do que foi medido e mostra as 3 prioridades, cada uma com o motivo. Daí em diante é o uso diário.</li>
+</ol>
+<p>A conta <b>demo@dominei.app</b> é a vitrine da equipe: pode usar à vontade, mas o que ela faz fica gravado.</p>` },
+  { id: 'abas', t: 'As 4 abas do aluno', h: `
+<div class="d-grid">
+  <div><b>HOJE</b><p>Uma decisão por tela. Mostra <i>"Sua prioridade de hoje"</i> com o motivo (peso do tema na prova × o que falta nele) e um botão. A sessão do dia tem até 5 questões do tema prioritário + até 3 revisões (1 questão cada) + 1 questão de conferência; ao terminar, "Quer mais?" libera mais 5. Cada questão pede a confiança em 1 toque antes de responder; depois mostra certo/errado, a explicação, a fonte (lei/artigo) e o que engana. Se o aluno diz <i>"Ainda não estudei isso"</i>, recebe o resumo do tema e a plataforma volta a conferir em 3 dias. Sessão parada por 24 h expira. Quem fica 7 dias sem estudar volta num modo leve de 3 questões.</p></div>
+  <div><b>MEU MATERIAL</b><p>Onde o aluno guarda resumos digitados, fotos do caderno e PDFs, sempre dentro de disciplina → assunto → temas do edital. Ver seção própria abaixo.</p></div>
+  <div><b>MEU EDITAL</b><p>As disciplinas na ordem do peso, com os temas de cada uma; cada tema mostra o estado (cor), quantas questões já respondeu e os materiais guardados. Dá para abrir um tema e praticar ou guardar material dali.</p></div>
+  <div><b>CÉREBRO</b><p>Vista lateral do cérebro: cada região é uma disciplina (área proporcional ao peso na prova), cada ponto é um tema, a cor é o estado. Tocar na região abre a disciplina com os nomes curtos dos temas; tocar num tema abre o cartão (estado, desempenho, ★ se caiu 3+ vezes nas provas, seus materiais, botão de praticar). A animação de entrada roda em toda abertura.</p></div>
+</div>` },
+  { id: 'cores', t: 'As cores do Cérebro: o que são e quando mudam', h: `
+<p class="d-lead">A cor de um tema vem <b>só de questões respondidas</b>. Estudar (material, marcar como estudado) acende o azul, nunca o verde. O estado é recalculado pelo servidor toda vez que o aluno abre a tela.</p>
+<table class="d-tab">
+<tr><th>Cor</th><th>Estado</th><th>Regra</th></tr>
+<tr><td><span class="d-dot" style="background:#39435C"></span></td><td>Cinza — Ainda não explorado</td><td>Nenhuma questão respondida. Se o aluno declarou "nunca vi" na autoavaliação, aparece como <i>Ainda não estudei</i>.</td></tr>
+<tr><td><span class="d-dot" style="background:#4D8DFF"></span></td><td>Azul — Estudado</td><td>Tem material guardado ou foi marcado como estudado, mas ainda sem questão. Some na primeira questão respondida (vira a cor do resultado).</td></tr>
+<tr><td><span class="d-dot" style="background:#ED5A5A"></span></td><td>Vermelho — Precisa de atenção</td><td>Força abaixo de 40.</td></tr>
+<tr><td><span class="d-dot" style="background:#F2B33D"></span></td><td>Amarelo — Em desenvolvimento</td><td>Força entre 40 e 69, <u>ou</u> menos de 3 questões respondidas (mesmo acertando todas).</td></tr>
+<tr><td><span class="d-dot" style="background:#2FE08D"></span></td><td>Verde — Dominado</td><td>Força 70 ou mais <u>e</u> pelo menos 3 questões respondidas.</td></tr>
+</table>
+<p><b>Quanto tempo leva para mudar de cor?</b> A cor muda na hora, a cada questão respondida:</p>
+<ul>
+<li><b>Primeira questão</b> do tema: a força parte de 30. Um acerto leva para ~55 (<b>amarelo</b>); um erro derruba para ~20 (<b>vermelho</b>). O tema sai do cinza já na primeira resposta.</li>
+<li><b>Verde</b> exige constância: em geral <b>5 a 6 acertos sem erro, em dias diferentes</b> (na calibração, 6 acertos espaçados levaram a força 72). Acertar várias de uma vez no mesmo dia rende menos do que acertar em dias separados; o número exato depende da dificuldade das questões e do espaçamento.</li>
+<li><b>Um erro</b> derruba forte: tira parte da força e corta a "estabilidade" (memória) do tema em 60%. Dois erros seguidos normalmente levam ao vermelho.</li>
+<li><b>Marcar como estudado</b> ou guardar material não mexe na força: só acende o azul e conta como "visto".</li>
+</ul>
+<p><b>A cor também cai sozinha com o tempo.</b> Cada tema tem uma estabilidade em dias (começa em 3, cresce a cada acerto espaçado, até 180). Sem praticar, a força decai pela metade a cada "estabilidade" de dias — mas nunca abaixo de 45% do que era (reaprender é mais rápido). Exemplo: tema verde com força 75 e estabilidade de 10 dias, parado por 10 dias → força ~54 → volta ao <b>amarelo</b>. Por isso o verde precisa de revisão para se manter.</p>
+<p><b>Marcador "Rever"</b> (relógio no cartão): aparece quando a revisão programada do tema venceu ou quando ele ficou tanto tempo sem evidência que a medição perdeu a validade. <b>"Estudado"</b> aparece em tema com material/registro e sem questão.</p>
+<p class="d-nota">Os números (30, 40, 70, 3 questões, 45%, 180 dias…) são parâmetros do motor e podem ser recalibrados pela equipe técnica sem mexer no app.</p>` },
+  { id: 'revisoes', t: 'Revisões e prioridade', h: `
+<ul>
+<li><b>Prioridade do dia</b> = tema com maior <i>peso na prova × lacuna</i>, respeitando uma rotação de 2 dias (tema praticado ontem não volta hoje, a não ser por revisão vencida). O motivo aparece sempre na tela.</li>
+<li><b>Revisões</b>: cada acerto agenda a próxima revisão mais longe (espaçamento crescente). Entram na fila só os temas importantes (a "trilha": os temas que somam 50% do peso do edital) que ainda não estão verdes; os outros só ganham o marcador Rever. Até <b>3 temas de revisão por dia</b>, 1 questão cada; a fila tem teto de 10 — o excedente é reagendado em 2 a 5 dias. A primeira revisão dos temas do diagnóstico vem entre 3 e 7 dias (o mais pesado volta antes).</li>
+<li><b>Ordem do dia</b>: revisão vencida → conferir tema "ainda não estudei" (após 3 dias) → sondar tema importante ainda não medido → avançar no peso.</li>
+<li>O aluno pode ignorar a prioridade e praticar qualquer tema pelo Cérebro ou pelo Meu edital.</li>
+</ul>` },
+  { id: 'material', t: 'Meu Material: como o aluno guarda e usa', h: `
+<ol class="d-passos">
+  <li><b>Guardar</b> — aba <i>Meu Material</i> → <i>+ Guardar resumo, foto ou PDF</i> (ou, dentro de um tema, "Guardar … deste tema", já com o tema marcado).</li>
+  <li><b>Tipo</b>: <i>Texto</i> (resumo digitado ou colado, até 60.000 caracteres), <i>Fotos</i> (até 30 páginas; "Tirar foto" abre a câmera e repete para a próxima página; "Escolher da galeria" pega várias; as fotos são comprimidas no aparelho, ~300 KB cada) ou <i>PDF</i> (1 arquivo, até 15 MB).</li>
+  <li><b>Onde</b>: disciplina e assunto são obrigatórios; os temas do assunto vêm desmarcados e o aluno marca os que entraram no material (assunto de 1 tema só já vem marcado). A plataforma lembra a última disciplina/assunto usados. Título é opcional (sai automático: "Resumo · tema · dd/mm").</li>
+  <li><b>Efeito</b>: os temas marcados acendem a <b>luz azul</b> no Cérebro (se ainda não têm questão) e ficam como "Estudado". Não altera a força.</li>
+  <li><b>Organização</b>: a lista espelha o edital (disciplina → assunto, pastas recolhidas com contagem), com <i>Recentes</i> no topo, busca por palavras (título, texto, disciplina, tema), filtro por tipo e ordem "mais recentes". Abrir um material mostra o texto (com copiar), as páginas de foto ou o PDF; dá para <i>editar</i> título/assunto/temas e <i>excluir</i> (dois toques).</li>
+  <li><b>Baixar</b>: botão <i>⤓ Baixar meu caderno (ZIP ou PDF)</i> no topo, em cada disciplina ou em cada assunto. ZIP = arquivos originais em pastas disciplina/assunto/tema + índice; PDF = tudo compilado com capa, índice e o estado de cada tema na data. Montado no aparelho do aluno (no iPhone vai para "Arquivos").</li>
+  <li><b>Espaço</b>: 1 GB por aluno para fotos e PDFs. A partir de 80% a plataforma avisa; cheio, só entram resumos digitados até o aluno excluir algo (ou baixar o ZIP e apagar).</li>
+</ol>
+<p class="d-nota">A lista <i>Temas marcados como estudados</i> (histórico do registro manual antigo) continua visível em Meu Material, só leitura, com desfazer.</p>` },
+  { id: 'painel', t: 'O painel da equipe e as automações', h: `
+<ul>
+<li><b>Entrar</b>: dominei.app/curadoria.html com e-mail e senha; só e-mails cadastrados como equipe entram. Para incluir alguém da equipe, peça ao Fábio.</li>
+<li><b>Visão Geral</b>: reports abertos, itens suspensos, propostas pendentes, cobertura de sondas por edital.</li>
+<li><b>Editais</b>: estrutura, pesos (override por tema), importar, gerar sondas, preparar edital, renomear nós.</li>
+<li><b>Bancas / Provas / Itens</b>: cadastro de bancas, provas reais e questões (busca, pendências de texto-base).</li>
+<li><b>Qualidade</b>: reports dos alunos sobre questões e itens suspensos pela saúde diária (cron 07:00).</li>
+<li><b>Propostas</b>: fila do que a IA propôs (nós, pesos, questões), da menor confiança para a maior; toda decisão fica auditada.</li>
+<li><b>Solicitações</b>: pedidos vindos do app.</li>
+<li><b>Auditoria</b>: sondas da trilha e resumos para leitura, Ligações do Cérebro (hoje sem efeito no app), Nomes curtos.</li>
+<li><b>Beta</b>: convites (liberam o cadastro), lista de espera, funil dos alunos nos últimos 30 dias e erros do app.</li>
+</ul>
+<p><b>Automático, sem ninguém apertar nada:</b> fábrica de sondas (a cada 10 min, editais publicados, 1 questão por tema até cobrir tudo); saúde diária dos itens (07:00, suspende item com problema); estado do aluno recalculado a cada abertura; e-mail de pedido de convite.</p>
+<p><b>Custo de IA</b>: todas as rotinas dividem um teto diário (hoje US$ 5); ao bater o teto, param e continuam no dia seguinte. O gasto do dia aparece no Preparar edital.</p>` },
+];
+function loadDocs() {
+  const pane = $('pane-docs');
+  pane.innerHTML = `
+    <div class="pagetitle">D O C U M E N T A Ç Ã O</div>
+    <div class="pagesub">Como incluir um concurso e como a plataforma funciona para o aluno. Atualizado em 15/10/2026 (build ${BUILD}).</div>
+    <div class="d-nav">${DOCS.map((d, i) => `<button class="${i === 0 ? 'on' : ''}" data-doc="${d.id}">${esc(d.t)}</button>`).join('')}</div>
+    ${DOCS.map((d, i) => `<div class="card d-sec" id="doc-${d.id}" style="${i === 0 ? '' : 'display:none'}"><div class="nome" style="font-size:16px;margin-bottom:10px">${esc(d.t)}</div>${d.h}</div>`).join('')}`;
+  pane.querySelectorAll('[data-doc]').forEach(b => b.onclick = () => {
+    pane.querySelectorAll('[data-doc]').forEach(x => x.classList.toggle('on', x === b));
+    DOCS.forEach(d => $('doc-' + d.id).style.display = d.id === b.dataset.doc ? '' : 'none');
+    window.scrollTo({ top: 0 });
+  });
+}
 const quando = (t) => new Date(t).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 async function loadBeta() {
   const pane = $('pane-beta');
