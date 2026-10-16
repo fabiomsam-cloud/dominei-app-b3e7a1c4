@@ -203,7 +203,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-10-15f'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-10-15g'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -256,6 +256,7 @@ const IC = {
   auditoria: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5M8.5 11l2 2 3.5-3.5"/></svg>',
   beta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>',
   solicitacoes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-8M12 12l-3 3M12 12l3 3"/><path d="M4 4h16M4 8h16"/></svg>',
+  alunos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5a5 5 0 0 1 6 5"/></svg>',
   docs: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7"/></svg>',
 };
 
@@ -269,6 +270,7 @@ const TABS = [
   { id: 'propostas',    label: 'Propostas',    ic: 'propostas',    load: loadPropostas },
   { id: 'solicitacoes', label: 'Solicitações', ic: 'solicitacoes', load: loadSolicitacoes },
   { id: 'auditoria',    label: 'Auditoria',    ic: 'auditoria',    load: loadAuditoria },
+  { id: 'alunos',       label: 'Alunos',       ic: 'alunos',       load: loadAlunos },
   { id: 'beta',         label: 'Beta',         ic: 'beta',         load: loadBeta },
   { id: 'docs',         label: 'Documentação', ic: 'docs',         load: loadDocs },
 ];
@@ -1647,7 +1649,9 @@ Informática | 10 questões
   { id: 'entrada', t: 'Como o aluno entra', h: `
 <p class="d-lead">A plataforma está em fase fechada: só entra quem foi convidado.</p>
 <ol class="d-passos">
-  <li><b>Convidar</b> — aba <i>Beta</i> → e-mail → <i>Convidar</i>. Isso libera o e-mail para criar conta e dá uma assinatura beta de 90 dias. Sem convite, a pessoa vê "Acesso fechado por enquanto".</li>
+  <li><b>Convidar por link</b> (o jeito normal) — aba <i>Alunos</i> → <i>Links de convite</i> → nome, dias de acesso e limite de pessoas (opcional) → <i>Criar link</i> → <i>Copiar link</i> e mandar. Quem abre <code>dominei.app/?c=CODIGO</code> cria a conta sozinho (nome, e-mail, WhatsApp opcional, senha) e entra direto, com acesso pelos dias do link. <i>Desativar link</i> só para novas entradas; <i>Encerrar acesso</i> tira o acesso de todo mundo que entrou por ele.</li>
+  <li><b>Convidar por e-mail</b> (um a um) — aba <i>Beta</i> → e-mail → <i>Convidar</i>: libera o e-mail para criar conta e dá 90 dias. Sem convite, a pessoa vê "Acesso fechado por enquanto".</li>
+  <li><b>Acompanhar</b> — aba <i>Alunos</i>: nome, por onde entrou, concurso, vencimento, status; <i>+30 dias</i>, <i>Bloquear/Desbloquear</i> (bloqueado não entra no app), <i>Encerrar</i>.</li>
   <li><b>Primeiro acesso</b> em <b>dominei.app</b> — a pessoa cria a conta com o e-mail convidado, escolhe o concurso (só editais <i>publicados</i> aparecem) e responde o <b>"Antes do teste"</b>: autoavaliação rápida por disciplina (nunca vi / já estudei / domino), que só ajusta o ponto de partida.</li>
   <li><b>Diagnóstico</b> — de 8 a 20 questões, sem correção durante o teste, focadas nos 15 temas mais pesados do edital; para quando já mediu o suficiente.</li>
   <li><b>Revelação</b> — o cérebro acende pela primeira vez com as cores do que foi medido e mostra as 3 prioridades, cada uma com o motivo. Daí em diante é o uso diário.</li>
@@ -1709,7 +1713,8 @@ Informática | 10 questões
 <li><b>Propostas</b>: fila do que a IA propôs (nós, pesos, questões), da menor confiança para a maior; toda decisão fica auditada.</li>
 <li><b>Solicitações</b>: pedidos vindos do app.</li>
 <li><b>Auditoria</b>: sondas da trilha e resumos para leitura, Ligações do Cérebro (hoje sem efeito no app), Nomes curtos.</li>
-<li><b>Beta</b>: convites (liberam o cadastro), lista de espera, funil dos alunos nos últimos 30 dias e erros do app.</li>
+<li><b>Alunos</b>: todos com conta (status, vencimento, concurso, questões), +30 dias / bloquear / encerrar; <b>links de convite</b> (criar, copiar, desativar, encerrar acesso).</li>
+<li><b>Beta</b>: convite por e-mail, lista de espera, funil dos alunos nos últimos 30 dias e erros do app.</li>
 </ul>
 <p><b>Automático, sem ninguém apertar nada:</b> fábrica de sondas (a cada 10 min, editais publicados, 1 questão por tema até cobrir tudo); saúde diária dos itens (07:00, suspende item com problema); estado do aluno recalculado a cada abertura; e-mail de pedido de convite.</p>
 <p><b>Custo de IA</b>: todas as rotinas dividem um teto diário (hoje US$ 5); ao bater o teto, param e continuam no dia seguinte. O gasto do dia aparece no Preparar edital.</p>` },
@@ -1726,6 +1731,100 @@ function loadDocs() {
     DOCS.forEach(d => $('doc-' + d.id).style.display = d.id === b.dataset.doc ? '' : 'none');
     window.scrollTo({ top: 0 });
   });
+}
+// =====================================================================
+// ALUNOS + LINKS DE CONVITE (15/10/2026)
+// =====================================================================
+const APP_URL = 'https://dominei.app';
+let alunosCache = [], alBusca = '', alPag = 0;
+const dataBR = (t) => t ? new Date(/^\d{4}-\d{2}-\d{2}$/.test(t) ? t + 'T12:00:00' : t).toLocaleDateString('pt-BR') : '—'; // data sem hora = dia local, não UTC
+const AL_STATUS = { ativo: ['ATIVO', 'edge'], vencido: ['VENCIDO', 'item'], bloqueado: ['BLOQUEADO', 'grey'], exclusao: ['EM EXCLUSÃO', 'grey'], demo: ['DEMO', 'ouro'], sem_acesso: ['SEM ACESSO', 'grey'] };
+async function loadAlunos() {
+  const pane = $('pane-alunos');
+  pane.innerHTML = `
+    <div class="pagetitle">A L U N O S</div>
+    <div class="pagesub">Quem tem conta no DOMINEI, por onde entrou e até quando tem acesso. Links de convite para a fase de teste com alunos reais.</div>
+    <div class="card">
+      <div class="acts" style="margin:0 0 10px;align-items:flex-end">
+        <div class="nome" style="flex:1">Links de convite</div>
+        <span class="meta">A pessoa abre o link, cria a conta com senha e entra direto.</span>
+      </div>
+      <div class="row2" style="grid-template-columns:2fr 1fr 1fr auto;align-items:end">
+        <div><label>Nome do convite</label><input id="cvNome" placeholder="Ex.: Testadores out/26"></div>
+        <div><label>Dias de acesso</label><input id="cvDias" type="number" min="1" max="730" value="30"></div>
+        <div><label>Limite de pessoas</label><input id="cvLim" type="number" min="1" placeholder="sem limite"></div>
+        <div><button class="b-ok" id="cvCriar" style="margin-bottom:2px">Criar link</button></div>
+      </div>
+      <div id="cvLista" style="margin-top:12px"><div class="empty">carregando…</div></div>
+    </div>
+    <div class="card">
+      <div class="acts" style="margin:0 0 10px"><div class="nome" style="flex:1">Alunos <span class="meta" id="alN"></span></div>
+        <input id="alBusca" placeholder="Buscar nome, e-mail ou WhatsApp…" style="margin:0;max-width:320px" value="${esc(alBusca)}"></div>
+      <div id="alLista"><div class="empty">carregando…</div></div>
+    </div>`;
+  $('cvCriar').onclick = criarConvite;
+  let t = null; $('alBusca').oninput = () => { clearTimeout(t); t = setTimeout(() => { alBusca = $('alBusca').value; alPag = 0; desenharAlunos(); }, 200); };
+  await Promise.all([carregarConvites(), carregarAlunos()]);
+}
+async function carregarConvites() {
+  const { data, error } = await sb.rpc('fn_admin_convites_listar');
+  const box = $('cvLista'); if (!box) return;
+  if (error) { box.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
+  if (!data.length) { box.innerHTML = '<div class="empty">Nenhum link ainda. Crie o primeiro acima.</div>'; return; }
+  box.innerHTML = `<table class="tb"><thead><tr><th>CONVITE</th><th>LINK</th><th>ACESSO</th><th>PESSOAS</th><th>STATUS</th><th></th></tr></thead><tbody>` +
+    data.map(c => { const url = `${APP_URL}/?c=${c.codigo}`, parado = !c.ativo || c.encerrado_em;
+      return `<tr><td><b>${esc(c.nome)}</b><br><span class="meta">${dataBR(c.criado_em)}${c.criado_por ? ' · ' + esc(c.criado_por.split('@')[0]) : ''}</span></td>
+        <td><button class="b-ghost" onclick="copiarTexto('${url}', this)">📋 Copiar link</button><br><span class="meta mono">?c=${esc(c.codigo)}</span></td>
+        <td class="mono">${c.dias_acesso} dias</td>
+        <td class="mono">${c.pessoas}${c.limite ? ' / ' + c.limite : ''}<br><span class="meta">${c.com_acesso} com acesso</span></td>
+        <td><span class="badge ${parado ? 'grey' : 'edge'}">${c.encerrado_em ? 'ENCERRADO' : c.ativo ? 'LINK ATIVO' : 'DESATIVADO'}</span></td>
+        <td style="white-space:nowrap">${c.encerrado_em ? `<button class="b-ghost" onclick="acaoConvite('${c.id}','reativar')">Reabrir link</button>`
+          : `<button class="b-ghost" onclick="acaoConvite('${c.id}','${c.ativo ? 'desativar' : 'reativar'}')">${c.ativo ? 'Desativar link' : 'Reativar link'}</button>
+             <button class="b-split" onclick="acaoConvite('${c.id}','encerrar', ${c.com_acesso})">Encerrar acesso</button>`}</td></tr>`; }).join('') + '</tbody></table>';
+}
+async function criarConvite() {
+  const nome = $('cvNome').value.trim(), dias = +$('cvDias').value || 30, lim = $('cvLim').value ? +$('cvLim').value : null;
+  if (nome.length < 2) { toast('Dê um nome ao convite.', false); return; }
+  const { data, error } = await sb.rpc('fn_admin_convite_criar', { p_nome: nome, p_dias: dias, p_limite: lim });
+  if (error) { toast(error.message, false); return; }
+  $('cvNome').value = ''; $('cvLim').value = '';
+  toast(`Link criado: ${APP_URL}/?c=${data.codigo}`); carregarConvites();
+}
+async function acaoConvite(id, acao, comAcesso) {
+  if (acao === 'encerrar' && !confirm(`Encerrar o acesso de ${comAcesso || 0} pessoa(s) que entraram por este link? O link também para de funcionar.`)) return;
+  const { error } = await sb.rpc('fn_admin_convite_acao', { p_id: id, p_acao: acao });
+  if (error) { toast(error.message, false); return; }
+  toast('Feito ✓'); carregarConvites(); carregarAlunos();
+}
+function copiarTexto(t, bt) { navigator.clipboard.writeText(t).then(() => { const o = bt.textContent; bt.textContent = '✓ Copiado'; setTimeout(() => bt.textContent = o, 1500); }, () => prompt('Copie o link:', t)); }
+async function carregarAlunos() {
+  const { data, error } = await sb.rpc('fn_admin_alunos_listar');
+  if (error) { const b = $('alLista'); if (b) b.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
+  alunosCache = data || []; desenharAlunos();
+}
+function desenharAlunos() {
+  const box = $('alLista'); if (!box) return;
+  const q = alBusca.trim().toLowerCase();
+  const lista = alunosCache.filter(a => !q || (a.nome || '').toLowerCase().includes(q) || (a.email || '').toLowerCase().includes(q) || (a.telefone || '').includes(q));
+  $('alN').textContent = `(${lista.length}${lista.length !== alunosCache.length ? ' de ' + alunosCache.length : ''})`;
+  const pag = lista.slice(alPag * PAGE, (alPag + 1) * PAGE);
+  box.innerHTML = (pag.length ? `<table class="tb"><thead><tr><th>NOME</th><th>E-MAIL</th><th>WHATSAPP</th><th>CONCURSO</th><th>VENCIMENTO</th><th>STATUS</th><th></th></tr></thead><tbody>` +
+    pag.map(a => { const [rot, cls] = AL_STATUS[a.status] || [a.status, 'grey'];
+      return `<tr><td><b>${esc(a.nome || '(sem nome)')}</b><br><span class="meta">${a.convite ? `<span class="badge edital_node">convite · ${esc(a.convite)}</span> ` : ''}desde ${dataBR(a.criado_em)} · ${a.questoes} questões${a.ultimo_login ? ' · entrou ' + dataBR(a.ultimo_login) : ''}</span></td>
+        <td>${esc(a.email)}</td><td class="mono">${esc(a.telefone || '—')}</td><td>${esc(a.edital || '—')}</td><td class="mono">${dataBR(a.vencimento)}</td>
+        <td><span class="badge ${cls}">${rot}</span></td>
+        <td style="white-space:nowrap">${a.demo ? '' : `<button class="b-ghost" onclick="acaoAluno('${a.id}','estender')">+30 dias</button>
+          ${a.status === 'bloqueado' ? `<button class="b-ok" onclick="acaoAluno('${a.id}','desbloquear')">Desbloquear</button>` : `<button class="b-split" onclick="acaoAluno('${a.id}','bloquear')">Bloquear</button>`}
+          ${a.status === 'ativo' ? `<button class="b-ghost" onclick="acaoAluno('${a.id}','encerrar')">Encerrar</button>` : ''}`}</td></tr>`; }).join('') + '</tbody></table>'
+    : '<div class="empty">Nenhum aluno encontrado.</div>') +
+    (lista.length > PAGE ? `<div class="acts" style="margin-top:10px"><button class="b-ghost" ${alPag === 0 ? 'disabled' : ''} onclick="alPag--;desenharAlunos()">← anteriores</button><span class="meta">${alPag * PAGE + 1}–${Math.min(lista.length, (alPag + 1) * PAGE)} de ${lista.length}</span><button class="b-ghost" ${(alPag + 1) * PAGE >= lista.length ? 'disabled' : ''} onclick="alPag++;desenharAlunos()">próximos →</button></div>` : '');
+}
+async function acaoAluno(id, acao) {
+  const txt = { bloquear: 'Bloquear este aluno? Ele perde o acesso ao app até ser desbloqueado.', encerrar: 'Encerrar o acesso deste aluno agora?' }[acao];
+  if (txt && !confirm(txt)) return;
+  const { error } = await sb.rpc('fn_admin_aluno_acao', { p_id: id, p_acao: acao, p_dias: 30 });
+  if (error) { toast(error.message, false); return; }
+  toast('Feito ✓'); carregarAlunos();
 }
 const quando = (t) => new Date(t).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 async function loadBeta() {

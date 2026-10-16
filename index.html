@@ -833,6 +833,7 @@ body.rg-barra-on main { padding-bottom:170px; }
     <div class="card" id="auForm" style="display:none">
       <div class="au-form-t" id="auTitulo">Criar minha conta</div>
       <div id="auNomeBox"><label for="nome">Seu nome</label><input id="nome" type="text" autocomplete="name" placeholder="Como quer ser chamado(a)"></div>
+      <div id="auFoneBox" style="display:none"><label for="fone">WhatsApp (opcional)</label><input id="fone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(92) 9 9999-9999"></div>
       <label for="email">E-mail</label><input id="email" type="email" autocomplete="username" placeholder="voce@email.com">
       <label for="senha">Senha</label><input id="senha" type="password" autocomplete="new-password" placeholder="mínimo de 6 caracteres">
       <button class="btn" id="btnEntrar">Criar conta e começar</button>
@@ -1202,9 +1203,15 @@ async function mostrarFechado(erro) {
   tele('acesso_fechado', { erro: !!erro });
 }
 // ---------- entrada (4.1/4.2): promessa → o que acontece → regra → conta ----------
-let modoAuth = 'cadastro';
+let modoAuth = 'cadastro', convite = null; // { codigo, nome, dias } quando a pessoa chegou por link de convite
 async function mostrarEntrada() {
   show('vAuth');
+  const cod = (new URLSearchParams(location.search).get('c') || '').trim().toLowerCase();
+  if (cod && !convite) { // 15/10: link de convite → cadastro próprio
+    const { data: inf } = await sb.rpc('fn_convite_info', { p_codigo: cod });
+    if (inf && inf.valido) { convite = { codigo: cod, nome: inf.nome, dias: inf.dias }; tele('convite_aberto', { convite: inf.nome }); abrirForm('cadastro'); return; }
+    tele('convite_invalido', { codigo: cod }); abrirForm('login'); $('authMsg').textContent = (inf && inf.motivo) || 'Este convite não vale mais.'; return;
+  }
   const { data } = await sb.from('editais').select('id, concurso, cargo, metadata').eq('status', 'publicado').range(0, 9);
   const e = data && data.length === 1 ? data[0] : null; // com um edital só, ele já vem escolhido
   $('auAlvo').style.display = e ? 'block' : 'none';
@@ -1226,7 +1233,15 @@ function abrirForm(modo) {
   $('senha').placeholder = cad ? 'mínimo de 6 caracteres' : '••••••••';
   $('btnEntrar').textContent = cad ? 'Criar conta e começar' : 'Entrar';
   $('authMsg').textContent = ''; $('authMsg').style.color = '';
-  $('auAlt').innerHTML = 'O acesso ao DOMINEI está fechado: só contas convidadas entram.'; // sem "Criar minha conta" (05/10)
+  $('auFoneBox').style.display = cad && convite ? 'block' : 'none';
+  if (convite && cad) { // chegou por link: o convite aparece no lugar do aviso de fase fechada
+    $('auTitulo').textContent = 'Criar minha conta';
+    $('auAlt').innerHTML = `Convite <b style="color:var(--text)">${esc(convite.nome)}</b> · ${plural(convite.dias, 'dia', 'dias')} de acesso. Já tem conta? <a href="#" id="lnkModo">Entrar</a>`;
+    $('lnkModo').onclick = (ev) => { ev.preventDefault(); abrirForm('login'); };
+  } else if (convite) {
+    $('auAlt').innerHTML = `Primeira vez aqui? <a href="#" id="lnkModo">Criar minha conta com o convite</a>`;
+    $('lnkModo').onclick = (ev) => { ev.preventDefault(); abrirForm('cadastro'); };
+  } else $('auAlt').innerHTML = 'O acesso ao DOMINEI está fechado: só contas convidadas entram.'; // sem "Criar minha conta" (05/10)
   (cad ? $('nome') : $('email')).focus();
   $('auForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -1237,6 +1252,7 @@ function humanizarAuth(err) {
   const m = String((err && err.message) || err || '');
   const d = [
     [/invalid login credentials/i, 'E-mail ou senha incorretos.'],
+    [/convite_invalido/i, 'Este convite não vale mais. Peça um link novo para quem te convidou.'],
     [/cadastro_fechado|database error saving new user/i, 'O DOMINEI está em fase fechada: novas contas só por convite.'],
     [/email not confirmed/i, 'Falta confirmar seu e-mail: abra o link que enviamos (veja também o spam).'],
     [/already registered|already been registered|user already exists/i, 'Este e-mail já tem conta. Toque em "Entrar".'],
@@ -1291,7 +1307,7 @@ $('btnEntrar').onclick = async () => {
   if (password.length < 6) { msg.textContent = 'A senha precisa ter pelo menos 6 caracteres.'; $('senha').focus(); return; }
   $('btnEntrar').disabled = true;
   const { data, error } = cad
-    ? await sb.auth.signUp({ email, password, options: { data: { nome } } })
+    ? await sb.auth.signUp({ email, password, options: { data: convite ? { nome, convite: convite.codigo, telefone: ($('fone').value || '').replace(/\D/g, '') || null } : { nome } } })
     : await sb.auth.signInWithPassword({ email, password });
   $('btnEntrar').disabled = false;
   if (error) { msg.textContent = humanizarAuth(error); tele(cad ? 'cadastro_erro' : 'login_erro', { motivo: humanizarAuth(error) }); return; }
