@@ -203,7 +203,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-10-16a'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-10-16b'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -777,6 +777,7 @@ async function loadProvas() {
     <div class="pagetitle">P R O V A S</div>
     <div class="pagesub">OPCIONAL — calibração empírica só com provas recentes da MESMA banca (ou pós-prova do próprio concurso).
       Sem provas confiáveis, a lente usa o quadro do edital + ajustes do professor. Prova de outra banca ou 6+ anos: não cadastrar.</div>
+    <div class="hint" style="margin:-8px 0 14px">Para subir as <b>questões</b> de uma prova (enunciado, gabarito, tópico), use <a href="#/bancas" style="color:var(--verde)">Bancas → Importar questões</a> (texto simples, com ANO e CONCURSO). Esta aba registra a <b>prova em si</b> (gabarito oficial e classificação por tópico) para o refino de pesos — passo avançado; veja a Documentação.</div>
     <div class="acts" style="margin-bottom:12px">
       <button class="b-ghost" id="btnNovaProva">+ Cadastrar prova</button>
       <button class="b-split" id="btnRefino">Rodar refino de pesos</button>
@@ -852,6 +853,12 @@ function abrirRefino() {
 // =====================================================================
 // BANCAS
 // =====================================================================
+async function excluirBanca(id, nome) { // só banca sem uso (a função confere edital, prova, questão e modelo)
+  if (!confirm(`Excluir a banca "${nome}"? Só dá certo se nada estiver usando ela.`)) return;
+  const { error } = await sb.rpc('fn_admin_banca_excluir', { p_id: id });
+  if (error) { toast(error.message, false); return; }
+  toast('Banca excluída ✓'); loadBancas();
+}
 async function loadBancas() {
   const pane = $('pane-bancas');
   pane.innerHTML = `
@@ -878,6 +885,7 @@ async function loadBancas() {
       <div class="acts" style="margin:8px 0">
         <button class="b-edit" onclick="abrirCobertura('${b.id}')">Mapa de cobertura</button>
         <button class="b-ok" onclick="abrirImportQuestoes('${b.id}', '')">Importar questões</button>
+        ${!b.editais && !b.provas && !(b.modelos || []).length ? `<button class="b-ghost" style="color:var(--vermelho);border-color:rgba(237,90,90,.4)" onclick="excluirBanca('${b.id}', ${JSON.stringify(esc(b.nome))})">Excluir banca</button>` : ''}
       </div>
       <div id="cob-${b.id}"></div>
       <div id="impq-${b.id}"></div>
@@ -1688,6 +1696,33 @@ Informática | 10 questões
 <p><b>Depois disso, rotina da equipe:</b> aba <i>Propostas</i> (fila do que a IA sugeriu, da menor confiança para a maior), <i>Qualidade</i> (reports dos alunos e itens suspensos), <i>Auditoria → Nomes curtos</i> (ajustar nomes que ficaram estranhos) e, no edital, ajustar o peso de um tema quando o professor discorda (override).</p>
 <p><b>Opcional, com provas reais:</b> aba <i>Provas</i> cadastra provas recentes da <u>mesma banca</u> e roda o refino de pesos (quanto cada tema cai de verdade; é o que acende a ★ "caiu N× nas provas"). Prova de outra banca ou com mais de 6 anos: não cadastrar.</p>
 <div class="d-aviso">O que ainda não está no painel: a análise fina das provas (Ovos de Ouro) e o pipeline de propostas em massa rodam em sessão com o Claude Code, a pedido do Fábio.</div>` },
+  { id: 'questoes', t: 'Subir questões de provas', h: `
+<p class="d-lead">As questões reais de prova entram pela aba <i>Bancas</i> → banca certa → <i>Importar questões</i>. É texto simples, uma questão por bloco, separadas por uma linha com <code>---</code>.</p>
+<pre>TÓPICO: Crimes de trânsito
+Conduzir veículo sob influência de álcool constitui crime apenas quando gerar perigo concreto de dano.
+GABARITO: E
+EXPLICACAO: O art. 306 do CTB é crime de perigo abstrato.
+ANO: 2021
+CONCURSO: PRF
+---
+TÓPICO: Poder de polícia
+Assinale a alternativa que apresenta um atributo do poder de polícia:
+A) autoexecutoriedade
+B) inércia
+C) pessoalidade
+D) tipicidade fechada
+GABARITO: A
+ANO: 2025
+CONCURSO: PF</pre>
+<ul>
+<li><b>TÓPICO</b> precisa ser exatamente o nome do tema no edital (ou um sinônimo cadastrado). Na aba Bancas → <i>Mapa de cobertura</i>, cada assunto tem o botão <i>+ questões</i> que já preenche o tópico — é o jeito mais fácil.</li>
+<li><b>Certo/errado</b>: só o enunciado e <code>GABARITO: C</code> ou <code>E</code>. <b>Múltipla escolha</b>: alternativas em linhas <code>A) …</code> até <code>E)</code> e <code>GABARITO:</code> com a letra.</li>
+<li><code>EXPLICACAO</code>, <code>ANO</code> e <code>CONCURSO</code> são opcionais. Sem explicação, o botão <i>Preparar edital</i> escreve uma depois.</li>
+<li>Toque em <i>Pré-visualizar</i> (mostra erros de formato) e depois em <i>Confirmar import</i>. Enunciado repetido na mesma banca é ignorado.</li>
+<li>A questão entra aprovada e já vale para o aluno; se tiver problema, a aba <i>Qualidade</i> recebe o report.</li>
+</ul>
+<p><b>E a aba Provas?</b> Ela registra a <i>prova inteira</i> (gabarito oficial e classificação de cada item por tópico, em JSON) para o <i>refino empírico dos pesos</i> — é o que acende a ★ "caiu N× nas provas". Passo avançado: por enquanto, quem faz é o Fábio com o Claude.</p>
+<p>Também dá para importar questões direto num tema: aba <i>Editais</i> → abrir o edital → tema → <i>+ questões</i>.</p>` },
   { id: 'entrada', t: 'Como o aluno entra', h: `
 <p class="d-lead">A plataforma está em fase fechada: só entra quem foi convidado.</p>
 <ol class="d-passos">
