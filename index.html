@@ -2594,8 +2594,7 @@ function cerebroCard(n) {
   const box = $('cvInfo');
   if (!n) { box.classList.remove('on'); return; }
   $('czDrawer').classList.remove('on');
-  const lig = n.viz.slice().sort((a, b) => b.e.forca - a.e.forca).slice(0, 5);
-  const pes = n.pviz.slice().sort((a, b) => b.e.n - a.e.n).slice(0, 3);
+  // 15/10: sem "LIGADO A" e "ESTUDADO JUNTO COM VOCÊ" no cartão (Fábio achou confuso); as ligações seguem no banco e no painel
   box.innerHTML = `<button class="fech" id="cvFech" type="button" aria-label="Fechar">×</button>
     <div class="bc">${esc(n.disc).toUpperCase()} · ${esc(n.assunto).toUpperCase()}</div>
     <div class="nm">${esc(n.nome)}</div>
@@ -2603,13 +2602,10 @@ function cerebroCard(n) {
     ${n.n_ev >= 1 ? `<div class="cz-l">Desempenho <b>${n.forca_obs ?? Math.round(n.forca || 0)}</b> · ${plural(n.n_ev, 'questão respondida', 'questões respondidas')}</div>` : ''}
     ${n.freq > 0 ? `<div class="cz-l${n.freq >= 3 ? ' ouro' : ''}">★ caiu ${n.freq}× nas provas analisadas</div>` : ''}
     <div id="cvMat"></div>
-    ${lig.length ? `<div class="cz-k">LIGADO A</div>` + lig.map(v => `<button type="button" class="cz-lig ${v.e.tipo}" data-n="${v.n.id}"><span>${esc(v.n.nome)}${v.e.tipo === 'confundivel' ? '<i>costumam ser confundidos</i>' : v.e.tipo === 'prerequisito' ? '<i>um é base do outro</i>' : ''}</span><small>${esc(v.e.motivo || '')}</small></button>`).join('') : ''}
-    ${pes.length ? `<div class="cz-k verde">ESTUDADO JUNTO COM VOCÊ</div>` + pes.map(v => `<button type="button" class="cz-lig pes" data-n="${v.n.id}"><span>${esc(v.n.nome)}</span><small>${plural(v.e.n, 'dia', 'dias')} em que você estudou os dois juntos</small></button>`).join('') : ''}
     <button class="btn est" id="cvEstudar" type="button" style="width:100%;margin-top:14px">${n.n_ev >= 1 ? 'Praticar este tema' : 'Conferir o que você sabe'}</button>`;
   box.classList.add('on'); box.scrollTop = 0;
   mtSecao($('cvMat'), n.id, n.a && n.a.id, 'cerebro');
   $('cvFech').onclick = () => cerebroGal.selecionar(null);
-  box.querySelectorAll('.cz-lig').forEach(b => b.onclick = () => { const m = cerebroGal.byId[b.dataset.n]; if (m) cerebroGal.selecionar(m); });
   const be = $('cvEstudar');
   be.onclick = async () => {
     be.disabled = true; tele('cerebro_praticar', { node_id: n.id, estado: n.estado });
@@ -2617,7 +2613,7 @@ function cerebroCard(n) {
     if (erro && /assinatura_necessaria/i.test(erro)) { be.textContent = 'Pedir convite';
       be.onclick = async () => { const { error } = await sb.rpc('fn_lista_espera_entrar'); be.disabled = true; be.textContent = error ? 'Tente de novo' : 'Pedido registrado'; }; }
   };
-  tele('cerebro_tema', { node_id: n.id, ligacoes: n.viz.length, pessoais: n.pviz.length });
+  tele('cerebro_tema', { node_id: n.id });
 }
 $('czVoltar').onclick = () => cerebroGal && cerebroGal.voltar();
 $('czConq').onclick = () => { const on = !$('czDrawer').classList.contains('on'); $('czDrawer').classList.toggle('on', on); $('czConq').setAttribute('aria-expanded', String(on)); };
@@ -2642,11 +2638,11 @@ function cerebroFalhou(e) { // nunca tela parada: explica e leva ao Meu edital
 }
 async function loadCerebroFull() {
   if (!cerebroGal) $('czSub').textContent = 'Acendendo seu cérebro…';
-  const [{ data: mapa, error: e1 }, { data: home }, lig] = await Promise.all([
+  const [{ data: mapa, error: e1 }, { data: home }] = await Promise.all([
     sb.rpc('fn_meu_mapa', { p_edital: editalAtual.id }),
-    sb.rpc('fn_home', { p_edital: editalAtual.id }),
-    carregarLigacoes()
+    sb.rpc('fn_home', { p_edital: editalAtual.id })
   ]);
+  const lig = {}; // 15/10: ligações fora do app (cartão sem "Ligado a" / "Estudado junto com você")
   if (e1) { toast(humanizar(e1.message)); return; }
   const lista = mapa.mapa || [];
   const porNode = {}; lista.forEach(n => porNode[n.node_id] = n);
