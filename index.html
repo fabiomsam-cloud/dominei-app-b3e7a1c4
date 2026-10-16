@@ -210,6 +210,46 @@ body.tabs main { padding-bottom:96px; }
 .acaocard .n { font-size:var(--fs-titulo); font-family:'Archivo'; font-variation-settings:'wdth' 92,'wght' 800; }
 .acaocard .m { color:var(--dim); font-size:var(--fs-meta); line-height:1.5; margin:8px 0 14px; }
 .minicards { display:flex; gap:10px; margin-bottom:12px; }
+/* HOJE v2 (15/10): missão + trilho, mini cérebro, domínio do edital, 7 dias */
+.hj-topo { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.hj-topo .hj-sub { margin-bottom:12px; }
+.hj-dias { display:flex; align-items:center; gap:7px; margin-bottom:14px; }
+.hj-dias .k { font-size:var(--fs-rotulo); font-weight:700; letter-spacing:.08em; color:var(--dim); text-transform:uppercase; margin-right:4px; white-space:nowrap; }
+.hj-dias i { width:12px; height:12px; border-radius:50%; background:var(--nd); display:block; }
+.hj-dias i.on { background:var(--verde); box-shadow:0 0 10px rgba(47,224,141,.7); } .hj-dias i.hoje.on { background:var(--verde2); animation:hjPulsa 1.6s ease-in-out infinite; }
+.hj-dias b { font-size:var(--fs-rotulo); color:var(--text); margin-left:6px; white-space:nowrap; }
+@keyframes hjPulsa { 0%,100% { box-shadow:0 0 0 0 rgba(47,224,141,.55) } 50% { box-shadow:0 0 0 7px rgba(47,224,141,0) } }
+.hj-grid { display:grid; grid-template-columns:1fr; gap:14px; } .hj-col { display:grid; gap:14px; align-content:start; min-width:0; }
+.hj-sinais { display:flex; flex-wrap:wrap; gap:8px 14px; margin:2px 0 14px; }
+.hj-sinal { display:flex; align-items:center; gap:6px; font-size:var(--fs-meta); color:#C7D1DE; } .hj-sinal b { color:var(--text); } .hj-sinal.ouro b { color:var(--ouro); }
+.hj-forca { display:inline-flex; align-items:center; gap:6px; } .hj-forca .bar { width:84px; height:8px; border-radius:4px; background:rgba(255,255,255,.08); position:relative; overflow:hidden; }
+.hj-forca .bar i { position:absolute; left:0; top:0; bottom:0; opacity:.35; } .hj-forca .bar b { position:absolute; left:0; top:0; bottom:0; border-radius:4px; }
+.hj-trilho .k-lbl { margin:0 0 8px; }
+.hj-seg { display:grid; grid-template-columns:minmax(0,1.6fr) minmax(0,1.3fr) minmax(0,.8fr); gap:6px; margin-bottom:14px; }
+.hj-seg > div { min-width:0; border-radius:10px; padding:9px 10px; background:rgba(255,255,255,.04); border:1px solid var(--line); }
+.hj-seg .n { font-family:'Archivo'; font-variation-settings:'wdth' 92,'wght' 800; font-size:20px; line-height:1; }
+.hj-seg small { display:block; color:var(--dim); font-size:var(--fs-rotulo); margin-top:4px; line-height:1.3; }
+.hj-seg .p { border-color:rgba(47,224,141,.35); background:rgba(47,224,141,.07); } .hj-seg .p .n { color:var(--verde); }
+.hj-seg .r .n { color:#A9CBF5; } .hj-seg .c .n { color:var(--dim); }
+.hj-pontos { display:flex; gap:4px; margin-top:7px; } .hj-pontos i { flex:1; height:5px; border-radius:3px; background:rgba(255,255,255,.1); } .hj-pontos i.ok { background:var(--verde); }
+.acaocard .btn small { display:block; font-weight:400; font-size:13px; color:rgba(4,19,11,.75); margin-top:2px; }
+.hj-alt { display:flex; justify-content:center; gap:18px; margin-top:12px; } .hj-alt .ss-link { margin:0; }
+.hj-cz { position:relative; padding:12px 12px 10px; width:100%; text-align:left; cursor:pointer; font-family:inherit; color:var(--text); display:block; }
+.hj-cz canvas { width:100%; height:230px; display:block; border-radius:10px; } .hj-cz #hjPulso { position:absolute; left:12px; top:12px; pointer-events:none; }
+.hj-cz .hj-leg { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px; font-size:var(--fs-rotulo); color:var(--dim); flex-wrap:wrap; }
+.hj-cz .hj-leg b { color:var(--verde); } .hj-cz .hj-leg span b { color:var(--text); }
+.hj-tag { position:absolute; left:50%; transform:translateX(-50%); top:16px; z-index:1; font-size:var(--fs-rotulo); font-weight:700; color:var(--amarelo); background:rgba(3,7,16,.72); border:1px solid rgba(242,179,61,.4); padding:3px 10px; border-radius:999px; letter-spacing:.03em; white-space:nowrap; max-width:92%; overflow:hidden; text-overflow:ellipsis; }
+.hj-cz.off { display:none; }
+.hj-dom .sub-k { color:var(--dim); font-size:var(--fs-rotulo); margin-top:2px; }
+.hj-domg { display:grid; grid-template-columns:auto minmax(0,1fr); gap:16px; align-items:center; margin-top:12px; }
+.hj-anel { width:112px; height:112px; position:relative; } .hj-anel svg { width:100%; height:100%; transform:rotate(-90deg); }
+.hj-anel .c { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.hj-anel .c b { font-family:'Archivo'; font-variation-settings:'wdth' 92,'wght' 800; font-size:26px; line-height:1; } .hj-anel .c small { color:var(--dim); font-size:11px; margin-top:3px; }
+.hj-barra { display:flex; height:12px; border-radius:6px; overflow:hidden; gap:2px; margin:0 0 8px; } .hj-barra i { display:block; height:100%; }
+.hj-lista { display:grid; gap:4px; } .hj-lista button { display:flex; align-items:center; gap:8px; background:none; border:none; color:var(--text); font:inherit; font-size:var(--fs-meta); padding:3px 0; cursor:pointer; text-align:left; width:100%; min-height:28px; }
+.hj-lista button i { width:9px; height:9px; border-radius:50%; display:block; flex:none; } .hj-lista button b { min-width:28px; text-align:right; font-family:'Archivo'; font-variation-settings:'wdth' 92,'wght' 800; }
+.hj-lista button span { color:var(--dim); } .hj-lista button:hover span { color:var(--text); text-decoration:underline; }
+.hj-lista button em { margin-left:auto; color:var(--faint); font-style:normal; font-size:var(--fs-rotulo); white-space:nowrap; padding-left:6px; } .hj-lista button em small { display:none; }
 .minicard { flex:1; background:var(--glass); border:1px solid var(--line); border-radius:13px; padding:13px 12px; text-align:center; }
 .minicard .v { font-size:var(--fs-titulo); font-weight:800; color:var(--text); font-family:'Archivo'; font-variation-settings:'wdth' 92,'wght' 800; font-variant-numeric:tabular-nums; }
 .minicard .k { font-size:var(--fs-rotulo); color:var(--dim); letter-spacing:.06em; margin-top:3px; }
@@ -684,8 +724,12 @@ body.rg-barra-on main { padding-bottom:170px; }
 
   body:not(.tabs) main { max-width:560px; }
 
-  /* HOJE em grade */
-  #vHoje.on { display:block; max-width:620px; }
+  /* HOJE em grade (v2, 15/10: duas colunas) */
+  #vHoje.on { display:block; max-width:1120px; }
+  #vHoje .hj-grid { grid-template-columns:1.25fr 1fr; align-items:start; }
+  #vHoje .hj-cz canvas { height:320px; }
+  #vHoje .hj-seg { grid-template-columns:5fr 3fr 1fr; }
+  #vHoje .hj-lista button em small { display:inline; }
   #vHoje .hj-hello { font-size:var(--fs-destaque); }
   #vHoje .hj-sub { font-size:var(--fs-corpo); }
   #vHoje .minicard { text-align:left; padding:16px 20px; }
@@ -867,11 +911,19 @@ body.rg-barra-on main { padding-bottom:170px; }
 
   <!-- HOJE (F5) -->
   <section class="view" id="vHoje">
-    <div class="hj-hello" id="hjHello">Boa noite.</div>
-    <div class="hj-sub" id="hjSub"></div>
-    <div id="hjCard"></div>
-    <div id="hjExtra"></div>
-    <div class="minicards" id="hjCards"></div>
+    <div class="hj-topo">
+      <div><div class="hj-hello" id="hjHello">Boa noite.</div><div class="hj-sub" id="hjSub"></div></div>
+      <div class="hj-dias" id="hjDias"></div>
+    </div>
+    <div class="hj-grid">
+      <div class="hj-col"><div id="hjCard"></div><div id="hjExtra"></div></div>
+      <div class="hj-col hj-lado">
+        <button class="card hj-cz" id="hjCz" type="button" aria-label="Abrir o Cérebro"><span class="hj-tag" id="hjCzTag"></span><canvas id="hjCanvas"></canvas><canvas id="hjPulso"></canvas>
+          <span class="hj-leg"><span id="hjCzTxt"></span><b>Abrir o Cérebro →</b></span></button>
+        <div class="card hj-dom" id="hjDom"></div>
+      </div>
+    </div>
+    <div class="minicards" id="hjCards" style="display:none"></div>
   </section>
 
   <!-- SESSÃO (F5) -->
@@ -1618,22 +1670,19 @@ function skeletonCard() {
 async function loadHoje() {
   const h = new Date().getHours();
   $('hjCard').innerHTML = skeletonCard(); $('hjExtra').innerHTML = '';
-  const { data, error } = await sb.rpc('fn_home', { p_edital: editalAtual.id });
+  const [{ data, error }, { data: mapaD }] = await Promise.all([sb.rpc('fn_home', { p_edital: editalAtual.id }), sb.rpc('fn_meu_mapa', { p_edital: editalAtual.id })]);
   if (error) {
     $('hjCard').innerHTML = `<div class="acaocard"><div class="n">Não consegui carregar.</div><div class="m">${esc(humanizar(error.message))}</div><button class="btn" onclick="loadHoje()">Tentar de novo</button></div>`;
     return;
   }
-  home = data; planoAtual = data.plano || null;
+  home = data; planoAtual = data.plano || null; hjMapa = (mapaD && mapaD.mapa) || [];
   const nome = ((data.nome || perfil.nome || '').trim().split(' ')[0]) || '';
   const retorno = planoAtual && planoAtual.modo === 'retorno' && !planoAtual.concluido;
   $('hjHello').textContent = retorno ? `Bem-vindo de volta${nome ? ', ' + nome : ''}.`
     : (h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite') + (nome ? ', ' + nome : '') + '.';
   $('hjSub').textContent = retorno ? `Faz ${plural(data.dias_sem_estudar, 'dia', 'dias')}. Nada se perdeu.`
-    : `${editalAtual.concurso} · ${data.streak > 0 ? plural(data.streak, 'dia seguido', 'dias seguidos') : 'comece sua sequência hoje'}`;
-  $('hjCards').innerHTML = `
-    <div class="minicard"><div class="v">${data.medidos}</div><div class="k">AVALIADOS</div></div>
-    <div class="minicard"><div class="v c-dev">${data.desenvolvimento}</div><div class="k">EM DESENV.</div></div>
-    <div class="minicard"><div class="v c-dom">${data.dominados}</div><div class="k">DOMINADOS</div></div>`; // revisão nunca vira contador de pendências
+    : `${editalAtual.concurso}${editalAtual.cargo ? ' · ' + editalAtual.cargo : ''}`;
+  hjDias(data); hjDominio(); hjCerebro(); // v2: os três contadores viraram domínio pelo peso; revisão nunca vira contador de pendências
   if (data.acesso === false) {
     const p = (data.prioridades || [])[0];
     $('hjCard').innerHTML = `<div class="acaocard"><div class="k">SUA PRIORIDADE DE HOJE</div>
@@ -1678,7 +1727,7 @@ function renderPlano() {
   if (p.sessao_ativa && !p.concluido) {
     const b = p.bloco_atual || p.blocos[p.posicao];
     card.innerHTML = `<div class="acaocard"><div class="k">RETOMAR · ${feitos} DE ${total}</div><div class="n">${esc(b.nome)}</div>
-      <div class="m">Você parou na questão ${feitos + 1}. O plano de hoje ficou guardado.</div><button class="btn" id="btnPlano">Continuar</button></div>`;
+      <div class="m">Você parou na questão ${feitos + 1}. Os assuntos de hoje ficaram guardados.</div>${hjTrilho(p)}<button class="btn" id="btnPlano">Continuar</button></div>`;
     $('btnPlano').onclick = continuarPlano;
     return;
   }
@@ -1721,9 +1770,79 @@ function renderPlano() {
   }
   const b = p.blocos[p.posicao] || p.blocos[0];
   card.innerHTML = `<div class="acaocard"><div class="k">SUA PRIORIDADE DE HOJE</div><div class="n">${esc(b.nome)}</div>
-    <div class="m">${esc(montarMotivo(b.acao))}</div>
-    <button class="btn" id="btnPlano">Começar · ${plural(total, 'questão', 'questões')}</button></div>`;
+    ${hjSinais(b)}${hjTrilho(p)}
+    <button class="btn" id="btnPlano">Dominar os assuntos de hoje<small>${plural(total, 'questão', 'questões')} · uma por vez, com a explicação de cada</small></button>
+    <div class="hj-alt"><button class="ss-link" type="button" id="hjOutro">Praticar outro tema</button><button class="ss-link" type="button" id="hjGuardar">Guardar um material</button></div></div>`;
   $('btnPlano').onclick = continuarPlano;
+  $('hjOutro').onclick = () => irTab('vMapa'); $('hjGuardar').onclick = () => irTab('vRegistrar');
+}
+// ---------- HOJE v2 (15/10): sinais em número, trilho do dia, 7 dias, mini cérebro, domínio pelo peso ----------
+let hjMapa = [], hjGal = null, hjGalEdital = null, hjAlvo = null, hjPulsoOn = false;
+const hjNo = (id) => hjMapa.find(n => n.node_id === id);
+function hjSinais(b) { // ★ frequência · última vez · força medida → de hoje (o motor guarda as duas)
+  const a = b.acao || {}, n = hjNo(b.node_id) || {}, out = [];
+  if (a.provas_freq > 0) out.push(`<span class="hj-sinal ouro">★ <b>caiu ${a.provas_freq}×</b> nas provas analisadas</span>`);
+  else if (a.peso_pct) out.push(`<span class="hj-sinal">pesa <b>${a.peso_pct}%</b> da prova</span>`);
+  if (n.ultima_evidencia) { const d = Math.floor((Date.now() - new Date(n.ultima_evidencia)) / 864e5); out.push(`<span class="hj-sinal">última vez ${d <= 0 ? '<b>hoje</b>' : 'há <b>' + plural(d, 'dia', 'dias') + '</b>'}</span>`); }
+  if (n.forca_obs != null && n.n_evidencias >= 1) { const f0 = Math.round(n.forca_obs), f1 = Math.round(n.forca || 0), cor = f1 < 40 ? 'var(--vermelho)' : f1 < 70 ? 'var(--amarelo)' : 'var(--verde)';
+    out.push(`<span class="hj-sinal hj-forca">força <b>${f0}</b>${f1 < f0 ? ` → <b style="color:${cor}">${f1}</b>` : ''}<span class="bar"><i style="width:${f0}%;background:${cor}"></i><b style="width:${f1}%;background:${cor}"></b></span></span>`); }
+  else if (a.motivo_cod === 'nunca_estudou') out.push('<span class="hj-sinal">você ainda <b>não estudou</b> este tema</span>');
+  else if (a.motivo_cod === 'nao_avaliado') out.push('<span class="hj-sinal">ainda <b>não medido</b></span>');
+  return out.length ? `<div class="hj-sinais">${out.join('')}</div>` : `<div class="m">${esc(montarMotivo(a))}</div>`;
+}
+function hjTrilho(p) { // os blocos do plano, agrupados: prioridade · revisões · conferir
+  const g = { p: [], r: [], c: [] }; (p.blocos || []).forEach(b => (b.papel === 'prioridade' || b.tipo === 'estudar' || b.tipo === 'estudo' ? g.p : b.tipo === 'revisao' || b.papel === 'rever' ? g.r : g.c).push(b));
+  const pontos = (bs) => `<div class="hj-pontos">${bs.flatMap(b => Array.from({ length: b.n || 1 }, (_, i) => `<i class="${i < (b.respondidos || 0) ? 'ok' : ''}"></i>`)).join('')}</div>`;
+  const n = (bs) => bs.reduce((s, b) => s + (b.n || 1), 0), nomes = (bs) => bs.map(b => esc((rgTemas()[b.node_id] || {}).t?.rotulo || b.nome)).join(' · ');
+  const partes = [];
+  if (g.p.length) partes.push(`<div class="p"><div class="n">${n(g.p)}</div><small>${nomes(g.p)}${g.p.length === 1 ? ' · a prioridade' : ''}</small>${pontos(g.p)}</div>`);
+  if (g.r.length) partes.push(`<div class="r"><div class="n">${n(g.r)}</div><small>${g.r.length === 1 ? 'revisão: ' : 'revisões: '}${nomes(g.r)}</small>${pontos(g.r)}</div>`);
+  if (g.c.length) partes.push(`<div class="c"><div class="n">${n(g.c)}</div><small>conferir</small>${pontos(g.c)}</div>`);
+  const min = Math.max(3, Math.round(p.total * 1.3));
+  return `<div class="hj-trilho"><div class="k-lbl">OS ASSUNTOS DE HOJE · ${plural(p.total, 'questão', 'questões')} · ~${min} min</div><div class="hj-seg" style="grid-template-columns:${partes.length === 3 ? '' : 'repeat(' + partes.length + ', minmax(0,1fr))'}">${partes.join('')}</div></div>`;
+}
+function hjDias(d) {
+  const dias = Array.isArray(d.dias_7) && d.dias_7.length === 7 ? d.dias_7 : [false, false, false, false, false, false, false];
+  $('hjDias').innerHTML = `<span class="k">Últimos 7 dias</span>${dias.map((on, i) => `<i class="${on ? 'on' : ''}${i === 6 ? ' hoje' : ''}"></i>`).join('')}<b>${d.streak > 0 ? plural(d.streak, 'dia seguido', 'dias seguidos') : 'comece hoje'}</b>`;
+}
+function hjDominio() { // pelo peso de cada tema na prova; cada linha abre o Meu edital filtrado
+  const box = $('hjDom'); if (!hjMapa.length) { box.style.display = 'none'; return; } box.style.display = '';
+  const tot = hjMapa.reduce((s, n) => s + (n.peso || 0), 0) || 1, soma = (e) => hjMapa.filter(n => n.estado === e).reduce((s, n) => s + (n.peso || 0), 0) / tot, cont = (e) => hjMapa.filter(n => n.estado === e).length;
+  const pD = soma('dominado'), pA = soma('desenvolvimento'), pV = soma('atencao'), pN = Math.max(0, 1 - pD - pA - pV), C = 314.16; let off = 0;
+  const arco = (cor, p) => { const h = `<circle cx="60" cy="60" r="50" fill="none" stroke="${cor}" stroke-width="12" stroke-dasharray="${p * C} ${C}" stroke-dashoffset="${-off}"/>`; off += p * C; return h; };
+  const linhas = [['var(--verde)', cont('dominado'), 'dominados', pD, 'dominado'], ['var(--amarelo)', cont('desenvolvimento'), 'em desenvolvimento', pA, 'desenvolvimento'], ['var(--vermelho)', cont('atencao'), 'precisam de atenção', pV, 'atencao'], ['var(--nd)', hjMapa.length - cont('dominado') - cont('desenvolvimento') - cont('atencao'), 'ainda não explorados', pN, 'nao_avaliado']];
+  box.innerHTML = `<div class="k-lbl" style="color:var(--dim)">DOMÍNIO DO EDITAL</div><div class="sub-k">Pelo peso de cada tema na prova</div>
+    <div class="hj-domg"><div class="hj-anel"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="12"/>${arco('#2FE08D', pD)}${arco('#F2B33D', pA)}${arco('#ED5A5A', pV)}</svg>
+      <div class="c"><b>${Math.round((pD + pA + pV) * 100)}%</b><small>da prova medida</small></div></div>
+      <div><div class="hj-barra">${linhas.map(([c, , , p]) => `<i style="width:${Math.max(1, p * 100)}%;background:${c}"></i>`).join('')}</div>
+      <div class="hj-lista">${linhas.map(([c, k, l, p, f]) => `<button type="button" data-f="${f}"><i style="background:${c}"></i><b>${k}</b><span>${l}</span><em>${Math.round(p * 100)}%<small> da prova</small></em></button>`).join('')}</div></div></div>`;
+  box.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { mpFiltro = b.dataset.f; tele('hoje_dominio', { filtro: mpFiltro }); irTab('vMapa'); });
+}
+function hjCerebro() { // o motor do app em modo mini; a região da prioridade pulsa; falha = card some, nunca trava a HOJE
+  const card = $('hjCz'); if (!estrutura.length || !hjMapa.length || typeof CerebroMapa !== 'function') { card.classList.add('off'); return; }
+  try {
+    const porNode = {}; hjMapa.forEach(n => porNode[n.node_id] = n);
+    if (!hjGal) { hjGal = new CerebroMapa($('hjCanvas'), { mini: true, topo: () => 34, base: () => 6 }); card.onclick = () => { tele('hoje_cerebro'); irTab('vCerebroFull'); }; }
+    card.classList.remove('off');
+    hjGal.montar({ estrutura, porNode, ligacoes: {} }); hjGal.redimensionar(true); hjGal.iniciar();
+    if (hjGalEdital !== editalAtual.id) { hjGal.entrada(2200); hjGalEdital = editalAtual.id; }
+    const b = planoAtual && planoAtual.blocos && (planoAtual.blocos[planoAtual.posicao] || planoAtual.blocos[0]), pr = (home.prioridades || [])[0];
+    const t = hjGal.byId[(b && b.node_id) || (pr && pr.node_id)]; hjAlvo = t ? t.g : null;
+    $('hjCzTag').textContent = hjAlvo ? `${hjAlvo.curto || hjAlvo.nome} · sua prioridade` : ''; $('hjCzTag').style.display = hjAlvo ? '' : 'none';
+    const expl = hjMapa.filter(n => ['dominado', 'desenvolvimento', 'atencao'].includes(n.estado)).length;
+    $('hjCzTxt').innerHTML = `Você já explorou <b>${expl} de ${hjMapa.length}</b> temas`;
+    if (!hjPulsoOn) { hjPulsoOn = true; hjPulso(); }
+  } catch (e) { card.classList.add('off'); registrarErro('hoje_cerebro: ' + (e.message || ''), e.stack); }
+}
+function hjPulso() {
+  requestAnimationFrame(hjPulso);
+  const cv = $('hjCanvas'), ov = $('hjPulso'); if (!hjGal || !hjAlvo || !$('vHoje').classList.contains('on') || !cv.offsetParent) return;
+  const r = cv.getBoundingClientRect(); if (ov.width !== Math.round(r.width) || ov.height !== Math.round(r.height)) { ov.width = Math.round(r.width); ov.height = Math.round(r.height); ov.style.width = r.width + 'px'; ov.style.height = r.height + 'px'; }
+  const x = ov.getContext('2d'); x.clearRect(0, 0, ov.width, ov.height); if (!hjGal.W) return;
+  const [px, py] = hjGal.tela(hjAlvo.cx, hjAlvo.cy), sm = galSemMov(), k = sm ? .5 : .5 + .5 * Math.sin(performance.now() / 1000 * 2.2), rad = 26 + 18 * k;
+  const g = x.createRadialGradient(px, py, 2, px, py, rad); g.addColorStop(0, `rgba(242,179,61,${.55 - .25 * k})`); g.addColorStop(1, 'rgba(242,179,61,0)');
+  x.fillStyle = g; x.beginPath(); x.arc(px, py, rad, 0, 6.3); x.fill();
+  x.strokeStyle = `rgba(242,179,61,${.9 - .7 * k})`; x.lineWidth = 2; x.beginPath(); x.arc(px, py, 8 + 22 * k, 0, 6.3); x.stroke();
 }
 async function continuarPlano() {
   if (!planoAtual) return;
@@ -2316,6 +2435,9 @@ class CerebroMapa {
   telaB([x, y]) { return [(x - this.camB.x) * this.camB.s + this.W / 2, (y - this.camB.y) * this.camB.s + this.H / 2]; }
   montarTela() {
     const bw = 820, bh = 668, bcx = 507, bcy = 381, topo = this.topo(), base = this.base(), livreH = this.H - topo - base, fs = this.fs, ctx = this.ctx;
+    if (this.opts.mini) { // HOJE (15/10): versão pequena, sem os nomes em volta; o cérebro ocupa o quadro inteiro
+      this.rotulos = []; this.sB = Math.max(.05, Math.min((this.W - 16) / bw, (livreH - 8) / bh));
+      this.camB = { s: this.sB, x: bcx, y: bcy - (topo + livreH / 2 - this.H / 2) / this.sB }; return; }
     this.gals.forEach(g => { ctx.font = this.fonteNome(); g.lw = ctx.measureText(g.curto).width + 6; g.lh = (this.celular() ? 16 : 18) * fs; });
     const fora = this.gals.filter(g => !g.dentro); this.rotulos = [];
     if (this.celular()) {
