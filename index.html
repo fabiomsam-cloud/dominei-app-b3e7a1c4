@@ -336,6 +336,14 @@ body.rg-barra-on main { padding-bottom:170px; }
 .fech-list li span:last-child { color:var(--dim); white-space:nowrap; }
 .fech-trans { text-align:left; font-size:var(--fs-meta); color:var(--dim); margin:6px 0; }
 .fech-mini { display:flex; justify-content:center; margin:6px 0 4px; }
+/* fim da sessão v2 (15/10): o cérebro acende o que foi praticado */
+.fech-cz { position:relative; background:var(--glass); border:1px solid var(--line); border-radius:var(--radius); padding:12px 12px 10px; margin:4px 0 6px; text-align:center; }
+.fech-cz canvas { width:100%; height:240px; display:block; border-radius:10px; } .fech-cz #fcPulso { position:absolute; left:12px; top:12px; pointer-events:none; }
+.fech-cz .leg { font-size:var(--fs-meta); color:var(--dim); margin-top:8px; min-height:20px; } .fech-cz .leg b { color:var(--text); }
+.fech-list li .n { display:flex; flex-direction:column; gap:5px; align-items:flex-start; }
+.fech-tr { display:flex; align-items:center; gap:6px; font-size:var(--fs-rotulo); color:var(--dim); } .fech-tr .seta { opacity:.5; }
+.fech-tr .novo { opacity:0; transform:scale(.6); transition:opacity .4s, transform .4s; } .fech-tr.on .novo { opacity:1; transform:none; }
+@media (min-width:1024px) { .fech-cz canvas { height:300px; } }
 
 /* ---------- KPIs (cérebro) ---------- */
 .kpis { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0; }
@@ -1916,13 +1924,16 @@ function renderFechamento(f) {
   $('ssCorpo').style.display = 'none';
   $('ssTitulo').textContent = 'SESSÃO CONCLUÍDA'; $('ssBar').style.width = '100%';
   const papel = { prioridade: '', retorno: '', rever: ' · rever', conferir: ' · conferir', extra: ' · a mais', conferir_estudo: ' · conferir' };
-  const lista = (f.praticou || []).map(x => `<li><span>${esc(x.nome)}${papel[x.papel] || ''}</span><span>${x.n} · ${plural(x.acertos, 'acerto', 'acertos')}</span></li>`).join('');
-  const trans = (f.praticou || []).filter(x => x.estado_antes && x.estado_depois && x.estado_antes !== x.estado_depois)
-    .map(x => `<div class="fech-trans">${esc(x.nome)}: ${chip(x.estado_antes)} → ${chip(x.estado_depois)}</div>`).join('');
+  // v2 (15/10): a etiqueta nova de cada tema aparece quando ele acende no cérebro (fcAcender); sem cérebro, aparece já
+  const prat = (f.praticou || []).map((x, i) => ({ ...x, i }));
+  const lista = prat.map(x => `<li><div class="n"><span>${esc(x.nome)}${papel[x.papel] || ''}</span>${x.estado_antes || x.estado_depois ? `<div class="fech-tr" id="fcTr${x.i}">${chip(x.estado_antes || 'nao_avaliado')}<span class="seta">→</span><span class="novo">${x.estado_antes === x.estado_depois ? `<span class="estado ${ESTADO_CLS[x.estado_depois] || 'e-na'}">ainda ${(ESTADO_ROT[x.estado_depois] || '').toLowerCase().replace('precisa de ', 'em ')}</span>` : chip(x.estado_depois || 'nao_avaliado')}</span></div>` : ''}</div><span>${x.n} · ${plural(x.acertos, 'acerto', 'acertos')}</span></li>`).join('');
+  const trans = '';
   const volta = f.volta_em_dias != null ? `Volta em <b>${plural(f.volta_em_dias, 'dia', 'dias')}</b>.` : '';
   const am = f.amanha ? ` Amanhã: ${esc(f.amanha.nome)}.` : '';
   $('ssFim').innerHTML = `
-    <div class="fech-mini"><svg width="120" height="64" viewBox="0 0 120 64"><g stroke="rgba(132,170,214,.25)" stroke-width="1"><line x1="60" y1="32" x2="22" y2="16"/><line x1="60" y1="32" x2="98" y2="18"/><line x1="60" y1="32" x2="30" y2="54"/><line x1="60" y1="32" x2="92" y2="52"/><line x1="60" y1="32" x2="60" y2="7"/></g><circle cx="60" cy="32" r="9" fill="#2FE08D"/><circle cx="60" cy="32" r="15" fill="none" stroke="#2FE08D" opacity=".35"/><circle cx="22" cy="16" r="4" fill="#39435C"/><circle cx="98" cy="18" r="4" fill="#39435C"/><circle cx="30" cy="54" r="4" fill="#39435C"/><circle cx="92" cy="52" r="4" fill="#39435C"/><circle cx="60" cy="7" r="4" fill="#39435C"/></svg></div>
+    <div class="big" style="font-size:34px">${plural(f.total || 0, 'questão', 'questões')} · <b>${plural(f.acertos || 0, 'acerto', 'acertos')}</b></div><p style="margin:4px 0 12px">Feito por hoje.</p>
+    <div class="fech-cz" id="fcCz" style="display:none"><canvas id="fcCanvas"></canvas><canvas id="fcPulso"></canvas><div class="leg" id="fcLeg">Seu cérebro registrando…</div></div>
+    <div class="fech-mini" id="fcMini"><svg width="120" height="64" viewBox="0 0 120 64"><g stroke="rgba(132,170,214,.25)" stroke-width="1"><line x1="60" y1="32" x2="22" y2="16"/><line x1="60" y1="32" x2="98" y2="18"/><line x1="60" y1="32" x2="30" y2="54"/><line x1="60" y1="32" x2="92" y2="52"/><line x1="60" y1="32" x2="60" y2="7"/></g><circle cx="60" cy="32" r="9" fill="#2FE08D"/><circle cx="60" cy="32" r="15" fill="none" stroke="#2FE08D" opacity=".35"/><circle cx="22" cy="16" r="4" fill="#39435C"/><circle cx="98" cy="18" r="4" fill="#39435C"/><circle cx="30" cy="54" r="4" fill="#39435C"/><circle cx="92" cy="52" r="4" fill="#39435C"/><circle cx="60" cy="7" r="4" fill="#39435C"/></svg></div>
     <div class="k-lbl">VOCÊ PRATICOU</div>
     <ul class="fech-list">${lista}</ul>${trans}
     <p style="margin-top:10px">${volta}${am}</p>
@@ -1930,6 +1941,45 @@ function renderFechamento(f) {
     <button class="btn ghost" id="fechMais" style="margin-top:10px">Quer mais? +5 questões</button>`;
   $('ssFim').style.display = 'block';
   $('fechMais').onclick = querMais;
+  fcAcender(prat);
+}
+// ---------- fim da sessão v2: o cérebro acende os temas praticados, um por vez ----------
+let fcGal = null, fcFila = [], fcT0 = 0, fcOn = false;
+function fcAcender(prat) {
+  const card = $('fcCz'), mostrarTudo = () => prat.forEach(x => { const el = $('fcTr' + x.i); if (el) el.classList.add('on'); });
+  const comNo = prat.filter(x => x.node_id);
+  if (!estrutura.length || !hjMapa.length || !comNo.length || typeof CerebroMapa !== 'function' || galSemMov()) { mostrarTudo(); return; }
+  try {
+    const porNode = {}; hjMapa.forEach(n => porNode[n.node_id] = { ...n });
+    comNo.forEach(x => { const n = porNode[x.node_id]; if (n && x.estado_antes) { n.estado = x.estado_antes; if (x.estado_antes === 'nao_avaliado' || x.estado_antes === 'nao_estudei') n.n_evidencias = 0; } });
+    if (!fcGal) fcGal = new CerebroMapa($('fcCanvas'), { mini: true, topo: () => 8, base: () => 8 });
+    card.style.display = ''; $('fcMini').style.display = 'none';
+    fcGal.montar({ estrutura, porNode, ligacoes: {} }); fcGal.redimensionar(true); fcGal.iniciar(); fcGal.entrada(1000);
+    fcT0 = performance.now(); fcFila = comNo.map((x, k) => ({ ...x, em: 1300 + 800 * k, feito: false })); // um tema a cada 0,8 s
+    let mudados = 0; const leg = $('fcLeg');
+    const passo = () => { const ms = performance.now() - fcT0;
+      fcFila.forEach(q => { if (ms >= q.em && !q.feito) { q.feito = true; const o = fcGal.byId[q.node_id]; if (o && q.estado_depois) { o.estado = q.estado_depois; o.n_ev = (o.n_ev || 0) + 1; }
+        const el = $('fcTr' + q.i); if (el) el.classList.add('on'); if (q.estado_antes !== q.estado_depois) mudados++;
+        leg.innerHTML = mudados ? `<b>${mudados} ${mudados === 1 ? 'tema mudou' : 'temas mudaram'} de cor</b> no seu cérebro` : `<b>Registrado.</b> Nenhum tema mudou de cor desta vez`; } });
+      return ms; };
+    if (!fcOn) { fcOn = true; fcPulso(passo); } else { fcPasso = passo; }
+    fcPasso = passo;
+  } catch (e) { card.style.display = 'none'; $('fcMini').style.display = ''; mostrarTudo(); registrarErro('fechamento_cerebro: ' + (e.message || ''), e.stack); }
+}
+let fcPasso = null;
+const FC_COR = { dominado: '#2FE08D', desenvolvimento: '#F2B33D', atencao: '#ED5A5A', nao_avaliado: '#9AA6BA', nao_estudei: '#9AA6BA' };
+function fcPulso() {
+  requestAnimationFrame(fcPulso);
+  const cv = $('fcCanvas'), ov = $('fcPulso'); if (!fcGal || !cv || !cv.offsetParent || !fcPasso) return;
+  const ms = fcPasso();
+  const r = cv.getBoundingClientRect(); if (ov.width !== Math.round(r.width) || ov.height !== Math.round(r.height)) { ov.width = Math.round(r.width); ov.height = Math.round(r.height); ov.style.width = r.width + 'px'; ov.style.height = r.height + 'px'; }
+  const x = ov.getContext('2d'); x.clearRect(0, 0, ov.width, ov.height); if (!fcGal.W) return;
+  fcFila.forEach(q => { const o = fcGal.byId[q.node_id]; if (!o) return; const dt = ms - q.em; if (dt < -500 || dt > 1400) return;
+    const [px, py] = fcGal.tela(...fcGal.posTema(o)), cor = FC_COR[q.estado_depois] || '#FFFFFF';
+    if (dt < 0) { const k = 1 + dt / 500; x.strokeStyle = `rgba(255,255,255,${.6 * k})`; x.lineWidth = 1.5; x.beginPath(); x.arc(px, py, 22 - 12 * k, 0, 6.3); x.stroke(); return; }
+    const k = Math.min(1, dt / 900), g = x.createRadialGradient(px, py, 1, px, py, 10 + 40 * k); g.addColorStop(0, cor + 'cc'); g.addColorStop(1, cor + '00');
+    x.globalAlpha = 1 - k * .85; x.fillStyle = g; x.beginPath(); x.arc(px, py, 10 + 40 * k, 0, 6.3); x.fill();
+    x.globalAlpha = 1 - k; x.strokeStyle = cor; x.lineWidth = 2.5; x.beginPath(); x.arc(px, py, 6 + 34 * k, 0, 6.3); x.stroke(); x.globalAlpha = 1; });
 }
 
 // entrada avulsa (Cérebro / lista): sessão de um tema, fora do plano
