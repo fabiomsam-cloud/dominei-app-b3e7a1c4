@@ -1209,7 +1209,9 @@ async function mostrarEntrada() {
   const cod = (new URLSearchParams(location.search).get('c') || '').trim().toLowerCase();
   if (cod && !convite) { // 15/10: link de convite → cadastro próprio
     const { data: inf } = await sb.rpc('fn_convite_info', { p_codigo: cod });
-    if (inf && inf.valido) { convite = { codigo: cod, nome: inf.nome, dias: inf.dias }; tele('convite_aberto', { convite: inf.nome }); abrirForm('cadastro'); return; }
+    if (inf && inf.valido) { convite = { codigo: cod, nome: inf.nome, dias: inf.dias }; tele('convite_aberto', { convite: inf.nome });
+      const reg = document.querySelector('#auLanding .au-regra'); if (reg) reg.innerHTML = `Você foi convidado(a) para o DOMINEI: <b style="color:var(--text)">${esc(inf.nome)}</b> · ${plural(inf.dias, 'dia', 'dias')} de acesso. Crie sua conta abaixo e comece agora.`;
+      abrirForm('cadastro'); return; }
     tele('convite_invalido', { codigo: cod }); abrirForm('login'); $('authMsg').textContent = (inf && inf.motivo) || 'Este convite não vale mais.'; return;
   }
   const { data } = await sb.from('editais').select('id, concurso, cargo, metadata').eq('status', 'publicado').range(0, 9);
