@@ -203,7 +203,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-10-15h'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-10-16a'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -257,6 +257,7 @@ const IC = {
   beta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>',
   solicitacoes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-8M12 12l-3 3M12 12l3 3"/><path d="M4 4h16M4 8h16"/></svg>',
   alunos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5a5 5 0 0 1 6 5"/></svg>',
+  equipe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/><path d="M17 4.5l1 1 2-2"/></svg>',
   docs: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7"/></svg>',
 };
 
@@ -272,6 +273,7 @@ const TABS = [
   { id: 'auditoria',    label: 'Auditoria',    ic: 'auditoria',    load: loadAuditoria },
   { id: 'alunos',       label: 'Alunos',       ic: 'alunos',       load: loadAlunos },
   { id: 'beta',         label: 'Beta',         ic: 'beta',         load: loadBeta },
+  { id: 'equipe',       label: 'Equipe',       ic: 'equipe',       load: loadEquipe },
   { id: 'docs',         label: 'Documentação', ic: 'docs',         load: loadDocs },
 ];
 let abaAtual = null, hashParams = {};
@@ -1621,6 +1623,46 @@ async function salvarRotulo(id) {
 
 // ---------- BETA (etapa 5 · 0.7): funil, dias com sessão, lista de espera + convite, eventos e erros ----------
 // =====================================================================
+// EQUIPE (16/10/2026) — administradores cadastram colegas; cada um cria a própria conta no painel
+// =====================================================================
+async function loadEquipe() {
+  const pane = $('pane-equipe');
+  pane.innerHTML = `
+    <div class="pagetitle">E Q U I P E</div>
+    <div class="pagesub">Quem entra neste painel. Cadastre o e-mail; a pessoa abre <span class="mono">dominei.app/curadoria.html</span>, toca em "Criar conta" com esse e-mail e entra.</div>
+    <div class="card">
+      <div class="row2" style="grid-template-columns:2fr 1fr auto;align-items:end">
+        <div><label>E-mail</label><input id="eqEmail" type="email" placeholder="colega@souconcurseiro.com"></div>
+        <div><label>Papel</label><select id="eqRole"><option value="pedagogico">Pedagógico (curadoria, alunos, editais)</option><option value="admin">Administrador (também mexe na equipe)</option></select></div>
+        <div><button class="b-ok" id="eqAdd" style="margin-bottom:2px">Adicionar</button></div>
+      </div>
+      <div class="hint" style="margin-top:8px">Os dois papéis fazem tudo no painel; só o administrador adiciona e remove pessoas da equipe. A conta da equipe NÃO aparece na lista de alunos.</div>
+    </div>
+    <div class="card" id="eqLista"><div class="empty">carregando…</div></div>`;
+  $('eqAdd').onclick = async () => {
+    const email = $('eqEmail').value.trim(), role = $('eqRole').value;
+    const { data, error } = await sb.rpc('fn_admin_equipe_adicionar', { p_email: email, p_role: role });
+    if (error) { toast(error.message.replace(/^admin_only: /, ''), false); return; }
+    $('eqEmail').value = ''; toast(data.tem_conta ? `${data.email} já tinha conta: acesso liberado ✓` : `${data.email} cadastrado: agora é só criar a conta no painel ✓`); carregarEquipe();
+  };
+  await carregarEquipe();
+}
+async function carregarEquipe() {
+  const { data, error } = await sb.rpc('fn_admin_equipe_listar'); const box = $('eqLista'); if (!box) return;
+  if (error) { box.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
+  box.innerHTML = `<table class="tb"><thead><tr><th>E-MAIL</th><th>NOME</th><th>PAPEL</th><th>CONTA</th><th>ÚLTIMO ACESSO</th><th></th></tr></thead><tbody>` +
+    data.map(m => `<tr><td><b>${esc(m.email)}</b>${m.eu ? ' <span class="badge edge">você</span>' : ''}<br><span class="meta">na equipe desde ${dataBR(m.desde)}</span></td>
+      <td>${esc(m.nome || '—')}</td><td><span class="badge ${m.role === 'admin' ? 'ouro' : 'edital_node'}">${m.role === 'admin' ? 'ADMIN' : 'PEDAGÓGICO'}</span></td>
+      <td>${m.tem_conta ? '<span class="badge edge">CRIADA</span>' : '<span class="badge grey">AINDA NÃO CRIOU</span>'}</td>
+      <td class="mono">${m.ultimo_login ? dataBR(m.ultimo_login) : '—'}</td>
+      <td style="white-space:nowrap">${m.eu ? '' : `<button class="b-ghost" onclick="papelEquipe('${esc(m.email)}','${m.role === 'admin' ? 'pedagogico' : 'admin'}')">${m.role === 'admin' ? 'Tornar pedagógico' : 'Tornar admin'}</button>
+        <button class="b-ghost" style="color:var(--vermelho);border-color:rgba(237,90,90,.4)" onclick="removerEquipe('${esc(m.email)}')">Remover</button>`}</td></tr>`).join('') + '</tbody></table>';
+}
+async function papelEquipe(email, role) { const { error } = await sb.rpc('fn_admin_equipe_adicionar', { p_email: email, p_role: role }); if (error) { toast(error.message.replace(/^admin_only: /, ''), false); return; } toast('Papel atualizado ✓'); carregarEquipe(); }
+async function removerEquipe(email) { if (!confirm(`Remover ${email} da equipe? A pessoa perde o acesso ao painel (a conta continua existindo).`)) return;
+  const { error } = await sb.rpc('fn_admin_equipe_remover', { p_email: email }); if (error) { toast(error.message.replace(/^admin_only: /, ''), false); return; } toast('Removido ✓'); carregarEquipe(); }
+
+// =====================================================================
 // DOCUMENTAÇÃO (15/10/2026) — passo a passo de um concurso novo + como a plataforma funciona para o aluno
 // =====================================================================
 const DOCS = [
@@ -1705,7 +1747,7 @@ Informática | 10 questões
 <p class="d-nota">A lista <i>Temas marcados como estudados</i> (histórico do registro manual antigo) continua visível em Meu Material, só leitura, com desfazer.</p>` },
   { id: 'painel', t: 'O painel da equipe e as automações', h: `
 <ul>
-<li><b>Entrar</b>: dominei.app/curadoria.html com e-mail e senha; só e-mails cadastrados como equipe entram. Para incluir alguém da equipe, peça ao Fábio.</li>
+<li><b>Entrar</b>: dominei.app/curadoria.html com e-mail e senha; só e-mails cadastrados como equipe entram. Para incluir alguém: aba <i>Equipe</i> (só administradores) → e-mail + papel → a pessoa abre o painel, toca em "Criar conta" com esse e-mail e entra.</li>
 <li><b>Visão Geral</b>: reports abertos, itens suspensos, propostas pendentes, cobertura de sondas por edital.</li>
 <li><b>Editais</b>: estrutura, pesos (override por tema), importar, gerar sondas, preparar edital, renomear nós. <b>Excluir edital</b> (some de vez, inclusive de "arquivado"): só rascunho/arquivado, sem aluno com ele ativo e sem material de aluno; digite o nome do concurso para confirmar. Publicado? Mude para arquivado primeiro.</li>
 <li><b>Bancas / Provas / Itens</b>: cadastro de bancas, provas reais e questões (busca, pendências de texto-base).</li>
