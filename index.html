@@ -149,6 +149,27 @@ label { display:block; font-size:var(--fs-rotulo); color:var(--dim); margin:0 0 
 .f0-regras li { font-size:var(--fs-meta); line-height:1.5; color:var(--dim); padding:4px 0 4px 18px; position:relative; }
 .f0-regras li::before { content:''; position:absolute; left:2px; top:12px; width:6px; height:6px; border-radius:50%; background:var(--verde); }
 .f0-regras b { color:var(--text); font-weight:700; }
+/* Antes do teste v2 (19/10) */
+.f0-grid { display:grid; grid-template-columns:1fr; gap:14px; } .f0-esq, .f0-dir { min-width:0; }
+.f0-cz { position:relative; padding:12px 12px 12px; overflow:hidden; } .f0-cz canvas { width:100%; height:230px; display:block; border-radius:10px; } #f0Pulso { position:absolute; left:12px; top:12px; pointer-events:none; }
+.f0-cap { text-align:center; margin-top:10px; } .f0-cap b { display:block; font-family:'Archivo'; font-variation-settings:'wdth' 92,'wght' 800; font-size:var(--fs-leitura); line-height:1.2; } .f0-cap small { display:block; color:var(--dim); font-size:var(--fs-meta); margin-top:4px; line-height:1.45; }
+.f0-passos { display:grid; grid-template-columns:1fr auto 1fr auto 1fr; align-items:center; gap:6px; margin:14px 0 4px; } .f0-passos > span { color:var(--dim); text-align:center; }
+.f0-passo { background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:11px; padding:10px 8px; text-align:center; min-width:0; }
+.f0-passo b { display:block; font-family:'Archivo'; font-variation-settings:'wdth' 92,'wght' 800; font-size:var(--fs-leitura); color:var(--verde); line-height:1; } .f0-passo small { display:block; color:#C7D1DE; font-size:var(--fs-rotulo); margin-top:4px; line-height:1.3; }
+.f0 .disc { background:var(--glass); border:1px solid var(--line); border-radius:13px; padding:12px 14px; margin-bottom:10px; animation:f0ent .5s both; }
+.f0 .disc:nth-child(2){animation-delay:.05s}.f0 .disc:nth-child(3){animation-delay:.1s}.f0 .disc:nth-child(4){animation-delay:.15s}.f0 .disc:nth-child(5){animation-delay:.2s}.f0 .disc:nth-child(6){animation-delay:.25s}
+@keyframes f0ent { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:none } }
+.f0 .disc .h { display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:9px; } .f0 .disc .h b { font-size:var(--fs-corpo); } .f0 .disc .h span { color:var(--dim); font-size:var(--fs-rotulo); white-space:nowrap; } .f0 .disc .h span i { font-style:normal; color:var(--text); font-weight:700; }
+.f0 .chips { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
+.f0 .chip { border:1px solid var(--line); background:rgba(255,255,255,.03); color:var(--dim); border-radius:10px; padding:11px 6px; font:700 var(--fs-meta) 'Atkinson Hyperlegible', sans-serif; cursor:pointer; transition:all .18s; min-height:44px; }
+.f0 .chip.on[data-n="nunca_vi"] { color:var(--text); border-color:rgba(255,255,255,.4); background:rgba(255,255,255,.08); }
+.f0 .chip.on[data-n="ja_estudei"] { color:#BFD6FF; border-color:rgba(77,141,255,.6); background:rgba(77,141,255,.14); }
+.f0 .chip.on[data-n="domino"] { color:var(--verde); border-color:var(--line-v); background:rgba(47,224,141,.12); }
+.f0-rod { position:sticky; bottom:0; padding:12px 0 0; background:linear-gradient(180deg, rgba(3,7,16,0), var(--ink) 30%); }
+.f0-prog { display:flex; justify-content:space-between; align-items:center; color:var(--dim); font-size:var(--fs-rotulo); margin-bottom:8px; } .f0-prog b { color:var(--text); }
+.f0-rod .btn small { display:block; font-weight:400; font-size:13px; color:rgba(4,19,11,.75); margin-top:2px; }
+.f0-nota { color:var(--dim); font-size:var(--fs-rotulo); text-align:center; margin-top:10px; line-height:1.45; } .f0-nota b { color:#C7D1DE; }
+@media (min-width:1024px) { .f0-grid { grid-template-columns:1fr 1fr; gap:28px; align-items:start; } .f0-esq { position:sticky; top:20px; } .f0-cz canvas { height:360px; } .f0-rod { position:static; background:none; } body:not(.tabs) main:has(#vFase0.on) { max-width:1080px; } #vFase0.on { position:relative; } #vFase0 .f0-top { display:block; } #vFase0 .f0-pular { position:absolute; right:0; top:8px; } }
 .disc { background:var(--glass); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; margin-bottom:10px; }
 .disc .nome { font-weight:700; font-size:var(--fs-corpo); margin-bottom:10px; }
 .chips { display:flex; gap:8px; }
@@ -881,16 +902,21 @@ body.rg-barra-on main { padding-bottom:170px; }
   <!-- FASE 0 -->
   <section class="view f0" id="vFase0">
     <div class="f0-top"><h2>Antes do teste</h2><button class="ss-link f0-pular" id="btnPular" type="button">Pular e começar</button></div>
-    <ul class="f0-regras">
-      <li><b>Até 20 questões.</b> O teste se adapta às suas respostas.</li>
-      <li><b>Sem correção durante o teste.</b> Você não vê certo ou errado enquanto responde.</li>
-      <li><b>Resultado completo no fim:</b> seu mapa e suas três prioridades.</li>
-      <li>Não estudou um assunto? Toque em <b>Ainda não estudei isso</b>. Não conta contra você.</li>
-    </ul>
-    <div class="k-lbl" style="color:var(--dim)">OPCIONAL · AS 6 DISCIPLINAS QUE MAIS PESAM</div>
-    <p class="sub" style="margin-top:6px">Como você se sente em cada uma? Isso só ajuda a escolher as primeiras questões; quem pinta o mapa são as suas respostas.</p>
-    <div id="listaDisc"></div>
-    <button class="btn" id="btnIniciarTeste" style="margin-top:10px">Começar o teste</button>
+    <div class="f0-grid">
+      <div class="f0-esq">
+        <div class="card f0-cz" id="f0Cz"><canvas id="f0Canvas"></canvas><canvas id="f0Pulso"></canvas>
+          <div class="f0-cap"><b id="f0CapT"></b><small id="f0CapS"></small></div></div>
+        <div class="f0-passos"><div class="f0-passo"><b>20</b><small>questões, no máximo</small></div><span>→</span><div class="f0-passo"><b>0</b><small>correções no meio</small></div><span>→</span><div class="f0-passo"><b>3</b><small>prioridades no fim</small></div></div>
+      </div>
+      <div class="f0-dir">
+        <div class="k-lbl" style="color:var(--dim)">OPCIONAL · PINTE SEU PONTO DE PARTIDA</div>
+        <p class="sub" style="margin-top:6px">Como você se sente nas 6 disciplinas que mais pesam? Isso só escolhe as primeiras questões — quem pinta de verdade são as suas respostas.</p>
+        <div id="listaDisc"></div>
+        <div class="f0-rod"><div class="f0-prog"><span><b id="f0N">0</b> de 6 disciplinas respondidas</span><span>opcional</span></div>
+          <button class="btn" id="btnIniciarTeste">Começar o teste<small>~15 minutos · sem correção no meio</small></button>
+          <p class="f0-nota">Não estudou um assunto? Durante o teste, toque em <b>Ainda não estudei isso</b>. Não conta contra você.</p></div>
+      </div>
+    </div>
   </section>
 
   <!-- TESTE -->
@@ -1359,25 +1385,59 @@ $('btnComecar').onclick = async () => {
 };
 
 // ---------- fase 0 ----------
+let f0Gal = null, f0Pulsos = [], f0Loop = false;
+const F0_COR = { ja_estudei: 'rgba(77,141,255,', domino: 'rgba(47,224,141,', nunca_vi: 'rgba(255,255,255,' };
 function montarFase0() {
-  declaracoes = {};
+  declaracoes = {}; f0Pulsos = [];
+  const tot = estrutura.reduce((s, d) => s + (d.peso_total || 0), 0) || 1;
   const top6 = estrutura.map((d, i) => ({ d, i })).sort((x, y) => (y.d.peso_total || 0) - (x.d.peso_total || 0)).slice(0, 6);
   $('listaDisc').innerHTML = top6.map(({ d, i }) => `
-    <div class="disc">
-      <div class="nome">${esc(d.disciplina)}</div>
+    <div class="disc" data-d="${esc(d.disciplina)}">
+      <div class="h"><b>${esc(d.disciplina)}</b><span><i>${Math.round(100 * (d.peso_total || 0) / tot)}%</i> da prova</span></div>
       <div class="chips" data-i="${i}">
-        <button class="chip" data-n="nunca_vi">nunca vi</button>
-        <button class="chip" data-n="ja_estudei">já estudei</button>
-        <button class="chip" data-n="domino">domino</button>
+        <button class="chip" data-n="nunca_vi" type="button">nunca vi</button>
+        <button class="chip" data-n="ja_estudei" type="button">já estudei</button>
+        <button class="chip" data-n="domino" type="button">domino</button>
       </div>
     </div>`).join('');
+  const conc = editalAtual ? editalAtual.concurso : '';
+  const legenda = () => { const n = Object.keys(declaracoes).length; $('f0N').textContent = n;
+    $('f0CapT').textContent = n ? 'Seu ponto de partida está tomando forma.' : `Este é o seu cérebro para o ${conc}. Ainda está apagado.`;
+    $('f0CapS').textContent = n ? `${n} de 6 disciplinas marcadas. O teste confirma (ou corrige) o que você marcou.` : 'Cada questão que você responder acende um ponto. Em ~15 minutos ele ganha as primeiras cores.'; };
+  legenda();
   document.querySelectorAll('.chips').forEach(box => {
     box.querySelectorAll('.chip').forEach(ch => ch.onclick = () => {
       box.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
       ch.classList.add('on');
       declaracoes[box.dataset.i] = ch.dataset.n;
+      f0Pulsos.push({ d: estrutura[box.dataset.i].disciplina, t0: performance.now() }); legenda();
     });
   });
+  f0Cerebro();
+}
+// o cérebro apagado (todos os temas sem medida); a autoavaliação tinge a região da disciplina
+function f0Cerebro() {
+  const card = $('f0Cz');
+  if (!estrutura.length || typeof CerebroMapa !== 'function') { card.style.display = 'none'; return; }
+  try {
+    const porNode = {}; estrutura.forEach(d => d.assuntos.forEach(a => a.topicos.forEach(t => porNode[t.node_id] = { node_id: t.node_id, estado: 'nao_avaliado', forca: 0, n_evidencias: 0, peso: t.peso, provas_freq: t.provas_freq || 0, visto: false })));
+    if (!f0Gal) f0Gal = new CerebroMapa($('f0Canvas'), { mini: true, topo: () => 6, base: () => 6 });
+    card.style.display = '';
+    f0Gal.montar({ estrutura, porNode, ligacoes: {} }); f0Gal.redimensionar(true); f0Gal.iniciar(); f0Gal.entrada(2600);
+    if (!f0Loop) { f0Loop = true; f0Quadro(); }
+  } catch (e) { card.style.display = 'none'; registrarErro('fase0_cerebro: ' + (e.message || ''), e.stack); }
+}
+function f0Quadro() {
+  requestAnimationFrame(f0Quadro);
+  const cv = $('f0Canvas'), ov = $('f0Pulso'); if (!f0Gal || !cv.offsetParent || !$('vFase0').classList.contains('on')) return;
+  const r = cv.getBoundingClientRect(); if (ov.width !== Math.round(r.width) || ov.height !== Math.round(r.height)) { ov.width = Math.round(r.width); ov.height = Math.round(r.height); ov.style.width = r.width + 'px'; ov.style.height = r.height + 'px'; }
+  const x = ov.getContext('2d'); x.clearRect(0, 0, ov.width, ov.height); if (!f0Gal.W) return;
+  const s = f0Gal.cam.s, GR = 5, agora = performance.now();
+  f0Gal.gals.forEach(g => { const i = estrutura.findIndex(d => d.disciplina === g.nome), v = i >= 0 ? declaracoes[i] : null; if (!v) return;
+    const p = f0Pulsos.filter(q => q.d === g.nome).pop(), dt = p ? (agora - p.t0) / 1000 : 9, k = galSemMov() ? 0 : Math.max(0, 1 - dt / .9);
+    const a = (v === 'domino' ? .22 : v === 'ja_estudei' ? .2 : .08) + .25 * k;
+    x.fillStyle = F0_COR[v] + a + ')'; (g.cel || []).forEach(c => { const [px, py] = f0Gal.tela(c.x, c.y); x.fillRect(px - GR * s / 2 - .4, py - GR * s / 2 - .4, GR * s + .8, GR * s + .8); });
+    if (k > 0) { const [px, py] = f0Gal.tela(g.cx, g.cy); x.strokeStyle = F0_COR[v] + k + ')'; x.lineWidth = 2; x.beginPath(); x.arc(px, py, 10 + 60 * (1 - k), 0, 6.3); x.stroke(); } });
 }
 $('btnPular').onclick = async () => { tele('autoavaliacao_pulada'); declaracoes = {}; $('btnPular').disabled = true; await iniciarTeste(); $('btnPular').disabled = false; };
 $('btnIniciarTeste').onclick = async () => {
