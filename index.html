@@ -251,6 +251,24 @@ label { display:block; font-size:var(--fs-rotulo); color:var(--dim); margin:0 0 
 .confs { display:flex; gap:8px; }
 .confs button { flex:1; padding:13px 4px; border-radius:11px; font-size:var(--fs-meta); font-weight:700; background:var(--card2); color:var(--text); border:1px solid var(--line); }
 .confs button:active { border-color:var(--line-v); }
+/* Diagnóstico v2 (19/10) */
+.dg-top { display:flex; justify-content:flex-end; margin-bottom:6px; } .dg-top .ss-link { margin:0; }
+.dg-grid { display:grid; grid-template-columns:1fr; gap:12px; } .dg-esq, .dg-dir { min-width:0; }
+.dg-cz { position:relative; padding:10px 10px 8px; overflow:hidden; } .dg-cz canvas { width:100%; height:150px; display:block; border-radius:10px; } #dgPulso { position:absolute; left:10px; top:10px; pointer-events:none; }
+.dg-leg { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:6px; font-size:var(--fs-rotulo); color:var(--dim); } .dg-leg b { color:var(--text); }
+.dg .prog { display:flex; flex-direction:column; gap:8px; margin:4px 0 4px; } .dg .prog .lbl { margin:0; white-space:nowrap; letter-spacing:.1em; font-weight:700; } .dg .prog .lbl b { color:var(--text); }
+.dg .dots { gap:4px; } .dg .dots i { width:10px; height:5px; border-radius:3px; background:rgba(255,255,255,.1); transition:background .3s; } .dg .dots i.ok { background:var(--verde); } .dg .dots i.now { background:var(--text); }
+.dg-nota { color:var(--dim); font-size:var(--fs-rotulo); margin-bottom:10px; line-height:1.4; }
+.dg-bc { font-size:var(--fs-rotulo); font-weight:700; letter-spacing:.06em; color:#9EC2FF; text-transform:uppercase; margin:0 0 8px; display:flex; align-items:center; gap:8px; line-height:1.3; } .dg-bc i { width:8px; height:8px; border-radius:50%; background:#4F8BFF; box-shadow:0 0 10px #4F8BFF; display:inline-block; flex:none; }
+.dg .answers { display:grid; grid-template-columns:1fr 1fr; margin-top:12px; }
+.dg .confbox { background:var(--glass); border:1px solid var(--line-v); border-radius:14px; padding:14px; margin-top:14px; }
+.dg .confbox .lbl { text-align:left; letter-spacing:.1em; font-weight:700; }
+.dg .confs { display:grid; grid-template-columns:repeat(3, 1fr); } .dg .confs button { color:var(--dim); background:rgba(255,255,255,.03); border-radius:10px; padding:11px 6px; min-height:44px; }
+.dg .confs button.on { color:var(--text); border-color:rgba(255,255,255,.5); background:rgba(255,255,255,.1); }
+.dg-conf-p { color:var(--dim); font-size:var(--fs-rotulo); margin:10px 0 12px; line-height:1.45; } .dg-conf-p b { color:#C7D1DE; }
+.dg .confbox .btn { margin:0; transition:opacity .2s; } .dg .confbox .btn[disabled] { opacity:.35; cursor:default; }
+.dg-reg { position:fixed; left:50%; bottom:calc(28px + env(safe-area-inset-bottom)); transform:translate(-50%, 20px); background:#0E1A2E; border:1px solid var(--line-v); color:var(--verde); font-weight:800; padding:10px 18px; border-radius:999px; opacity:0; transition:all .3s; pointer-events:none; z-index:50; } .dg-reg.on { opacity:1; transform:translate(-50%, 0); } body.tabs .dg-reg { bottom:calc(96px + env(safe-area-inset-bottom)); }
+@media (min-width:1024px) { .dg-grid { grid-template-columns:1fr 1.15fr; gap:28px; align-items:start; } .dg-esq { position:sticky; top:20px; } .dg-cz canvas { height:320px; } .dg .prog { flex-direction:row; align-items:center; justify-content:space-between; } body:not(.tabs) main:has(#vTeste.on) { max-width:1080px; } }
 
 /* ---------- TABBAR (mobile) ---------- */
 .tabbar { position:fixed; bottom:0; left:0; right:0; display:none; justify-content:space-around;
@@ -944,32 +962,44 @@ body.rg-barra-on main { padding-bottom:170px; }
   </section>
 
   <!-- TESTE -->
-  <section class="view" id="vTeste">
-    <div class="topbar">
-      <div class="prog">
-        <div class="lbl" id="pgLbl">QUESTÃO <b>1</b> · DE ATÉ 20</div>
-        <div class="dots" id="pgDots"></div>
+  <section class="view dg" id="vTeste">
+    <div class="dg-top"><button class="ss-link" id="dgParar" type="button">Parar e voltar depois · fica salvo</button></div>
+    <div class="dg-grid">
+      <div class="dg-esq">
+        <div class="card dg-cz" id="dgCz"><canvas id="dgCanvas"></canvas><canvas id="dgPulso"></canvas>
+          <div class="dg-leg"><span><b id="dgN">0</b> pontos acesos no seu cérebro</span><span>as cores vêm no fim</span></div></div>
+      </div>
+      <div class="dg-dir">
+        <div class="prog">
+          <div class="lbl" id="pgLbl">QUESTÃO <b>1</b> · DE ATÉ 20</div>
+          <div class="dots" id="pgDots"></div>
+        </div>
+        <div class="dg-nota">Pode acabar antes de 20: o teste para quando já mediu o suficiente.</div>
+        <div class="dg-bc" id="dgBc" style="display:none"><i></i><span id="dgBcT"></span></div>
+        <div class="txbase" id="qTexto"></div>
+        <div class="qcard" id="qcard">
+          <div class="tipo" id="qTipo">JULGUE O ITEM</div>
+          <div class="enun" id="qEnun"></div>
+          <div class="alts" id="qAlts" style="display:none"></div>
+        </div>
+        <div class="answers" id="ansCE">
+          <button class="abtn" data-r="certo">CERTO</button>
+          <button class="abtn" data-r="errado">ERRADO</button>
+        </div>
+        <button class="nuncavi" id="btnNuncaVi"><u>Ainda não estudei isso</u><small>não conta contra você</small></button>
+        <div class="confbox" id="confbox">
+          <div class="lbl">QUÃO CONFIANTE VOCÊ ESTÁ?</div>
+          <div class="confs">
+            <button data-c="chutei" type="button">Chutei</button>
+            <button data-c="acho_que_sei" type="button">Acho que sei</button>
+            <button data-c="certeza" type="button">Certeza</button>
+          </div>
+          <p class="dg-conf-p">Isso calibra o seu mapa: <b>errar com certeza pesa mais que errar chutando</b>. Seja sincero — ninguém vê isto além de você.</p>
+          <button class="btn" id="btnResponder" type="button" disabled>Responder</button>
+        </div>
       </div>
     </div>
-    <div class="txbase" id="qTexto"></div>
-    <div class="qcard" id="qcard">
-      <div class="tipo" id="qTipo">JULGUE O ITEM</div>
-      <div class="enun" id="qEnun"></div>
-      <div class="alts" id="qAlts" style="display:none"></div>
-    </div>
-    <div class="answers" id="ansCE">
-      <button class="abtn" data-r="certo">CERTO</button>
-      <button class="abtn" data-r="errado">ERRADO</button>
-    </div>
-    <button class="nuncavi" id="btnNuncaVi"><u>Ainda não estudei isso</u><small>não conta contra você</small></button>
-    <div class="confbox" id="confbox">
-      <div class="lbl">QUÃO CONFIANTE VOCÊ ESTÁ?</div>
-      <div class="confs">
-        <button data-c="chutei">Chutei</button>
-        <button data-c="acho_que_sei">Acho que sei</button>
-        <button data-c="certeza">Certeza</button>
-      </div>
-    </div>
+    <div class="dg-reg" id="dgReg">registrado ✓</div>
   </section>
 
   <!-- PRÉ-REVELAÇÃO -->
@@ -1505,28 +1535,59 @@ async function iniciarTeste() {
   const { data, error } = await sb.rpc('fn_diag_iniciar', { p_edital: editalAtual.id });
   if (error) { toast(humanizar(error.message)); show('vHome'); return; }
   sessao = data.sessao;
-  montarDots();
+  montarDots(); dgCerebro();
   if (data.retomada) { toast(`Você parou na questão ${(data.respostas || 0) + 1}. Seguimos daqui.`); tele('diagnostico_retomado', { respostas: data.respostas }); }
   else tele('diagnostico_iniciado', { autoavaliacao: Object.keys(declaracoes).length });
   tratarResposta(data);
   show('vTeste');
 }
-// mapa neutro (J7): um ponto por assunto, que acende quando uma questão dele já foi respondida — nunca certo/errado
-let assuntoDoTopico = {};
+// diagnóstico v2 (19/10): pontos de progresso = questões (respondidas · atual · restantes); o cérebro acima acende
+// um ponto branco por tema já visto (nunca certo/errado — J7) e marca em azul o tema da questão atual
+let dgNomes = {}, dgGal = null, dgLoop = false, dgAcesos = [], dgAtual = null, dgRegT = null, confEscolhida = null;
 function montarDots() {
-  assuntoDoTopico = {};
-  const html = [];
-  estrutura.forEach(d => d.assuntos.forEach(a => {
-    a.topicos.forEach(t => assuntoDoTopico[t.node_id] = a.assunto_id);
-    html.push(`<div class="dot" data-a="${a.assunto_id}"></div>`);
-  }));
-  $('pgDots').innerHTML = html.join('');
+  dgNomes = {};
+  estrutura.forEach(d => d.assuntos.forEach(a => a.topicos.forEach(t => dgNomes[t.node_id] = { d: d.disciplina, a: a.assunto, t: t.nome })));
+  $('pgDots').innerHTML = '';
 }
 function setProgresso(data) {
   const n = (data.respostas || 0) + 1, teto = data.teto || 20;
   $('pgLbl').innerHTML = `QUESTÃO <b>${Math.min(n, teto)}</b> · DE ATÉ ${teto}`;
-  const acesos = new Set((data.vistos || []).map(id => assuntoDoTopico[id]).filter(Boolean));
-  document.querySelectorAll('#pgDots .dot').forEach(d => d.classList.toggle('fill', acesos.has(d.dataset.a)));
+  const box = $('pgDots'); if (box.children.length !== teto) box.innerHTML = Array.from({ length: teto }, () => '<i></i>').join('');
+  Array.from(box.children).forEach((d, i) => d.className = i < n - 1 ? 'ok' : i === n - 1 ? 'now' : '');
+  dgSincronizar(data.vistos || []);
+}
+function dgSincronizar(vistos) { // o servidor manda os temas já apresentados (sem o atual): acendem sem onda (retomada)
+  vistos.forEach(id => { if (!dgAcesos.some(a => a.id === id)) dgAcesos.push({ id, t0: -1e9 }); });
+  $('dgN').textContent = dgAcesos.length;
+}
+function dgRegistrar() { // "registrado ✓" + o tema da questão acende com uma onda, antes da próxima chegar
+  const r = $('dgReg'); r.classList.add('on'); clearTimeout(dgRegT); dgRegT = setTimeout(() => r.classList.remove('on'), 900);
+  if (dgAtual && !dgAcesos.some(a => a.id === dgAtual)) { dgAcesos.push({ id: dgAtual, t0: performance.now() }); $('dgN').textContent = dgAcesos.length; }
+}
+function dgCerebro() {
+  const card = $('dgCz'); dgAcesos = []; dgAtual = null;
+  if (!estrutura.length || typeof CerebroMapa !== 'function') { card.style.display = 'none'; return; }
+  try {
+    const porNode = {}; estrutura.forEach(d => d.assuntos.forEach(a => a.topicos.forEach(t => porNode[t.node_id] = { node_id: t.node_id, estado: 'nao_avaliado', forca: 0, n_evidencias: 0, peso: t.peso, provas_freq: t.provas_freq || 0, visto: false })));
+    if (!dgGal) dgGal = new CerebroMapa($('dgCanvas'), { mini: true, topo: () => 4, base: () => 4 });
+    card.style.display = '';
+    dgGal.montar({ estrutura, porNode, ligacoes: {} }); dgGal.redimensionar(true); dgGal.iniciar(); dgGal.entrada(1200);
+    if (!dgLoop) { dgLoop = true; dgQuadro(); }
+  } catch (e) { card.style.display = 'none'; registrarErro('diag_cerebro: ' + (e.message || ''), e.stack); }
+}
+function dgQuadro() {
+  requestAnimationFrame(dgQuadro);
+  const cv = $('dgCanvas'), ov = $('dgPulso'); if (!dgGal || !cv.offsetParent || !$('vTeste').classList.contains('on')) return;
+  const r = cv.getBoundingClientRect(); if (ov.width !== Math.round(r.width) || ov.height !== Math.round(r.height)) { ov.width = Math.round(r.width); ov.height = Math.round(r.height); ov.style.width = r.width + 'px'; ov.style.height = r.height + 'px'; }
+  const x = ov.getContext('2d'); x.clearRect(0, 0, ov.width, ov.height); if (!dgGal.W) return;
+  const agora = performance.now(), sm = galSemMov();
+  dgAcesos.forEach(a => { const o = dgGal.byId[a.id]; if (!o) return; const [px, py] = dgGal.tela(...dgGal.posTema(o)), k = sm ? 0 : Math.max(0, 1 - (agora - a.t0) / 900);
+    const rg = 14 + 24 * k, g = x.createRadialGradient(px, py, 1, px, py, rg); g.addColorStop(0, 'rgba(234,242,236,.5)'); g.addColorStop(1, 'rgba(234,242,236,0)');
+    x.fillStyle = g; x.beginPath(); x.arc(px, py, rg, 0, 6.3); x.fill();
+    x.fillStyle = 'rgba(234,242,236,.95)'; x.beginPath(); x.arc(px, py, 3.2, 0, 6.3); x.fill();
+    if (k > 0) { x.strokeStyle = `rgba(234,242,236,${k})`; x.lineWidth = 2; x.beginPath(); x.arc(px, py, 6 + 30 * (1 - k), 0, 6.3); x.stroke(); } });
+  if (dgAtual && !dgAcesos.some(a => a.id === dgAtual)) { const o = dgGal.byId[dgAtual]; if (!o) return; const [px, py] = dgGal.tela(...dgGal.posTema(o)), k = sm ? .5 : .5 + .5 * Math.sin(agora / 1000 * 2.5);
+    x.strokeStyle = `rgba(79,139,255,${.9 - .6 * k})`; x.lineWidth = 2; x.beginPath(); x.arc(px, py, 6 + 10 * k, 0, 6.3); x.stroke(); }
 }
 function tratarResposta(data) {
   if (data.fim) { reveal = data; tele('diagnostico_concluido', { respostas: data.respostas, temas: data.temas }); $('preSub').textContent = `${plural(data.respostas, 'resposta', 'respostas')} em ${plural(data.temas || 0, 'tema', 'temas')}, cruzadas com o edital inteiro.`; show('vPre'); return; }
@@ -1573,11 +1634,21 @@ function renderQuestao(ids, item, onPick) {
   });
 }
 function renderItem(item) {
-  itemAtual = item; respostaEscolhida = null; t0 = Date.now();
-  renderQuestao(Q_DIAG, item, r => { respostaEscolhida = r; });
+  itemAtual = item; respostaEscolhida = null; confEscolhida = null; t0 = Date.now();
+  dgAtual = item.node_id || null;
+  const nm = dgNomes[dgAtual]; $('dgBc').style.display = nm ? 'flex' : 'none'; if (nm) $('dgBcT').textContent = `${nm.d} · ${nm.t}`;
+  document.querySelectorAll('#confbox .confs button').forEach(b => b.classList.remove('on')); $('btnResponder').disabled = true;
+  renderQuestao(Q_DIAG, item, r => { respostaEscolhida = r; $('btnResponder').disabled = !confEscolhida; });
 }
-document.querySelectorAll('#confbox .confs button').forEach(b => b.onclick = () => enviar(respostaEscolhida, b.dataset.c));
-$('btnNuncaVi').onclick = () => enviar('nunca_vi', null);
+// v2: a confiança só marca; quem envia é o botão Responder (precisa de resposta E confiança)
+document.querySelectorAll('#confbox .confs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('#confbox .confs button').forEach(x => x.classList.toggle('on', x === b));
+  confEscolhida = b.dataset.c; $('btnResponder').disabled = !respostaEscolhida;
+  $('btnResponder').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+});
+$('btnResponder').onclick = () => { if (!respostaEscolhida || !confEscolhida || enviando) return; dgRegistrar(); enviar(respostaEscolhida, confEscolhida); };
+$('btnNuncaVi').onclick = () => { if (enviando) return; dgRegistrar(); enviar('nunca_vi', null); };
+$('dgParar').onclick = () => { tele('diagnostico_pausado', { sessao }); mostrarHome(); }; // a sessão fica ativa no servidor; a HOJE mostra "Retomar"
 
 let enviando = false;
 async function enviar(resposta, confianca) {
