@@ -203,7 +203,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-10-19b'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-10-19c'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -597,8 +597,9 @@ function abrirImportEstrutura(edital) {
       <span class="mono">&gt; Nome do Assunto</span><br>
       <span class="mono">- Nome do Tópico | sinônimo 1, sinônimo 2</span> (sinônimos opcionais)<br>
       Com o quadro completo, os pesos já nascem na proporção oficial do edital
-      (disciplina com mais questões pesa mais). Tópicos com o mesmo nome de outro edital
-      REUSAM o mesmo nó do grafo — o conhecimento do aluno transfere entre editais.</div>
+      (disciplina com mais questões pesa mais). Tópico com o mesmo nome de outro edital,
+      NA MESMA DISCIPLINA, reusa o mesmo nó do grafo (o conhecimento do aluno transfere entre editais);
+      nome igual em outra disciplina é conceito diferente e vira nó novo.</div>
     <textarea id="est-txt" rows="12" placeholder="Direito Constitucional
 > Direitos fundamentais
 - Direitos e deveres individuais e coletivos | remédios constitucionais
@@ -631,6 +632,7 @@ Informática
     const { data, error } = await sb.rpc('fn_admin_estrutura_importar', { p_edital: edital, p_estrutura: estruturaParsed });
     if (error) { $('estOut').textContent = 'erro: ' + error.message; return; }
     let msg = `Vinculados: ${data.vinculados} tópicos (${data.ja_vinculados} já estavam) · nós novos no grafo: ${data.nos_criados} · reaproveitados: ${data.topicos_reusados ?? data.nos_reusados}`;
+    if ((data.reusados_detalhe || []).length) msg += ' · reaproveitados de edital anterior (ficam no lugar que já tinham, sempre na MESMA disciplina): ' + data.reusados_detalhe.map(r => `${r.nome} → ${r.disciplina} > ${r.assunto}`).join('; ');
     // quadro do edital: aplica pesos por disciplina automaticamente quando completo
     if (estruturaParsed.every(d => d.questoes != null)) {
       const quadro = {};
