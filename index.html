@@ -294,6 +294,18 @@ body.tabs main { padding-bottom:96px; }
 .fb .src { color:var(--dim); font-size:var(--fs-rotulo); margin-top:8px; line-height:1.45; }
 .sheet { display:none; position:fixed; left:0; right:0; bottom:0; background:#0E1A2E; border-top:1px solid var(--line); border-radius:18px 18px 0 0; padding:18px 20px calc(18px + env(safe-area-inset-bottom)); z-index:60; box-shadow:0 -20px 60px rgba(0,0,0,.5); }
 .sheet.on { display:block; animation:enter .25s both; }
+/* "Por que isto?" (19/10) */
+.aj { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; border:1px solid var(--line); background:rgba(255,255,255,.05); color:var(--dim); font:700 12px 'Atkinson Hyperlegible', sans-serif; cursor:pointer; vertical-align:middle; margin-left:6px; min-width:22px; padding:0; }
+.aj:hover { color:var(--text); border-color:rgba(255,255,255,.3); }
+.aj-txt { color:#C7D1DE; font-size:var(--fs-meta); line-height:1.55; margin:6px 0 14px; } .aj-txt p { color:#C7D1DE; margin:0 0 8px; } .aj-txt b { color:var(--text); } .aj-txt .estado { margin-right:4px; }
+#ajSheet { max-height:80vh; overflow:auto; z-index:60; }
+/* tour do Cérebro (19/10): 3 toques guiados na primeira abertura */
+.cz-tour { position:fixed; inset:0; z-index:55; pointer-events:none; }
+.cz-tour-foco { position:absolute; width:120px; height:120px; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 9999px rgba(3,7,16,.62), 0 0 0 2px rgba(47,224,141,.9), 0 0 28px rgba(47,224,141,.7); transition:left .35s, top .35s, width .35s, height .35s; animation:czTourPulsa 1.6s ease-in-out infinite; }
+@keyframes czTourPulsa { 0%,100% { box-shadow:0 0 0 9999px rgba(3,7,16,.62), 0 0 0 2px rgba(47,224,141,.9), 0 0 28px rgba(47,224,141,.7) } 50% { box-shadow:0 0 0 9999px rgba(3,7,16,.62), 0 0 0 6px rgba(47,224,141,.35), 0 0 40px rgba(47,224,141,.9) } }
+.cz-tour-bolha { position:absolute; left:16px; right:16px; bottom:calc(84px + env(safe-area-inset-bottom)); background:#0E1A2E; border:1px solid var(--line-v); border-radius:14px; padding:14px 16px; pointer-events:auto; box-shadow:0 10px 40px rgba(0,0,0,.5); }
+.cz-tour-bolha p { color:var(--text); font-size:var(--fs-meta); line-height:1.5; margin:4px 0 10px; } .cz-tour-acts { display:flex; align-items:center; justify-content:space-between; gap:10px; } .cz-tour-acts .ss-link { margin:0; }
+@media (min-width:1024px) { .cz-tour-bolha { left:auto; right:40px; bottom:40px; width:380px; } }
 #rgSheet { max-height:88dvh; overflow-y:auto; }
 #rgSheet .rg-k:first-of-type { margin-top:8px; }
 .sheet .n { font-size:var(--fs-leitura); font-weight:800; } .sheet p { color:var(--dim); font-size:var(--fs-meta); margin:6px 0 12px; }
@@ -1006,7 +1018,7 @@ body.rg-barra-on main { padding-bottom:170px; }
         <div class="cz-t" id="czTit">Cérebro</div><div class="cz-s" id="czSub"></div>
         <button class="cz-link" id="czConq" type="button" aria-expanded="false" aria-controls="czDrawer">Conquistas e compartilhar</button>
       </div>
-      <div class="cz-legenda" id="czLegenda"><span><i class="l-dom"></i>Dominado</span><span><i class="l-dev"></i>Em desenvolvimento</span><span><i class="l-at"></i>Precisa de atenção</span><span><i class="l-est"></i>Estudado</span><span><i class="l-na"></i>Não explorado</span></div>
+      <div class="cz-legenda" id="czLegenda"><span><i class="l-dom"></i>Dominado</span><span><i class="l-dev"></i>Em desenvolvimento</span><span><i class="l-at"></i>Precisa de atenção</span><span><i class="l-est"></i>Estudado</span><button class="aj" type="button" data-aj="cores" aria-label="Por que as cores?">?</button><span><i class="l-na"></i>Não explorado</span></div>
       <div class="cv-info" id="cvInfo" role="dialog" aria-live="polite"></div>
       <aside class="cz-drawer" id="czDrawer">
         <div class="cz-dh"><b>Conquistas</b><button type="button" id="czDrawerFech" aria-label="Fechar">×</button></div>
@@ -1046,6 +1058,8 @@ body.rg-barra-on main { padding-bottom:170px; }
          o histórico dos temas já marcados fica visível (pedido do Fábio, 14/10) -->
   </section>
 </main>
+<div class="sheet" id="ajSheet" role="dialog" aria-modal="true" aria-labelledby="ajT"><div class="n" id="ajT"></div><div id="ajTxt" class="aj-txt"></div><button class="btn ghost" id="ajFechar" type="button">Entendi</button></div>
+<div id="czTour" class="cz-tour" style="display:none"><div class="cz-tour-foco" id="czTourFoco"></div><div class="cz-tour-bolha" id="czTourBolha"><div class="k-lbl" id="czTourK"></div><p id="czTourTxt"></p><div class="cz-tour-acts"><button class="ss-link" id="czTourPular" type="button">Pular</button><button class="btn" id="czTourOk" type="button" style="display:none;width:auto;padding:10px 18px;margin:0">Entendi</button></div></div></div>
 <div class="sheet" id="ssSheet"><div class="n">Fechar por aqui?</div><p id="ssSheetTxt"></p>
   <button class="btn" id="ssSheetCont">Continuar a sessão</button><button class="btn ghost" id="ssSheetSair">Fechar e guardar</button></div>
 <div class="rg-barra" id="rgBarra" role="region" aria-label="Temas selecionados">
@@ -1569,7 +1583,7 @@ function renderReveal() {
           : '<p class="rv-nota">Ainda não temos resumo deste tema. Estude pela sua fonte; volto a perguntar em 3 dias.</p>'}
         <button class="btn${p1.tem_resumo ? ' ghost' : ''}" id="rvConferir"${p1.tem_resumo ? ' style="margin-top:8px"' : ''}>Já estudei, quero conferir</button>
         <button class="ss-link" id="rvIr" type="button" style="margin-top:4px">Ver o plano de hoje</button>`
-    : `<button class="btn" id="rvComecar">Começar minha primeira sessão</button>`;
+    : `<button class="btn" id="rvComecar">Começar agora · 3 questões da sua prioridade</button><p class="rv-nota">Curta de propósito: você responde, vê a explicação e o seu cérebro acende. Amanhã a sessão completa.</p>`;
   if ($('rvIr')) $('rvIr').onclick = () => revelacaoAgir('hoje');
   if ($('rvComecar')) $('rvComecar').onclick = () => revelacaoAgir('comecar');
   if ($('rvResumo')) $('rvResumo').onclick = () => revelacaoAgir('resumo');
@@ -1750,6 +1764,19 @@ async function revelacaoAgir(modo) {
   await continuarPlano();
 }
 
+// ---------- "Por que isto?" (19/10): explicações curtas da lógica, no lugar onde a dúvida nasce ----------
+const AJUDA = {
+  prioridade: ['Por que esta prioridade?', () => `<p>A prioridade de hoje é o tema com maior <b>peso na prova × o que falta nele</b>. Revisão vencida vem antes de tudo; depois, tema que você disse que não estudou (para conferir); depois, tema importante ainda não medido; só então avançar.</p><p>Um tema praticado ontem não volta hoje (rotação de 2 dias), a não ser que a revisão dele tenha vencido.</p><p>O motivo escrito no card é o que decidiu hoje. Você pode ignorar e praticar outro tema pelo Meu edital ou pelo Cérebro.</p>`],
+  cores: ['As cores do tema', () => `<p>A cor vem <b>só das questões que você responde</b>. Material guardado acende o azul, nunca o verde.</p>
+    <p>${chip('nao_avaliado')} nenhuma questão respondida ainda.<br>${chip('atencao')} força abaixo de 40.<br>${chip('desenvolvimento')} força entre 40 e 69, <b>ou</b> menos de 3 questões respondidas.<br>${chip('dominado')} força 70 ou mais <b>e</b> pelo menos 3 questões.</p>
+    <p>A cor muda na hora, a cada resposta: a força parte de 30; o 1º acerto leva a ~55 (amarelo), o 1º erro a ~20 (vermelho). Verde costuma pedir <b>5 a 6 acertos em dias diferentes</b>. Sem praticar, a força cai com o tempo — por isso o verde precisa de revisão.</p>`],
+  rever: ['O que é "Rever"?', () => `<p>Cada acerto agenda a próxima revisão do tema um pouco mais longe (espaçamento crescente). <b>Rever</b> aparece quando essa data venceu — ou quando faz tanto tempo que a medição perdeu a validade.</p><p>Até 3 temas de revisão entram por dia no seu plano, 1 questão cada, primeiro os que mais pesam na prova.</p>`],
+  estudado: ['O que é "Estudado"?', () => `<p>Você guardou material ou marcou este tema como estudado, mas ainda não respondeu questão dele. É a luz azul: mostra que você passou por aqui; o domínio só aparece com as questões.</p>`],
+};
+const ajudaBtn = (tipo) => `<button class="aj" type="button" data-aj="${tipo}" aria-label="Por que isto?">?</button>`;
+document.addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('[data-aj]'); if (!b) return; e.preventDefault(); e.stopPropagation();
+  const a = AJUDA[b.dataset.aj]; if (!a) return; $('ajT').textContent = a[0]; $('ajTxt').innerHTML = a[1](); $('ajSheet').classList.add('on'); tele('ajuda', { tipo: b.dataset.aj }); });
+$('ajFechar').onclick = () => $('ajSheet').classList.remove('on');
 // ---------- HOJE (Fase 2: plano do dia) ----------
 let home = null, planoAtual = null;
 const ESTADO_ROT = { nao_avaliado:'Ainda não avaliado', nao_estudei:'Ainda não estudei', atencao:'Precisa de atenção', desenvolvimento:'Em desenvolvimento', dominado:'Dominado' };
@@ -1891,7 +1918,8 @@ function renderPlano() {
     return;
   }
   const b = p.blocos[p.posicao] || p.blocos[0];
-  card.innerHTML = `<div class="acaocard"><div class="k">SUA PRIORIDADE DE HOJE</div><div class="n">${esc(b.nome)}</div>
+  card.innerHTML = `<div class="acaocard"><div class="k">SUA PRIORIDADE DE HOJE${ajudaBtn('prioridade')}</div><div class="n">${esc(b.nome)}</div>
+    ${p.modo === 'primeira' ? '<div class="m" style="margin-top:4px">Sua primeira sessão é curta de propósito: 3 questões para você sentir o ciclo inteiro — responder, ver a explicação e o cérebro acender.</div>' : ''}
     ${hjSinais(b)}${hjTrilho(p)}
     <button class="btn" id="btnPlano">Dominar os assuntos de hoje<small>${plural(total, 'questão', 'questões')} · uma por vez, com a explicação de cada</small></button>
     <div class="hj-alt"><button class="ss-link" type="button" id="hjOutro">Praticar outro tema</button><button class="ss-link" type="button" id="hjGuardar">Guardar um material</button></div></div>`;
@@ -2314,7 +2342,7 @@ function abrirDetalheTema(row) {
   const tipo = (n.n_evidencias || 0) >= 1 ? 'estudar' : 'sondar';
   const det = document.createElement('div');
   det.className = 'tdet';
-  det.innerHTML = `${chip(n.estado || 'nao_avaliado')}${linhas.length ? `<div class="l">${linhas.map(esc).join('<br>')}</div>` : '<div class="l"></div>'}
+  det.innerHTML = `${chip(n.estado || 'nao_avaliado')}${ajudaBtn('cores')}${linhas.length ? `<div class="l">${linhas.map(esc).join('<br>')}</div>` : '<div class="l"></div>'}
     <button class="btn" type="button">${(n.n_evidencias || 0) >= 1 ? 'Praticar este tema' : 'Conferir o que você sabe'}</button><div class="mt-sec"></div>`;
   row.after(det); row.classList.add('aberto');
   mtSecao(det.querySelector('.mt-sec'), id, estrutura.flatMap(d => d.assuntos).find(a => a.topicos.some(x => x.node_id === id))?.assunto_id, 'meu_edital');
@@ -2884,7 +2912,7 @@ function cerebroCard(n) {
   box.innerHTML = `<button class="fech" id="cvFech" type="button" aria-label="Fechar">×</button>
     <div class="bc">${esc(n.disc).toUpperCase()} · ${esc(n.assunto).toUpperCase()}</div>
     <div class="nm">${esc(n.nome)}</div>
-    <div class="cz-chips">${chip(n.estado)}${n.rever ? '<span class="estado e-rv">⏱ Rever</span>' : ''}${n.visto ? '<span class="estado e-vi">Estudado</span>' : ''}</div>
+    <div class="cz-chips">${chip(n.estado)}${ajudaBtn('cores')}${n.rever ? '<span class="estado e-rv">⏱ Rever</span>' + ajudaBtn('rever') : ''}${n.visto ? '<span class="estado e-vi">Estudado</span>' + ajudaBtn('estudado') : ''}</div>
     ${n.n_ev >= 1 ? `<div class="cz-l">Desempenho <b>${n.forca_obs ?? Math.round(n.forca || 0)}</b> · ${plural(n.n_ev, 'questão respondida', 'questões respondidas')}</div>` : ''}
     ${n.freq > 0 ? `<div class="cz-l${n.freq >= 3 ? ' ouro' : ''}">★ caiu ${n.freq}× nas provas analisadas</div>` : ''}
     <div id="cvMat"></div>
@@ -2960,8 +2988,51 @@ async function loadCerebroFull() {
   } catch (e) { registrarErro('cerebro_montar: ' + e.message, e.stack); cerebroFalhou(e); return; }
   // entrada animada em toda abertura do Cérebro (30/09, pedido do Fábio; toque pula; desligada com "reduzir movimento")
   cerebroGal.entrada(3000);
+  czTourTalvez(); // 19/10: 3 toques guiados na primeira abertura
   $('cvConqs').innerHTML = renderConquistas(cbDados);
   tele('cerebro_aberto', { avaliados: medidos.length, disciplinas_exploradas: cerebroGal.gals.filter(g => g.expl).length });
+}
+// ---------- tour do Cérebro (19/10): disciplina mais pesada → um tema → o cartão; só na primeira abertura ----------
+let czTour = null;
+function czTourTalvez() {
+  try { if (localStorage.getItem('dominei_tour_cerebro')) return; } catch (e) { return; }
+  if (!cerebroGal || !cerebroGal.gals.length) return;
+  const gal = cerebroGal.gals.slice().sort((a, b) => (b.pct || 0) - (a.pct || 0))[0]; if (!gal) return;
+  czTour = { passo: 1, gal, tema: null, t0: performance.now() + (galSemMov() ? 300 : 3300) };
+  const oM = cerebroGal.opts.onModo, oT = cerebroGal.opts.onTema;
+  cerebroGal.opts.onModo = (m, g) => { oM(m, g); czTourEvento('modo', m, g); };
+  cerebroGal.opts.onTema = (n) => { oT(n); czTourEvento('tema', n); };
+  $('czTourPular').onclick = () => czTourFim('pulou'); $('czTourOk').onclick = () => czTourFim('concluiu');
+  tele('tour_cerebro_inicio');
+  requestAnimationFrame(czTourQuadro);
+}
+function czTourTexto() {
+  const T = czTour, el = $('czTour');
+  if (T.passo === 1) { $('czTourK').textContent = 'SEU CÉREBRO · 1 DE 3'; $('czTourTxt').innerHTML = `Cada região é uma disciplina; o tamanho é o peso dela na prova. <b>${esc(T.gal.nome)}</b> é a que mais pesa — <b>toque nela</b>.`; }
+  if (T.passo === 2) { $('czTourK').textContent = 'SEU CÉREBRO · 2 DE 3'; $('czTourTxt').innerHTML = `Cada ponto é um tema. <span class="estado e-at">Vermelho</span> precisa de atenção, <span class="estado e-de">amarelo</span> está em desenvolvimento, <span class="estado e-do">verde</span> está dominado, cinza ainda não foi medido. <b>Toque num tema.</b>`; }
+  if (T.passo === 3) { $('czTourK').textContent = 'SEU CÉREBRO · 3 DE 3'; $('czTourTxt').innerHTML = `Este é o cartão do tema: o que a plataforma sabe dele, seus materiais e o botão para praticar. O que estudar <b>hoje</b> fica na aba <b>Hoje</b> — você só precisa abrir e começar.`; $('czTourOk').style.display = ''; $('czTourPular').style.display = 'none'; }
+  el.style.display = '';
+}
+function czTourEvento(tipo, a, b) {
+  const T = czTour; if (!T) return;
+  if (T.passo === 1 && tipo === 'modo' && a === 'aberta' && b) { T.gal = b; const ts = b.temas || []; T.tema = ts.find(t => t.estado === 'atencao') || ts.find(t => t.estado === 'desenvolvimento') || ts[0]; T.passo = 2; czTourTexto(); tele('tour_cerebro_passo', { passo: 2 }); return; }
+  if (T.passo === 2 && tipo === 'tema' && a) { T.passo = 3; czTourTexto(); tele('tour_cerebro_passo', { passo: 3 }); return; }
+  if (tipo === 'modo' && a === 'cerebro' && T.passo > 1) { T.passo = 1; T.tema = null; czTourTexto(); } // voltou ao cérebro inteiro: recomeça do passo 1
+}
+function czTourQuadro() {
+  const T = czTour; if (!T) return; requestAnimationFrame(czTourQuadro);
+  const el = $('czTour'), foco = $('czTourFoco'); if (!$('vCerebroFull').classList.contains('on') || !cerebroGal.W) { el.style.display = 'none'; return; }
+  if (performance.now() < T.t0) return; // espera a entrada animada terminar
+  if (el.style.display === 'none') czTourTexto();
+  const r = $('cvCanvas').getBoundingClientRect(); let px, py, raio;
+  if (T.passo === 1) { [px, py] = cerebroGal.tela(T.gal.cx, T.gal.cy); raio = Math.max(70, 60 * cerebroGal.cam.s); }
+  else if (T.passo === 2 && T.tema) { [px, py] = cerebroGal.tela(...cerebroGal.posTema(T.tema)); raio = 34; }
+  else { const c = $('cvInfo').getBoundingClientRect(); px = c.left + c.width / 2 - r.left; py = c.top + c.height / 2 - r.top; raio = Math.max(c.width, c.height) / 2 + 8; }
+  foco.style.left = (r.left + px) + 'px'; foco.style.top = (r.top + py) + 'px'; foco.style.width = foco.style.height = (raio * 2) + 'px';
+}
+function czTourFim(como) {
+  if (!czTour) return; try { localStorage.setItem('dominei_tour_cerebro', como); } catch (e) {}
+  $('czTour').style.display = 'none'; tele('tour_cerebro_fim', { como, passo: czTour.passo }); czTour = null;
 }
 async function loadRevisoes() {
   const { data, error } = await sb.rpc('fn_revisoes_hoje', { p_edital: editalAtual.id });
