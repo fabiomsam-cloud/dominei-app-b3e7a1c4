@@ -115,6 +115,28 @@ header .av { cursor:pointer; min-width:44px; min-height:44px; width:44px; height
 .hero .brand { font-size:44px; line-height:1; }
 .hero p.lead { color:var(--dim); font-size:var(--fs-leitura); margin:14px 0 4px; max-width:34ch; }
 .hero p.lead b { color:var(--text); }
+/* escolha do concurso v2 (19/10) */
+.al-h { font-size:var(--fs-pagina); line-height:1.1; }
+.al-cards { display:grid; gap:12px; }
+.al-card { position:relative; text-align:left; background:var(--glass); border:1px solid var(--line); border-radius:16px; padding:18px 44px 16px 18px; cursor:pointer; color:var(--text); font-family:inherit; width:100%; transition:border-color .2s, box-shadow .2s, transform .2s; animation:alEnt .5s both; }
+.al-card:nth-child(2) { animation-delay:.07s } .al-card:nth-child(3) { animation-delay:.14s } .al-card:nth-child(4) { animation-delay:.21s }
+@keyframes alEnt { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:none } }
+.al-card:hover { border-color:rgba(255,255,255,.22); }
+.al-card.on { border-color:var(--verde); box-shadow:0 0 0 1px var(--verde), 0 12px 40px rgba(47,224,141,.18); transform:translateY(-1px); }
+.al-card .n { font-family:'Archivo'; font-variation-settings:'wdth' 92,'wght' 800; font-size:var(--fs-titulo); line-height:1.1; }
+.al-card .c { font-size:var(--fs-meta); color:#C7D1DE; margin-top:3px; }
+.al-card .meta { display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:12px; font-size:var(--fs-rotulo); color:var(--dim); } .al-card .meta b { color:var(--text); } .al-card .meta .prova { color:var(--amarelo); }
+.al-card .traz { margin-top:10px; font-size:var(--fs-rotulo); color:#9EC2FF; }
+.al-card .ck { position:absolute; right:16px; top:16px; width:24px; height:24px; border-radius:50%; border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; color:#04130B; font-weight:800; font-size:14px; }
+.al-card.on .ck { background:var(--verde); border-color:var(--verde); } .al-card.on .ck::after { content:'✓'; }
+#btnComecar[disabled] { opacity:.35; box-shadow:none; cursor:default; } #btnComecar small { display:block; font-weight:400; font-size:13px; color:rgba(4,19,11,.75); margin-top:2px; }
+.al-ped { margin-top:28px; padding-top:18px; border-top:1px solid var(--line); }
+.al-item { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px; background:rgba(255,255,255,.03); border:1px solid var(--line); font-size:var(--fs-meta); margin-bottom:6px; }
+.al-item small { color:var(--dim); display:block; font-size:var(--fs-rotulo); margin-top:1px; }
+.al-item button { border:1px solid var(--line); background:transparent; color:var(--verde); border-radius:999px; padding:6px 12px; font:700 13px 'Atkinson Hyperlegible', sans-serif; cursor:pointer; white-space:nowrap; min-height:34px; }
+.al-item button.on { background:rgba(47,224,141,.14); border-color:var(--line-v); }
+.al-form { display:none; gap:8px; margin-top:12px; } .al-form.on { display:flex; }
+@media (min-width:1024px) { .al-cards { grid-template-columns:1fr 1fr; } body:not(.tabs) main:has(#vHome.on) { max-width:720px; } }
 input, select {
   width:100%; padding:14px; border-radius:11px; border:1px solid var(--line);
   background:rgba(8,14,26,.8); color:var(--text); font-size:var(--fs-corpo); font-family:inherit; margin-bottom:10px;
@@ -879,23 +901,25 @@ body.rg-barra-on main { padding-bottom:170px; }
   <section class="view" id="vHome">
     <div id="homeRetomar"></div>
     <div id="homeAlvo">
-    <div class="hero" style="padding-top:4vh">
-      <h2 style="font-size:26px">Qual é o seu alvo?</h2>
-      <p class="lead" style="font-size:14px">Escolha o concurso — o teste se adapta a você em tempo real.</p>
-    </div>
-    <label>Concurso</label>
-    <select id="selEdital"></select>
-    <button class="btn" id="btnComecar" style="margin-top:8px">Descobrir meu mapa</button>
-    <div class="msg" id="homeMsg"></div>
-    </div>
-    <div class="card" style="margin-top:26px">
-      <div class="imp-k">NÃO ACHOU SEU CONCURSO?</div>
-      <p style="font-size:14px;color:var(--dim);margin-bottom:10px">Peça aqui — os mais votados entram primeiro na fila de curadoria.</p>
-      <div style="display:flex;gap:8px">
-        <input id="reqConcurso" placeholder="ex.: PC-AM · Investigador" style="margin:0">
-        <button class="btn" id="btnSolicitar" style="width:auto;padding:12px 18px;font-size:14px">Pedir</button>
+      <div class="hero" style="padding-top:3vh;padding-bottom:14px">
+        <h2 class="al-h">Para qual prova você vai?</h2>
+        <p class="lead" style="font-size:var(--fs-meta)">Seu cérebro é montado para o edital que você escolher. Dá para trocar depois, no Perfil.</p>
       </div>
-      <div id="reqLista" style="margin-top:12px"></div>
+      <div class="k-lbl" style="color:var(--dim);margin-bottom:10px">CONCURSOS DISPONÍVEIS</div>
+      <select id="selEdital" hidden aria-hidden="true"></select>
+      <div class="al-cards" id="alvoCards"></div>
+      <button class="btn" id="btnComecar" style="margin-top:16px" disabled>Escolha um concurso<small>para montar o seu cérebro</small></button>
+      <div class="msg" id="homeMsg"></div>
+    </div>
+    <div class="al-ped">
+      <div class="k-lbl" style="color:var(--dim)">NÃO ACHOU O SEU?</div>
+      <p style="font-size:var(--fs-meta);color:var(--dim);margin:4px 0 12px">Os mais pedidos entram primeiro. Vote ou peça outro.</p>
+      <div id="reqLista"></div>
+      <button class="ss-link" id="reqOutro" type="button">Pedir outro concurso</button>
+      <div class="al-form" id="reqForm">
+        <input id="reqConcurso" placeholder="ex.: SEDUC-AM · Professor" style="margin:0">
+        <button class="btn" id="btnSolicitar" style="width:auto;padding:12px 18px;font-size:14px;margin:0">Pedir</button>
+      </div>
     </div>
   </section>
 
@@ -1368,14 +1392,35 @@ $('btnSair').onclick = async () => { await sb.auth.signOut(); location.reload();
 
 // ---------- home ----------
 async function carregarEditais() {
-  const { data } = await sb.from('editais').select('id, concurso, cargo').eq('status', 'publicado').range(0, 49);
+  const { data } = await sb.from('editais').select('id, concurso, cargo, data_prova, bancas(nome)').eq('status', 'publicado').range(0, 49);
   editais = data || [];
-  $('selEdital').innerHTML = editais.map(e => `<option value="${e.id}">${esc(e.concurso)} — ${esc(e.cargo)}</option>`).join('')
-    || '<option value="">(nenhum edital disponível ainda)</option>';
+  $('selEdital').innerHTML = '<option value="">—</option>' + editais.map(e => `<option value="${e.id}">${esc(e.concurso)} — ${esc(e.cargo)}</option>`).join('');
+  alvoRender();
+}
+// cartões da escolha do concurso (19/10): nome, cargo, banca, data da prova; "você já traz…" para quem tem medidas no edital
+let alvoTraz = {};
+async function alvoRender() {
+  const box = $('alvoCards'); if (!box) return;
+  box.innerHTML = editais.map(e => `<button type="button" class="al-card" data-id="${e.id}"><span class="ck"></span><div class="n">${esc(e.concurso)}</div><div class="c">${esc(e.cargo || '')}</div>
+    <div class="meta">${e.bancas && e.bancas.nome ? `<span>Banca <b>${esc(e.bancas.nome)}</b></span>` : ''}${e.data_prova ? `<span class="prova">Prova prevista: <b>${new Date(e.data_prova + 'T12:00:00').toLocaleDateString('pt-BR')}</b></span>` : ''}</div>
+    <div class="traz" id="alTraz-${e.id}" style="display:none"></div></button>`).join('') || '<p class="pagesub">Nenhum concurso disponível ainda.</p>';
+  box.querySelectorAll('.al-card').forEach(c => c.onclick = () => {
+    box.querySelectorAll('.al-card').forEach(x => x.classList.toggle('on', x === c)); $('selEdital').value = c.dataset.id;
+    const e = editais.find(x => x.id === c.dataset.id), traz = alvoTraz[c.dataset.id];
+    $('btnComecar').disabled = false; $('btnComecar').innerHTML = `Ver meu cérebro para o ${esc(e.concurso)}<small>${traz ? 'você já traz medidas deste edital · entra direto' : 'teste de até 20 questões · ~15 minutos'}</small>`;
+    tele('alvo_escolhido', { edital: c.dataset.id });
+  });
+  try { const { data: pf } = await sb.rpc('fn_perfil'); alvoTraz = {}; // quem já tem medidas em algum edital (troca de concurso)
+    (pf && pf.concursos || []).forEach(c => { if (c.conhecido && c.medidos > 0) { alvoTraz[c.id] = c.medidos; const el = $('alTraz-' + c.id); if (el) { el.textContent = `Você já traz ${plural(c.medidos, 'tema medido', 'temas medidos')} deste edital.`; el.style.display = ''; } } });
+  } catch (e) { /* sem perfil ainda: tudo bem */ }
 }
 $('btnComecar').onclick = async () => {
   editalAtual = editais.find(e => e.id === $('selEdital').value);
-  if (!editalAtual) { $('homeMsg').textContent = 'Nenhum edital disponível.'; return; }
+  if (!editalAtual) { $('homeMsg').textContent = 'Escolha um concurso para continuar.'; return; }
+  if (alvoTraz[editalAtual.id]) { // já conhece o edital: ativa e entra direto, sem refazer o diagnóstico
+    const { data, error } = await sb.rpc('fn_edital_ativar', { p_edital: editalAtual.id });
+    if (!error && data && data.modo === 'ativado') { tele('alvo_ativado', { edital: editalAtual.id }); location.reload(); return; }
+  }
   if (!(await carregarEstrutura())) return;
   // sessão ativa? retoma direto, sem fase 0
   const { data: ativas } = await sb.from('diag_sessoes').select('id').eq('status', 'ativa').eq('edital_id', editalAtual.id).range(0, 0);
@@ -1783,18 +1828,17 @@ async function loadContaAntiga() {
 async function loadSolicitados() {
   const { data, error } = await sb.rpc('fn_editais_solicitados');
   if (error || !data) return;
-  $('reqLista').innerHTML = data.map(r => `
-    <div class="revrow" style="margin-bottom:6px"><div class="rn">${esc(r.concurso)}
-      <span class="rd" style="color:var(--dim)">${r.votos} pedido(s)${r.status === 'em_curadoria' ? ' · em curadoria' : ''}</span></div>
-      ${r.votei ? '<span class="imp-badge ok">PEDIDO ✓</span>'
-                : `<button onclick="votarEdital('${r.id}')">Também quero</button>`}
-    </div>`).join('');
+  $('reqLista').innerHTML = data.slice(0, 3).map(r => `
+    <div class="al-item"><div>${esc(r.concurso)}<small>${plural(r.votos, 'pedido', 'pedidos')}${r.status === 'em_curadoria' ? ' · em curadoria' : ''}</small></div>
+      <button type="button" class="${r.votei ? 'on' : ''}" ${r.votei ? 'disabled' : `onclick="votarEdital('${r.id}')"`}>${r.votei ? '✓ você pediu' : '+1'}</button></div>`).join('');
+  $('reqForm').classList.toggle('on', !data.length); // sem pedidos ainda: o campo já aparece
 }
 async function votarEdital(id) {
   const { error } = await sb.rpc('fn_edital_votar', { p_request: id });
   if (error) { toast(humanizar(error.message)); return; }
   loadSolicitados();
 }
+$('reqOutro').onclick = () => { $('reqForm').classList.toggle('on'); if ($('reqForm').classList.contains('on')) $('reqConcurso').focus(); };
 $('btnSolicitar').onclick = async () => {
   const v = $('reqConcurso').value.trim();
   if (v.length < 3) { toast('Escreva o nome do concurso.'); return; }
