@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#070D1B">
+<meta name="build" content="2026-10-19f">
 <title>DOMINEI — o mapa do seu cérebro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3718,7 +3719,7 @@ $('mtGuardar').onclick = async () => {
     try {
       const { data, error } = await sb.rpc('fn_material_editar', { p_id: E.editando, p_titulo: $('mtTitulo').value.trim() || mtTituloAuto(E.tipo, E.assunto, E.temas), p_assunto: E.assunto, p_temas: [...E.temas] });
       if (error) throw new Error(mtErroTxt(error.message));
-      mtGuardarItens([data]); mtInvalidar();
+      if (data && data.id) mtGuardarItens([data]); mtInvalidar();
       mtLembrar($('mtDisc').value, E.assunto); tele('material_editado', { temas: E.temas.size });
       $('mtSheet').classList.remove('on'); toast('Alterações salvas.'); mtDepoisDeMudar();
     } catch (e) { erro(e.message || 'Não consegui salvar. Tente de novo.'); registrarErro('caderno_editar: ' + (e.message || ''), e.stack); }
@@ -3730,7 +3731,7 @@ $('mtGuardar').onclick = async () => {
   if (E.tipo !== 'texto' && !mtArquivos.length) return erro(E.tipo === 'foto' ? 'Escolha ao menos uma foto.' : 'Escolha o PDF.');
   if (E.tipo !== 'texto' && mtUsoPct() >= 1) return erro('Seu espaço de 1 GB acabou. Exclua materiais antigos para guardar fotos ou PDFs novos.');
   mtEnviando = true; const bt = $('mtGuardar'); bt.disabled = true; erro('');
-  const enviados = []; let capa = null;
+  const enviados = []; let capa = null, salvo = false; // salvo = o registro já existe no banco: a partir daí os arquivos NUNCA são apagados (bug de 19/10)
   try {
     if (E.tipo !== 'texto') {
       const { data: { session } } = await sb.auth.getSession();
@@ -3757,12 +3758,16 @@ $('mtGuardar').onclick = async () => {
     const { data, error } = await sb.rpc('fn_material_guardar', { p_edital: editalAtual.id, p_assunto: E.assunto, p_temas: [...E.temas], p_tipo: E.tipo,
       p_titulo: $('mtTitulo').value.trim() || mtTituloAuto(E.tipo, E.assunto, E.temas), p_texto: texto, p_arquivos: paginas.length ? paginas : null, p_capa: capa });
     if (error) throw new Error(mtErroTxt(error.message));
-    mtGuardarItens([data]); mtInvalidar();
+    salvo = true; if (data && data.id) mtGuardarItens([data]); mtInvalidar();
     tele('material_guardado', { tipo: E.tipo, temas: E.temas.size, arquivos: enviados.length }); mtLembrar($('mtDisc').value, E.assunto);
     $('mtSheet').classList.remove('on');
     toast(`Guardado no Meu Material. A luz de estudo acendeu em ${plural(E.temas.size, 'tema', 'temas')}.`);
     mtDepoisDeMudar();
   } catch (e) {
+    if (salvo) { // guardou, só a tela falhou depois: fecha como sucesso e registra o erro para a equipe
+      $('mtSheet').classList.remove('on'); toast('Guardado no Meu Material.'); try { mtDepoisDeMudar(); } catch (e2) {}
+      registrarErro('caderno_guardar_pos: ' + (e.message || 'sem mensagem'), e.stack); return;
+    }
     if (enviados.length) sb.storage.from(MT_BUCKET).remove(enviados).catch(() => {});
     erro(e.message || 'Não consegui guardar. Tente de novo.');
     registrarErro('caderno_guardar: ' + (e.message || 'sem mensagem'), (e.stack || '') + ' | tipo=' + E.tipo + ' arquivos=' + mtArquivos.length + ' enviados=' + enviados.length); // 14/10: a falha fica registrada para a equipe
