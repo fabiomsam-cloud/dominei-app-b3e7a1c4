@@ -203,7 +203,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-10-19f'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-10-20a'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -445,7 +445,8 @@ let quadroAtual = {};
 async function renderEdital(id) {
   const box = $('edDetalhe');
   box.innerHTML = '<div class="empty">carregando estrutura…</div>';
-  const { data: d, error } = await sb.rpc('fn_admin_edital_detalhe', { p_edital: id });
+  const [{ data: d, error }, bl] = await Promise.all([sb.rpc('fn_admin_edital_detalhe', { p_edital: id }), bancasCache.length ? null : sb.rpc('fn_admin_bancas_listar')]);
+  if (bl && bl.data) bancasCache = bl.data;
   if (error) { box.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
   const e = d.edital || {};
   const st = e.status;
@@ -465,6 +466,14 @@ async function renderEdital(id) {
       <button class="b-split" onclick="abrirGerarSondas('${id}')">Gerar sondas agora</button>
       <button class="b-ok" onclick="abrirPreparar('${id}')">Preparar edital</button>
       ${st !== 'publicado' ? `<button class="b-ghost" style="color:var(--vermelho);border-color:rgba(237,90,90,.4)" onclick="abrirExcluirEdital('${id}')">Excluir edital</button>` : ''}
+    </div>
+    <div class="subform" id="edDados" style="margin-bottom:10px">
+      <div class="meta" style="margin-bottom:6px"><b>Dados do edital</b> · corrija aqui nome, cargo, banca ou data (vale em qualquer status, inclusive publicado)</div>
+      <div class="row2"><div><label>Concurso</label><input id="ed-conc" value="${esc(e.concurso || '')}"></div>
+      <div><label>Cargo</label><input id="ed-cargo" value="${esc(e.cargo || '')}"></div></div>
+      <div class="row2"><div><label>Banca</label><select id="ed-banca"><option value="">(sem banca definida)</option>${bancasCache.map(b2 => `<option value="${b2.id}" ${b2.id === e.banca_id ? 'selected' : ''}>${esc(b2.nome)}</option>`).join('')}</select></div>
+      <div><label>Data da prova (vazio = sem data)</label><input id="ed-data" type="date" value="${e.data_prova || ''}"></div></div>
+      <div class="acts"><button class="b-ok" onclick="salvarDadosEdital('${id}')">Salvar dados</button></div>
     </div>
     <div class="hint">Sondas são AUTOMÁTICAS: edital <b>publicado</b> entra na fábrica (a cada 10 min um lote,
       até cobrir todos os tópicos). O botão acima só acelera.</div>
@@ -506,6 +515,17 @@ async function renderEdital(id) {
       </div>`).join('')}</div>
     <div class="hint" style="margin-top:8px">Override em % (vazio = usar o peso calculado). O motor usa coalesce(override, peso).
       Renomear é GLOBAL (corrige o nó do grafo em todos os editais); desvincular tira o tópico só desta lente.</div>`;
+}
+// 20/10: a equipe não achava onde corrigir o nome de um edital publicado
+async function salvarDadosEdital(id) {
+  const conc = $('ed-conc').value.trim(), cargo = $('ed-cargo').value.trim();
+  if (!conc) { toast('O nome do concurso não pode ficar vazio.', false); return; }
+  const { error } = await sb.rpc('fn_admin_edital_salvar', { p_id: id, p: { concurso: conc, cargo, banca_id: $('ed-banca').value || null, data_prova: $('ed-data').value || null } });
+  if (error) { toast(error.message, false); return; }
+  toast('Dados do edital salvos ✓ (o aluno já vê o nome novo)'); await carregarEditais();
+  const o = $('edSel') && $('edSel').querySelector(`option[value="${id}"]`); const ed = editais[id];
+  if (o && ed) o.textContent = `${ed.concurso} · ${ed.cargo || ''} (${ed.status} · ${ed.topicos} tópicos)`;
+  renderEdital(id);
 }
 async function salvarQuadroDisc(edital, disciplina, valor) {
   quadroAtual[disciplina] = valor === '' ? null : Math.max(0, parseInt(valor));
@@ -1679,7 +1699,7 @@ const DOCS = [
   { id: 'novo', t: 'Incluir um concurso novo', h: `
 <p class="d-lead">Quatro passos no painel. Depois do 4º, o concurso já aparece para o aluno; o 5º completa o conteúdo com IA.</p>
 <ol class="d-passos">
-  <li><b>Criar o edital</b> — aba <i>Editais</i> → <i>+ Novo edital</i> → concurso, cargo, banca (se souber) e data da prova → <i>Criar (rascunho)</i>.</li>
+  <li><b>Criar o edital</b> — aba <i>Editais</i> → <i>+ Novo edital</i> → concurso, cargo, banca (se souber) e data da prova → <i>Criar (rascunho)</i>. Errou o nome, o cargo, a banca ou a data (mesmo depois de publicar)? Abra o edital → cartão <i>Dados do edital</i> → corrija → <i>Salvar dados</i>. O aluno vê o nome novo na hora.</li>
   <li><b>Verticalizar o edital</b> (fora do painel, num editor de texto) — transformar o conteúdo programático em <i>disciplina → assunto → tema</i>. Regra de ouro do tema: <i>"consigo escrever 5 questões que medem isso e só isso?"</i> Se não, é detalhe do pai. Alvo: 300 a 800 temas por edital (o PRF tem 209). Formato:
 <pre>Direito Constitucional | 20 questões
 &gt; Direitos fundamentais
