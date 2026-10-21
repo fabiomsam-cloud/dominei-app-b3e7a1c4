@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#070D1B">
-<meta name="build" content="2026-10-21a">
+<meta name="build" content="2026-10-21b">
 <title>DOMINEI — o mapa do seu cérebro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -870,6 +870,7 @@ body.rg-barra-on main { padding-bottom:170px; }
   .rg-barra { left:282px; right:auto; width:min(780px, calc(100vw - 330px)); bottom:20px; padding:0; }
 }
 </style>
+<style>.senha-box{position:relative}.senha-box input{padding-right:84px}.senha-box .olho{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--faint,#6E7C94);font:inherit;font-size:.85rem;cursor:pointer;padding:6px 8px;min-height:44px}.senha-box .olho:hover{color:var(--text,#fff)}#auAlt a{color:var(--verde,#3dd68c);font-weight:600;text-decoration:none}#auAlt a:hover{text-decoration:underline}</style>
 </head>
 <body>
 <aside id="sidenav">
@@ -896,7 +897,7 @@ body.rg-barra-on main { padding-bottom:170px; }
         <p class="lead au-promessa" style="margin-top:0">Saiba o que estudar hoje, entenda seus erros e revise o que precisa consolidar.</p>
       </div>
       <div class="au-alvo" id="auAlvo"><div class="k-lbl">SEU CONCURSO</div><div class="au-alvo-n">PRF · Policial Rodoviário Federal</div><div class="au-alvo-v"></div></div>
-      <p class="au-regra">O DOMINEI está em fase fechada: por enquanto, o acesso é só por convite.</p>
+      <p class="au-regra">Entre com o e-mail e a senha da sua compra. Convidados do beta entram pelo link de convite.</p>
       <button class="btn" id="btnQuero">Entrar</button>
     </div>
     <div class="card" id="auFechado" style="display:none">
@@ -909,7 +910,7 @@ body.rg-barra-on main { padding-bottom:170px; }
       <div id="auNomeBox"><label for="nome">Seu nome</label><input id="nome" type="text" autocomplete="name" placeholder="Como quer ser chamado(a)"></div>
       <div id="auFoneBox" style="display:none"><label for="fone">WhatsApp (opcional)</label><input id="fone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(92) 9 9999-9999"></div>
       <label for="email">E-mail</label><input id="email" type="email" autocomplete="username" placeholder="voce@email.com">
-      <label for="senha">Senha</label><input id="senha" type="password" autocomplete="new-password" placeholder="mínimo de 6 caracteres">
+      <label for="senha">Senha</label><div class="senha-box"><input id="senha" type="password" autocomplete="new-password" placeholder="mínimo de 6 caracteres"><button type="button" class="olho" id="btnOlho" aria-label="Mostrar senha">mostrar</button></div>
       <button class="btn" id="btnEntrar">Criar conta e começar</button>
       <div class="msg" id="authMsg" role="alert"></div>
       <div class="alt" id="auAlt"></div>
@@ -1345,17 +1346,18 @@ function abrirForm(modo) {
   } else if (convite) {
     $('auAlt').innerHTML = `Primeira vez aqui? <a href="#" id="lnkModo">Criar minha conta com o convite</a>`;
     $('lnkModo').onclick = (ev) => { ev.preventDefault(); abrirForm('cadastro'); };
-  } else $('auAlt').innerHTML = 'O acesso ao DOMINEI está fechado: só contas convidadas entram.'; // sem "Criar minha conta" (05/10)
+  } else $('auAlt').innerHTML = `<a href="https://revolucaodoestudo.com.br/app/senha.html" rel="noopener">Esqueci minha senha</a> · <a href="https://revolucaodoestudo.com.br/app/senha.html?modo=primeiro" rel="noopener">Primeiro acesso</a>`; // 21/10: senha única pelo hub da Triáde (sem "Criar minha conta" desde 05/10)
   (cad ? $('nome') : $('email')).focus();
   $('auForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+$('btnOlho').onclick = () => { const i = $('senha'), v = i.type === 'password'; i.type = v ? 'text' : 'password'; $('btnOlho').textContent = v ? 'ocultar' : 'mostrar'; $('btnOlho').setAttribute('aria-label', v ? 'Ocultar senha' : 'Mostrar senha'); i.focus(); };
 $('btnQuero').onclick = () => { tele('entrada_quero'); abrirForm('login'); }; // fase fechada (05/10): só entrar
 $('lnkEntrarTopo').onclick = () => abrirForm('login');
 // dicionário humano para os erros do Auth (nunca a mensagem crua do Supabase)
 function humanizarAuth(err) {
   const m = String((err && err.message) || err || '');
   const d = [
-    [/invalid login credentials/i, 'E-mail ou senha incorretos.'],
+    [/invalid login credentials/i, 'E-mail ou senha incorretos. Ainda não criou sua senha? Toque em "Primeiro acesso".'],
     [/convite_invalido/i, 'Este convite não vale mais. Peça um link novo para quem te convidou.'],
     [/cadastro_fechado|database error saving new user/i, 'O DOMINEI está em fase fechada: novas contas só por convite.'],
     [/email not confirmed/i, 'Falta confirmar seu e-mail: abra o link que enviamos (veja também o spam).'],
