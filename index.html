@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#070D1B">
-<meta name="build" content="2026-10-20a">
+<meta name="build" content="2026-10-21a">
 <title>DOMINEI — o mapa do seu cérebro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1256,6 +1256,13 @@ const esc = (s) => (s ?? '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','
 
 // ---------- auth ----------
 async function boot() {
+  // entrada automática pelo hub (revolucaodoestudo.com.br/app): ?th=<token_hash> de uso único (21/10/2026)
+  const _th = new URLSearchParams(location.search).get('th');
+  if (_th) {
+    const { error: eTh } = await sb.auth.verifyOtp({ token_hash: _th, type: 'magiclink' });
+    history.replaceState(null, '', location.pathname);
+    if (eTh) { mostrarEntrada(); const m = $('authMsg'); if (m) m.textContent = 'O link de entrada venceu. Entre com seu e-mail e senha.'; return; }
+  }
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { mostrarEntrada(); return; }
   const { data: acesso, error: eAc } = await sb.rpc('fn_app_acesso');
