@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#070D1B">
-<meta name="build" content="2026-10-21b">
+<meta name="build" content="2026-10-21c">
 <title>DOMINEI — o mapa do seu cérebro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -870,7 +870,7 @@ body.rg-barra-on main { padding-bottom:170px; }
   .rg-barra { left:282px; right:auto; width:min(780px, calc(100vw - 330px)); bottom:20px; padding:0; }
 }
 </style>
-<style>.senha-box{position:relative}.senha-box input{padding-right:84px}.senha-box .olho{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--faint,#6E7C94);font:inherit;font-size:.85rem;cursor:pointer;padding:6px 8px;min-height:44px}.senha-box .olho:hover{color:var(--text,#fff)}#auAlt a{color:var(--verde,#3dd68c);font-weight:600;text-decoration:none}#auAlt a:hover{text-decoration:underline}</style>
+<style>.pf-plat{display:grid;gap:8px}.pf-plat .btn{display:block;text-align:center;text-decoration:none;margin:0}.senha-box{position:relative}.senha-box input{padding-right:84px}.senha-box .olho{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--faint,#6E7C94);font:inherit;font-size:.85rem;cursor:pointer;padding:6px 8px;min-height:44px}.senha-box .olho:hover{color:var(--text,#fff)}#auAlt a{color:var(--verde,#3dd68c);font-weight:600;text-decoration:none}#auAlt a:hover{text-decoration:underline}</style>
 </head>
 <body>
 <aside id="sidenav">
@@ -1126,6 +1126,11 @@ body.rg-barra-on main { padding-bottom:170px; }
     </div><div>
       <div class="card" id="pfAcesso"></div>
       <div class="card" id="pfConta"></div>
+      <!-- 21/10: Triáde — botões cruzados (o hub entra na outra plataforma sem nova senha) -->
+      <div class="card" id="pfPlataformas"><div class="imp-k">MINHAS PLATAFORMAS</div>
+        <div style="font-size:var(--fs-meta);margin-bottom:10px">Mesma conta, um toque: o hub da Revolução do Estudo abre a outra plataforma já logada.</div>
+        <div class="pf-plat"><a class="btn ghost" href="https://revolucaodoestudo.com.br/app/?ir=play_passei" rel="noopener">Play Passei</a><a class="btn ghost" href="https://revolucaodoestudo.com.br/app/?ir=cei" rel="noopener">Clube do Estudo Inteligente</a></div>
+      </div>
     </div></div>
   </section>
 
