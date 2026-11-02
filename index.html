@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#070D1B">
-<meta name="build" content="2026-10-27a">
+<meta name="build" content="2026-11-02a">
 <title>DOMINEI — o mapa do seu cérebro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1273,6 +1273,7 @@ async function boot() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { mostrarEntrada(); return; }
   const { data: acesso, error: eAc } = await sb.rpc('fn_app_acesso');
+  acessoInfo = acesso || {};
   if (eAc || !acesso || !acesso.liberado) { mostrarFechado(eAc); return; } // fase fechada (05/10): fora da lista não entra
   if (acesso.exclusao_pedida_em) { mostrarExclusao(acesso.exclusao_pedida_em); return; } // 15/10: conta em exclusão (7 dias)
   tele.flush();
@@ -1312,6 +1313,12 @@ async function mostrarFechado(erro) {
   tele('acesso_fechado', { erro: !!erro });
 }
 // ---------- entrada (4.1/4.2): promessa → o que acontece → regra → conta ----------
+let acessoInfo = {}; // 02/11: resposta de fn_app_acesso (convite_por, assinatura_fim, tem_acesso)
+// 02/11: BLACK NÃO ALUNOS — Cérebro grátis até 10/11 08h (Manaus). Depois, quem veio pelo convite 'revolucao' vê o progresso CONGELADO + chamada da live (nunca erro).
+const CEREBRO_FECHADO = { titulo: 'SEU CÉREBRO ESTÁ GUARDADO',
+  texto: 'O acesso gratuito terminou hoje às 8h, mas nada se perdeu: seus tópicos, seu diagnóstico e seu material continuam aqui. Hoje às 19h (horário de Manaus, 20h em Brasília) o Professor Fábio abre o Cérebro de novo, ao vivo, na Revolução do Estudo. O link sai no grupo.',
+  botao: 'Entrar no grupo da Revolução', url: 'https://sndflw.com/i/D3dZyygkzj3LQgQ73IHP' };
+const cerebroFechado = () => !!acessoInfo && acessoInfo.convite_por === 'black-cerebro' && acessoInfo.tem_acesso === false;
 let modoAuth = 'cadastro', convite = null; // { codigo, nome, dias } quando a pessoa chegou por link de convite
 async function mostrarEntrada() {
   show('vAuth');
@@ -1976,6 +1983,7 @@ const chip = (e) => `<span class="estado ${ESTADO_CLS[e] || 'e-na'}">${ESTADO_RO
 const plural = (n, s, p) => `${n} ${n === 1 ? s : p}`;
 function humanizar(msg) { // erros de RPC → frase humana (4.2); nunca a mensagem técnica na tela
   const m = String(msg || '');
+  if (/assinatura_necessaria/i.test(m) && cerebroFechado()) return CEREBRO_FECHADO.texto; // 02/11: Black não alunos
   const d = [
     [/assinatura_necessaria/i, 'O dia a dia faz parte do convite do beta.'],
     [/aluno não identificado|jwt|not authenticated|expired/i, 'Sua sessão expirou. Entre de novo para continuar.'],
@@ -2023,6 +2031,13 @@ async function loadHoje() {
   perfil = { ...(perfil || {}), data_prova: data.data_prova, dias_para_prova: data.dias_para_prova }; pfPintarAtalhos();
   const dp = data.dias_para_prova, old = $('hjPrazo'); if (old) old.remove();
   if (data.data_prova && dp != null && dp >= 0) $('hjSub').insertAdjacentHTML('afterend', `<div class="hj-prazo" id="hjPrazo">⏳ ${dp === 0 ? 'a prova é hoje' : `faltam ${plural(dp, 'dia', 'dias')} para a prova`}</div>`);
+  if (data.acesso === false && cerebroFechado()) { // 02/11: Black não alunos — progresso congelado + live
+    $('hjCard').innerHTML = `<div class="acaocard"><div class="k">${CEREBRO_FECHADO.titulo}</div>
+      <div class="n">${esc(editalAtual.concurso)}${editalAtual.cargo ? ' · ' + esc(editalAtual.cargo) : ''}</div>
+      <div class="m" style="color:var(--text)">${esc(CEREBRO_FECHADO.texto)}</div>
+      <a class="btn" href="${CEREBRO_FECHADO.url}" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">${esc(CEREBRO_FECHADO.botao)}</a></div>`;
+    tele('cerebro_fechado_tela'); return;
+  }
   if (data.acesso === false) {
     const p = (data.prioridades || [])[0];
     $('hjCard').innerHTML = `<div class="acaocard"><div class="k">SUA PRIORIDADE DE HOJE</div>
@@ -2543,7 +2558,10 @@ function abrirDetalheTema(row) {
     tele('meu_edital_praticar', { node_id: id, estado: n.estado });
     const erro = await iniciarSessaoEstudo(id, tipo);
     btn.disabled = false;
-    if (erro && /assinatura_necessaria/i.test(erro)) {
+    if (erro && /assinatura_necessaria/i.test(erro) && cerebroFechado()) { // 02/11: Black não alunos
+      btn.textContent = CEREBRO_FECHADO.botao; btn.onclick = () => window.open(CEREBRO_FECHADO.url, '_blank', 'noopener');
+      det.querySelector('.l').insertAdjacentHTML('beforeend', '<br>' + esc(CEREBRO_FECHADO.texto));
+    } else if (erro && /assinatura_necessaria/i.test(erro)) {
       btn.textContent = 'Pedir convite';
       btn.onclick = async () => { const { error } = await sb.rpc('fn_lista_espera_entrar'); btn.disabled = true;
         btn.textContent = error ? 'Tente de novo' : 'Pedido registrado'; if (!error) tele('convite_pedido', { origem: 'meu_edital' }); };
@@ -3115,7 +3133,8 @@ function cerebroCard(n) {
   be.onclick = async () => {
     be.disabled = true; tele('cerebro_praticar', { node_id: n.id, estado: n.estado });
     const erro = await iniciarSessaoEstudo(n.id, n.n_ev >= 1 ? 'estudar' : 'sondar'); be.disabled = false;
-    if (erro && /assinatura_necessaria/i.test(erro)) { be.textContent = 'Pedir convite';
+    if (erro && /assinatura_necessaria/i.test(erro) && cerebroFechado()) { be.textContent = CEREBRO_FECHADO.botao; be.onclick = () => window.open(CEREBRO_FECHADO.url, '_blank', 'noopener'); toast(CEREBRO_FECHADO.texto); } // 02/11
+    else if (erro && /assinatura_necessaria/i.test(erro)) { be.textContent = 'Pedir convite';
       be.onclick = async () => { const { error } = await sb.rpc('fn_lista_espera_entrar'); be.disabled = true; be.textContent = error ? 'Tente de novo' : 'Pedido registrado'; }; }
   };
   tele('cerebro_tema', { node_id: n.id });
