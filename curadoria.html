@@ -203,7 +203,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-11-03a'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-11-03b'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -480,6 +480,7 @@ async function renderEdital(id) {
     <div id="estBox"></div>
     <div id="gsBox"></div>
     <div id="prepBox"></div>
+    <div id="edImport"></div>
     <div id="edArvore">${(d.estrutura || []).map((disc, i) => `
       <div class="disc" id="disc-${i}">
         <div class="dh" onclick="$('disc-${i}').classList.toggle('open')">
@@ -509,6 +510,8 @@ async function renderEdital(id) {
                 onchange="salvarOverride('${id}','${t.node_id}', this.value)">
               <button class="b-ghost" style="padding:3px 9px;font-size:10px"
                 onclick='abrirEditarTopico("${id}","${t.node_id}",${JSON.stringify(esc(t.nome))},${JSON.stringify((t.sinonimos || []).map(esc).join(", "))})'>editar</button>
+              <button class="b-split" style="padding:3px 9px;font-size:10px" title="questões de prova deste tema"
+                onclick='importarNoTema("${id}","${t.node_id}",${JSON.stringify(esc(t.nome))})'>+ questões</button>
             </div>
             <div class="subform" id="tedit-${t.node_id}" style="display:none"></div>`).join('')}`).join('')}
         </div>
@@ -526,6 +529,12 @@ async function salvarDadosEdital(id) {
   const o = $('edSel') && $('edSel').querySelector(`option[value="${id}"]`); const ed = editais[id];
   if (o && ed) o.textContent = `${ed.concurso} · ${ed.cargo || ''} (${ed.status} · ${ed.topicos} tópicos)`;
   renderEdital(id);
+}
+// 03/11: "+ questões" na árvore do edital — tema exato, concurso já escolhido, banca = a do edital
+function importarNoTema(editalId, nodeId, nome) {
+  const e = editais[editalId] || {};
+  if (!e.banca_id) { toast('Este edital está sem banca. Preencha a banca em "Dados do edital" antes de importar questões.', false); $('edDados')?.scrollIntoView({ behavior: 'smooth' }); return; }
+  abrirImportQuestoes(e.banca_id, nome, '', [], { edital: editalId, nodeId, boxId: 'edImport' });
 }
 async function salvarQuadroDisc(edital, disciplina, valor) {
   quadroAtual[disciplina] = valor === '' ? null : Math.max(0, parseInt(valor));
@@ -882,6 +891,7 @@ async function excluirBanca(id, nome) { // só banca sem uso (a função confere
   toast('Banca excluída ✓'); loadBancas();
 }
 async function loadBancas() {
+  if (!Object.keys(editais).length) await carregarEditais(); // o seletor de concurso do import usa a lista de editais
   const pane = $('pane-bancas');
   pane.innerHTML = `
     <div class="pagetitle">B A N C A S</div>
@@ -962,15 +972,25 @@ async function abrirCobertura(bancaId) {
         </div>
       </div>`).join('')}`;
 }
-function abrirImportQuestoes(bancaId, topicoPrefill, assuntoLabel, topicosAssunto) {
-  const box = $('impq-' + bancaId);
-  const chave = topicoPrefill || assuntoLabel || '';
+// 03/11: import POR EDITAL. opts = { edital, nodeId, boxId }: vindo da árvore do edital, o tema é exato (node_id) e o
+// concurso já vem escolhido; vindo de Bancas, a equipe escolhe o concurso no topo. A pré-visualização pergunta ao servidor
+// em que disciplina › assunto › tema cada questão vai cair e só libera o Confirmar sem erro.
+function abrirImportQuestoes(bancaId, topicoPrefill, assuntoLabel, topicosAssunto, opts = {}) {
+  const box = $(opts.boxId || ('impq-' + bancaId));
+  const chave = (opts.nodeId || '') + '|' + (topicoPrefill || assuntoLabel || '');
   if (box.dataset.aberto === chave && box.innerHTML) { box.innerHTML = ''; box.dataset.aberto = ''; return; }
   box.dataset.aberto = chave;
-  const titulo = topicoPrefill ? ' — tópico: ' + esc(topicoPrefill)
+  const titulo = topicoPrefill ? ' — tema: ' + esc(topicoPrefill)
     : assuntoLabel ? ' — assunto: ' + assuntoLabel : '';
+  const edOpts = Object.values(editais).filter(e => e.status !== 'arquivado')
+    .sort((a, b) => (a.status === 'publicado' ? 0 : 1) - (b.status === 'publicado' ? 0 : 1) || a.concurso.localeCompare(b.concurso));
+  const edPre = opts.edital || (edOpts.filter(e => e.banca_id === bancaId).length === 1 ? edOpts.find(e => e.banca_id === bancaId).id : '');
   box.innerHTML = `<div class="subform">
     <div class="nome" style="margin-bottom:6px">Importar questões da banca${titulo}</div>
+    <label>Concurso (edital) em que estas questões entram</label>
+    <select id="qi-ed-${bancaId}" ${opts.edital ? 'disabled' : ''}><option value="">— escolha o concurso —</option>${edOpts.map(e =>
+      `<option value="${e.id}" ${e.id === edPre ? 'selected' : ''}>${esc(e.concurso)} · ${esc(e.cargo || '')}${e.banca ? ' [' + esc(e.banca) + ']' : ' [sem banca]'}${e.status !== 'publicado' ? ' (' + e.status + ')' : ''}</option>`).join('')}</select>
+    <div class="hint" style="margin-top:4px">O tópico é procurado <b>só dentro dos temas deste concurso</b>. Nomes iguais em concursos diferentes não se misturam mais.</div>
     ${assuntoLabel && (topicosAssunto || []).length ? `<div class="hint">Tópicos deste assunto (use no campo TÓPICO):
       ${topicosAssunto.map(t => `<span class="mono" style="display:inline-block;background:var(--light);border-radius:5px;padding:1px 7px;margin:2px 3px 0 0">${t}</span>`).join('')}</div>` : ''}
     <div class="hint">Uma ou várias questões, separadas por linha com <span class="mono">---</span>. Campos por questão:<br>
@@ -1000,28 +1020,36 @@ ANO: 2025"></textarea>
     <div class="meta" id="qiOut-${bancaId}"></div></div>`;
   box.scrollIntoView({ behavior: 'smooth', block: 'start' });
   let parsed = null;
-  $(`qiPrev-${bancaId}`).onclick = () => {
+  const edital = () => $(`qi-ed-${bancaId}`).value || null;
+  $(`qi-ed-${bancaId}`).onchange = () => { parsed = null; $(`qiRun-${bancaId}`).style.display = 'none'; $(`qiOut-${bancaId}`).textContent = 'concurso trocado — pré-visualize de novo.'; };
+  $(`qiPrev-${bancaId}`).onclick = async () => {
+    const out = $(`qiOut-${bancaId}`); $(`qiRun-${bancaId}`).style.display = 'none'; parsed = null;
     const r = parseQuestoes($(`qi-txt-${bancaId}`).value, topicoPrefill);
-    if (r.erros.length) {
-      $(`qiOut-${bancaId}`).innerHTML = '<span style="color:var(--vermelho)">' + r.erros.map(esc).join('<br>') + '</span>';
-      $(`qiRun-${bancaId}`).style.display = 'none'; return;
-    }
-    parsed = r.questoes;
-    const nMe = r.questoes.filter(q => q.alternativas).length;
-    $(`qiOut-${bancaId}`).textContent = `${r.questoes.length} questão(ões) prontas` +
-      (nMe ? ` (${nMe} de múltipla escolha, ${r.questoes.length - nMe} certo/errado)` : ' (certo/errado)') +
-      ' — confira e confirme.';
-    $(`qiRun-${bancaId}`).style.display = 'inline-block';
+    if (r.erros.length) { out.innerHTML = '<span style="color:var(--vermelho)">' + r.erros.map(esc).join('<br>') + '</span>'; return; }
+    if (!edital()) { out.innerHTML = '<span style="color:var(--vermelho)">Escolha o concurso em que as questões entram.</span>'; return; }
+    if (opts.nodeId) r.questoes.forEach(q => q.node_id = opts.nodeId);
+    out.textContent = 'conferindo os temas no concurso…';
+    const { data: res, error } = await sb.rpc('fn_admin_questoes_resolver', { p_edital: edital(), p_questoes: r.questoes });
+    if (error) { out.innerHTML = '<span style="color:var(--vermelho)">' + esc(error.message) + '</span>'; return; }
+    const comErro = (res || []).filter(x => x.erro).length;
+    out.innerHTML = `<table class="tb" style="margin-top:6px"><thead><tr><th>#</th><th>QUESTÃO</th><th>VAI CAIR EM</th></tr></thead><tbody>${(res || []).map((x, i) =>
+      `<tr><td class="mono">${i + 1}</td><td>${esc(r.questoes[i].enunciado.slice(0, 90))}${r.questoes[i].enunciado.length > 90 ? '…' : ''}<br><span class="meta mono">${r.questoes[i].alternativas ? 'múltipla escolha' : 'certo/errado'} · gabarito ${esc(r.questoes[i].gabarito.toUpperCase())}</span></td>
+       <td>${x.erro ? `<span style="color:var(--vermelho)"><b>${esc(x.topico || '(sem tópico)')}</b>: ${esc(x.erro)}</span>` : `${esc(x.disciplina)} › ${esc(x.assunto)} › <b>${esc(x.tema)}</b>`}</td></tr>`).join('')}</tbody></table>
+      <div style="margin-top:6px">${comErro ? `<span style="color:var(--vermelho)">${comErro} questão(ões) sem tema neste concurso — corrija o TÓPICO (ou troque o concurso) e pré-visualize de novo. Nada foi importado.</span>`
+        : `<span style="color:var(--verde)">${res.length} questão(ões) com tema conferido — confirme para importar.</span>`}</div>`;
+    if (!comErro) { parsed = r.questoes; $(`qiRun-${bancaId}`).style.display = 'inline-block'; }
   };
   $(`qiRun-${bancaId}`).onclick = async () => {
+    if (!parsed) return;
     $(`qiOut-${bancaId}`).textContent = 'importando…';
-    const { data, error } = await sb.rpc('fn_admin_questoes_importar', { p_banca: bancaId, p_questoes: parsed });
+    const { data, error } = await sb.rpc('fn_admin_questoes_importar', { p_banca: bancaId, p_questoes: parsed, p_edital: edital() });
     if (error) { $(`qiOut-${bancaId}`).textContent = 'erro: ' + error.message; return; }
     let msg = `Inseridas: ${data.inseridas} · duplicadas ignoradas: ${data.duplicadas}`;
     if ((data.erros || []).length) msg += ' · ERROS: ' + data.erros.map(e => `${e.topico || '?'} (${e.erro})`).join('; ');
     $(`qiOut-${bancaId}`).textContent = msg;
     toast(data.inseridas + ' questão(ões) no acervo ✓');
-    $('cob-' + bancaId).innerHTML = ''; // força remontar o mapa atualizado
+    const cob = $('cob-' + bancaId); if (cob) cob.innerHTML = ''; // força remontar o mapa atualizado
+    if (opts.edital && $('edSel') && $('edSel').value === opts.edital) renderEdital(opts.edital);
   };
 }
 function parseQuestoes(txt, topicoPrefill) {
@@ -1727,7 +1755,7 @@ Informática | 10 questões
 <p><b>Opcional, com provas reais:</b> aba <i>Provas</i> cadastra provas recentes da <u>mesma banca</u> e roda o refino de pesos (quanto cada tema cai de verdade; é o que acende a ★ "caiu N× nas provas"). Prova de outra banca ou com mais de 6 anos: não cadastrar.</p>
 <div class="d-aviso">O que ainda não está no painel: a análise fina das provas (Ovos de Ouro) e o pipeline de propostas em massa rodam em sessão com o Claude Code, a pedido do Fábio.</div>` },
   { id: 'questoes', t: 'Subir questões de provas', h: `
-<p class="d-lead">As questões reais de prova entram pela aba <i>Bancas</i> → banca certa → <i>Importar questões</i>. É texto simples, uma questão por bloco, separadas por uma linha com <code>---</code>.</p>
+<p class="d-lead">Questão de prova sempre entra <b>dentro de um concurso</b>. O jeito mais seguro: aba <i>Editais</i> → abrir o edital → achar o tema → <i>+ questões</i> (o tema já vem escolhido, sem chance de cair em outro concurso). O outro jeito: aba <i>Bancas</i> → banca → <i>Importar questões</i> → escolher o <b>Concurso</b> no topo. É texto simples, uma questão por bloco, separadas por uma linha com <code>---</code>.</p>
 <pre>TÓPICO: Crimes de trânsito
 Conduzir veículo sob influência de álcool constitui crime apenas quando gerar perigo concreto de dano.
 GABARITO: E
@@ -1745,14 +1773,16 @@ GABARITO: A
 ANO: 2025
 CONCURSO: PF</pre>
 <ul>
-<li><b>TÓPICO</b> precisa ser exatamente o nome do tema no edital (ou um sinônimo cadastrado). Na aba Bancas → <i>Mapa de cobertura</i>, cada assunto tem o botão <i>+ questões</i> que já preenche o tópico — é o jeito mais fácil.</li>
+<li><b>TÓPICO</b> é o nome do tema <u>naquele concurso</u> (ou um sinônimo cadastrado); acento e maiúsculas não importam. O sistema procura só nos temas do concurso escolhido: o mesmo nome em outro concurso não conta. Pelo botão <i>+ questões</i> do tema, o TÓPICO nem precisa ser digitado.</li>
+<li><b>Pré-visualizar</b> mostra uma tabela: cada questão e em qual <i>disciplina › assunto › tema</i> ela vai cair. Linha em vermelho = tema não encontrado nesse concurso; nada é importado até a tabela ficar toda verde.</li>
+<li>Edital <b>sem banca</b> (ex.: PM-AM, PC-AM, SEDUC-AM): preencha a banca no cartão <i>Dados do edital</i> antes — a questão precisa saber de que banca é.</li>
 <li><b>Certo/errado</b>: só o enunciado e <code>GABARITO: C</code> ou <code>E</code>. <b>Múltipla escolha</b>: alternativas em linhas <code>A) …</code> até <code>E)</code> e <code>GABARITO:</code> com a letra.</li>
 <li><code>EXPLICACAO</code>, <code>ANO</code> e <code>CONCURSO</code> são opcionais. Sem explicação, o botão <i>Preparar edital</i> escreve uma depois.</li>
-<li>Toque em <i>Pré-visualizar</i> (mostra erros de formato) e depois em <i>Confirmar import</i>. Enunciado repetido na mesma banca é ignorado.</li>
+<li>Depois da tabela verde, <i>Confirmar import</i>. Enunciado repetido na mesma banca é ignorado. O concurso e o cargo ficam gravados na questão.</li>
 <li>A questão entra aprovada e já vale para o aluno; se tiver problema, a aba <i>Qualidade</i> recebe o report.</li>
 </ul>
 <p><b>E a aba Provas?</b> Ela registra a <i>prova inteira</i> (gabarito oficial e classificação de cada item por tópico, em JSON) para o <i>refino empírico dos pesos</i> — é o que acende a ★ "caiu N× nas provas". Passo avançado: por enquanto, quem faz é o Fábio com o Claude.</p>
-<p>Também dá para importar questões direto num tema: aba <i>Editais</i> → abrir o edital → tema → <i>+ questões</i>.</p>` },
+<p><b>CONCURSO:</b> no texto virou opcional de verdade — o concurso que vale é o escolhido no formulário.</p>` },
   { id: 'entrada', t: 'Como o aluno entra', h: `
 <p class="d-lead">A plataforma está em fase fechada: só entra quem foi convidado.</p>
 <ol class="d-passos">
