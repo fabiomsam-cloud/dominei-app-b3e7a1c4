@@ -203,7 +203,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-11-02a'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-11-03a'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -1288,7 +1288,7 @@ async function renderQualidade() {
       <div class="nome" style="margin-bottom:8px">Itens suspensos</div>
       ${(d.suspensos || []).map(s => `
         <div class="subform" id="qsus-${s.id}" style="margin-bottom:8px">
-          <div class="meta"><span class="badge red">suspenso por ${s.motivo === 'reports' ? `${s.n_reports} reports` : 'saúde estatística'}</span>
+          <div class="meta"><span class="badge red">${MOTIVO_SUSP[s.motivo] ? MOTIVO_SUSP[s.motivo](s) : 'suspenso pela equipe'}</span>
             · ${esc(s.origem)} · ${new Date(s.updated_at).toLocaleDateString('pt-BR')}</div>
           <div class="qenun">${esc(s.enunciado)}</div>
           <div class="meta"><span class="gab ${s.gabarito === 'certo' ? 'c' : 'e'}">GABARITO: ${esc((s.gabarito || '').toUpperCase())}</span></div>
@@ -1300,7 +1300,7 @@ async function renderQualidade() {
     </div>
     <div class="card">
       <div class="nome" style="margin-bottom:8px">Histórico da saúde estatística</div>
-      <div class="hint">Cron diário às 03:00 (Manaus). Suspende: dificuldade extrema (n≥20 fora de 5%-95%) e discriminação invertida (n≥30).</div>
+      <div class="hint">Rotina diária às 03:00 (Manaus), só para questões geradas por IA. Suspende quando, com pelo menos 20 respostas, quase todos acertam ou quase todos erram (fora de 5% a 95%); ou quando, com pelo menos 30 respostas, quem domina o tema erra e quem não domina acerta.</div>
       <table class="tb"><thead><tr><th>QUANDO</th><th>ORIGEM</th><th>AVALIADOS</th><th>SUSPENSOS</th></tr></thead>
       <tbody>${(d.historico || []).map(h => `
         <tr><td>${new Date(h.created_at).toLocaleString('pt-BR')}</td><td>${esc(h.origem)}</td>
@@ -1309,6 +1309,14 @@ async function renderQualidade() {
         || '<tr><td colspan="4" class="empty">nenhuma execução ainda</td></tr>'}</tbody></table>
     </div>`;
 }
+// 03/11: motivo gravado na hora da suspensão (items.motivo_suspensao); antes tudo sem 3 reports virava "saúde estatística"
+const MOTIVO_SUSP = {
+  formato: () => 'formato errado: não é afirmação certo/errado',
+  reports: (s) => `${s.n_reports} reports de alunos`,
+  equipe: () => 'suspenso pela equipe',
+  saude_extremo: () => 'estatística: quase todos acertam ou erram',
+  saude_discriminacao: () => 'estatística: quem domina o tema erra',
+};
 async function fecharReportAdmin(id, status) {
   const nota = $('qnota-' + id)?.value.trim() || null;
   const { error } = await sb.rpc('fn_admin_report_fechar', { p_id: id, p_status: status, p_nota: nota });
