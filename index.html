@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#070D1B">
-<meta name="build" content="2026-11-03b">
+<meta name="build" content="2026-11-05a">
 <title>DOMINEI — o mapa do seu cérebro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -120,7 +120,30 @@ header .av { cursor:pointer; min-width:44px; min-height:44px; width:44px; height
 .al-h { font-size:var(--fs-pagina); line-height:1.1; }
 .al-cards { display:grid; gap:12px; }
 .al-card { position:relative; text-align:left; background:var(--glass); border:1px solid var(--line); border-radius:16px; padding:18px 44px 16px 18px; cursor:pointer; color:var(--text); font-family:inherit; width:100%; transition:border-color .2s, box-shadow .2s, transform .2s; animation:alEnt .5s both; }
-.al-card:nth-child(2) { animation-delay:.07s } .al-card:nth-child(3) { animation-delay:.14s } .al-card:nth-child(4) { animation-delay:.21s }
+.al-conc:nth-child(2) .al-card { animation-delay:.07s } .al-conc:nth-child(3) .al-card { animation-delay:.14s } .al-conc:nth-child(4) .al-card { animation-delay:.21s }
+/* escolha em dois passos (05/11): busca → concurso → cargo */
+.al-cards { align-items:start; } .al-cards.quieto .al-card { animation:none; }
+.al-busca { position:relative; display:block; margin-bottom:12px; }
+.al-busca svg { position:absolute; left:15px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:var(--dim); pointer-events:none; }
+.al-busca input { margin:0; padding-left:44px; min-height:48px; } .al-busca input::placeholder { color:var(--dim); }
+.al-conc { min-width:0; }
+.al-card .cv { position:absolute; right:16px; top:18px; width:22px; height:22px; color:var(--dim); transition:transform .25s cubic-bezier(.16,1,.3,1); }
+.al-conc.open .al-card { border-bottom-left-radius:0; border-bottom-right-radius:0; } .al-conc.open .al-card .cv { transform:rotate(180deg); } .al-conc.open .al-card.on { transform:none; }
+.al-card[disabled] { cursor:default; opacity:.6; }
+.al-card:focus-visible, .al-cargo:focus-visible { outline:2px solid var(--verde2); outline-offset:2px; }
+.al-cargos { display:none; gap:2px; padding:6px; border:1px solid var(--line); border-top:0; border-radius:0 0 16px 16px; background:rgba(7,13,24,.6); }
+.al-conc.open .al-cargos { display:grid; } .al-conc.on .al-cargos { border-color:var(--verde); }
+.al-cargo { display:flex; align-items:center; gap:12px; width:100%; min-height:48px; padding:9px 12px; border-radius:11px; border:1px solid transparent; background:transparent; color:var(--text); font-family:inherit; font-size:var(--fs-meta); text-align:left; cursor:pointer; transition:background .15s, border-color .15s; }
+.al-cargo:hover { background:rgba(255,255,255,.04); } .al-cargo.on { border-color:var(--line-v); background:rgba(47,224,141,.08); } .al-cargo[disabled] { cursor:default; opacity:.6; }
+.al-cargo .rd { flex:none; width:20px; height:20px; border-radius:50%; border:1.5px solid rgba(132,170,214,.4); display:flex; align-items:center; justify-content:center; }
+.al-cargo.on .rd { border-color:var(--verde); } .al-cargo.on .rd::after { content:''; width:10px; height:10px; border-radius:50%; background:var(--verde); }
+.al-cargo b { display:block; font-weight:700; } .al-cargo small { display:block; color:var(--dim); font-size:var(--fs-rotulo); margin-top:1px; } .al-cargo small .pv { color:var(--amarelo); } .al-cargo small .tz { color:#9EC2FF; }
+.al-vazio { grid-column:1 / -1; padding:18px; border:1px dashed var(--line); border-radius:16px; color:var(--dim); font-size:var(--fs-meta); line-height:1.5; } .al-vazio b { color:var(--text); }
+.al-aviso { padding:14px 16px; border-radius:14px; border:1px solid rgba(242,179,61,.38); background:rgba(242,179,61,.07); font-size:var(--fs-meta); line-height:1.45; margin-bottom:14px; } .al-aviso b { color:var(--amarelo); }
+#btnComecar:not([disabled]) { position:sticky; bottom:14px; z-index:5; } /* com a lista longa, o botão acompanha a escolha */
+#pfConfirmar:not([disabled]) { position:sticky; bottom:calc(84px + env(safe-area-inset-bottom)); z-index:5; } @media (min-width:1024px) { #pfConfirmar:not([disabled]) { bottom:14px; } }
+.btn-alvo[disabled] { opacity:.35; box-shadow:none; cursor:default; } .btn-alvo small { display:block; font-weight:400; font-size:13px; color:rgba(4,19,11,.75); margin-top:2px; }
+.pf-meus { margin-top:16px; }
 @keyframes alEnt { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:none } }
 .al-card:hover { border-color:rgba(255,255,255,.22); }
 .al-card.on { border-color:var(--verde); box-shadow:0 0 0 1px var(--verde), 0 12px 40px rgba(47,224,141,.18); transform:translateY(-1px); }
@@ -926,9 +949,9 @@ body.rg-barra-on main { padding-bottom:170px; }
         <h2 class="al-h">Para qual prova você vai?</h2>
         <p class="lead" style="font-size:var(--fs-meta)">Seu cérebro é montado para o edital que você escolher. Dá para trocar depois, no Perfil.</p>
       </div>
-      <div class="k-lbl" style="color:var(--dim);margin-bottom:10px">CONCURSOS DISPONÍVEIS</div>
+      <div id="alvoAviso"></div>
       <select id="selEdital" hidden aria-hidden="true"></select>
-      <div class="al-cards" id="alvoCards"></div>
+      <div id="alvoCards"></div>
       <button class="btn" id="btnComecar" style="margin-top:16px" disabled>Escolha um concurso<small>para montar o seu cérebro</small></button>
       <div class="msg" id="homeMsg"></div>
     </div>
@@ -1444,28 +1467,82 @@ $('btnEntrar').onclick = async () => {
 $('btnSair').onclick = async () => { await sb.auth.signOut(); location.reload(); };
 
 // ---------- home ----------
+// ---------- escolha do concurso em dois passos (05/11): busca → concurso → cargo ----------
+// A vitrine vem de fn_concursos_catalogo: sem o limite de 50 editais; edital com prova passada só aparece para quem já o ativou;
+// 'encerrado' avisa quando o edital ativo do aluno foi arquivado.
+let catalogo = [], avisoEncerrado = null, alvoTraz = {};
+const alLimpa = (s) => (s || '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+const alData = (d) => new Date(d + 'T12:00:00').toLocaleDateString('pt-BR');
 async function carregarEditais() {
-  const { data } = await sb.from('editais').select('id, concurso, cargo, data_prova, bancas(nome)').eq('status', 'publicado').range(0, 49);
-  editais = data || [];
-  $('selEdital').innerHTML = '<option value="">—</option>' + editais.map(e => `<option value="${e.id}">${esc(e.concurso)} — ${esc(e.cargo)}</option>`).join('');
+  const { data, error } = await sb.rpc('fn_concursos_catalogo');
+  if (error) toast(humanizar(error.message));
+  catalogo = (data && data.concursos) || []; avisoEncerrado = (data && data.encerrado) || null;
+  catalogo.forEach(c => { c._t = alLimpa(c.sigla + c.nome + c.area); c.cargos.forEach(g => g._t = alLimpa(g.cargo)); });
+  editais = catalogo.flatMap(c => c.cargos.map(g => ({ id: g.id, concurso: c.nome, sigla: c.sigla, cargo: g.cargo, data_prova: g.data_prova, bancas: g.banca ? { nome: g.banca } : null,
+    medidos: g.medidos || 0, conhecido: !!g.conhecido, ativo: !!g.ativo, prova_passou: !!g.prova_passou, varios: c.cargos.length > 1 })));
+  alvoTraz = {}; editais.forEach(e => { if (e.conhecido && e.medidos > 0) alvoTraz[e.id] = e.medidos; }); // quem já tem medidas no edital entra direto
+  $('selEdital').innerHTML = '<option value="">—</option>' + editais.map(e => `<option value="${e.id}">${esc(e.sigla)} — ${esc(e.cargo)}</option>`).join('');
   alvoRender();
 }
-// cartões da escolha do concurso (19/10): nome, cargo, banca, data da prova; "você já traz…" para quem tem medidas no edital
-let alvoTraz = {};
-async function alvoRender() {
+const AL_LUPA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+const AL_SETA = '<svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+// Seletor usado na entrada e no Perfil. opt.onEscolher(edital) a cada escolha; opt.travarAtivo desabilita o edital que já é o ativo.
+function seletorConcursos(box, opt = {}) {
+  const st = { q: '', aberto: null, fechado: null, sel: null }; let primeira = true;
+  box.innerHTML = `${catalogo.length > 6 ? `<label class="al-busca">${AL_LUPA}<input type="search" placeholder="Buscar concurso ou cargo" aria-label="Buscar concurso ou cargo" autocomplete="off" enterkeyhint="search"></label>` : ''}<div class="al-cards" role="list"></div>`;
+  const lista = box.querySelector('.al-cards'), inp = box.querySelector('input');
+  const prova = (g) => `${g.prova_passou ? 'Prova realizada em' : 'Prova prevista:'} `;
+  const sub = (g) => [g.banca ? `Banca ${esc(g.banca)}` : '', g.data_prova ? `<span class="pv">${prova(g)}${alData(g.data_prova)}</span>` : '',
+    g.ativo && opt.travarAtivo ? 'seu concurso ativo' : g.conhecido && g.medidos > 0 ? `<span class="tz">você já traz ${plural(g.medidos, 'tema medido', 'temas medidos')}</span>` : ''].filter(Boolean).join(' · ');
+  const pintar = (foco) => {
+    const toks = st.q.split(/\s+/).map(alLimpa).filter(Boolean);
+    const vis = catalogo.map(c => {
+      if (!toks.length || toks.every(t => c._t.includes(t))) return { c, cargos: c.cargos };
+      const cg = c.cargos.filter(g => toks.every(t => c._t.includes(t) || g._t.includes(t)));
+      return cg.length ? { c, cargos: cg, porCargo: true } : null;
+    }).filter(Boolean);
+    if (!primeira) lista.classList.add('quieto'); primeira = false;
+    lista.innerHTML = vis.map(({ c, cargos, porCargo }) => {
+      const um = c.cargos.length === 1, g0 = c.cargos[0], escolhido = c.cargos.find(g => g.id === st.sel);
+      const aberto = !um && st.fechado !== c.id && (st.aberto === c.id || (toks.length > 0 && (porCargo || vis.length <= 2)));
+      const prox = c.cargos.filter(g => g.data_prova && !g.prova_passou).map(g => g.data_prova).sort()[0];
+      const travado = um && g0.ativo && opt.travarAtivo;
+      return `<div class="al-conc${escolhido ? ' on' : ''}${aberto ? ' open' : ''}" role="listitem">
+        <button type="button" class="al-card${escolhido ? ' on' : ''}" data-c="${c.id}" ${um ? `data-id="${g0.id}" aria-pressed="${!!escolhido}"` : `aria-expanded="${aberto}"`} ${travado ? 'disabled' : ''}>
+          ${um ? '<span class="ck"></span>' : AL_SETA}
+          <div class="n">${esc(c.sigla)}</div><div class="c">${esc(c.nome)}</div>
+          <div class="meta">${um
+            ? `<span><b>${esc(g0.cargo)}</b></span>${g0.banca ? `<span>Banca <b>${esc(g0.banca)}</b></span>` : ''}${g0.data_prova ? `<span class="prova">${prova(g0)}<b>${alData(g0.data_prova)}</b></span>` : ''}`
+            : `<span>${escolhido ? `Cargo escolhido: <b>${esc(escolhido.cargo)}</b>` : `<b>${c.cargos.length} cargos</b> · escolha o seu`}</span>${prox ? `<span class="prova">Prova prevista: <b>${alData(prox)}</b></span>` : ''}`}</div>
+          ${travado ? '<div class="traz">Seu concurso ativo.</div>' : um && g0.conhecido && g0.medidos > 0 ? `<div class="traz">Você já traz ${plural(g0.medidos, 'tema medido', 'temas medidos')} deste edital.</div>` : ''}
+        </button>
+        ${um ? '' : `<div class="al-cargos">${cargos.map(g => `<button type="button" class="al-cargo${g.id === st.sel ? ' on' : ''}" data-id="${g.id}" aria-pressed="${g.id === st.sel}" ${g.ativo && opt.travarAtivo ? 'disabled' : ''}><span class="rd"></span><span><b>${esc(g.cargo)}</b>${sub(g) ? `<small>${sub(g)}</small>` : ''}</span></button>`).join('')}</div>`}
+      </div>`;
+    }).join('') || `<div class="al-vazio"><b>Nenhum concurso encontrado para "${esc(st.q.trim())}".</b><br>Confira a grafia ou peça o seu em "Não achou o seu?": os mais pedidos entram primeiro.</div>`;
+    const el = foco && lista.querySelector(foco); if (el) el.focus({ preventScroll: true });
+  };
+  lista.onclick = (ev) => {
+    const b = ev.target.closest('button'); if (!b || b.disabled) return;
+    if (b.dataset.id) { // escolheu um edital (cartão de cargo único ou linha de cargo)
+      st.sel = b.dataset.id; if (b.classList.contains('al-card')) { st.aberto = null; st.fechado = null; }
+      const e = editais.find(x => x.id === st.sel); pintar(`[data-id="${st.sel}"]`); if (e && opt.onEscolher) opt.onEscolher(e);
+    } else { // abre/fecha a lista de cargos do concurso
+      const estava = b.parentElement.classList.contains('open');
+      st.aberto = estava ? null : b.dataset.c; st.fechado = estava ? b.dataset.c : null; pintar(`[data-c="${b.dataset.c}"]`);
+    }
+  };
+  if (inp) inp.oninput = () => { st.q = inp.value; st.fechado = null; pintar(); };
+  pintar();
+}
+function alvoRender() {
   const box = $('alvoCards'); if (!box) return;
-  box.innerHTML = editais.map(e => `<button type="button" class="al-card" data-id="${e.id}"><span class="ck"></span><div class="n">${esc(e.concurso)}</div><div class="c">${esc(e.cargo || '')}</div>
-    <div class="meta">${e.bancas && e.bancas.nome ? `<span>Banca <b>${esc(e.bancas.nome)}</b></span>` : ''}${e.data_prova ? `<span class="prova">Prova prevista: <b>${new Date(e.data_prova + 'T12:00:00').toLocaleDateString('pt-BR')}</b></span>` : ''}</div>
-    <div class="traz" id="alTraz-${e.id}" style="display:none"></div></button>`).join('') || '<p class="pagesub">Nenhum concurso disponível ainda.</p>';
-  box.querySelectorAll('.al-card').forEach(c => c.onclick = () => {
-    box.querySelectorAll('.al-card').forEach(x => x.classList.toggle('on', x === c)); $('selEdital').value = c.dataset.id;
-    const e = editais.find(x => x.id === c.dataset.id), traz = alvoTraz[c.dataset.id];
-    $('btnComecar').disabled = false; $('btnComecar').innerHTML = `Ver meu cérebro para o ${esc(e.concurso)}<small>${traz ? 'você já traz medidas deste edital · entra direto' : 'teste de até 20 questões · ~15 minutos'}</small>`;
-    tele('alvo_escolhido', { edital: c.dataset.id });
-  });
-  try { const { data: pf } = await sb.rpc('fn_perfil'); alvoTraz = {}; // quem já tem medidas em algum edital (troca de concurso)
-    (pf && pf.concursos || []).forEach(c => { if (c.conhecido && c.medidos > 0) { alvoTraz[c.id] = c.medidos; const el = $('alTraz-' + c.id); if (el) { el.textContent = `Você já traz ${plural(c.medidos, 'tema medido', 'temas medidos')} deste edital.`; el.style.display = ''; } } });
-  } catch (e) { /* sem perfil ainda: tudo bem */ }
+  $('alvoAviso').innerHTML = avisoEncerrado ? `<div class="al-aviso" role="status"><b>${esc(avisoEncerrado.sigla)}${avisoEncerrado.cargo ? ' · ' + esc(avisoEncerrado.cargo) : ''} foi encerrado.</b> Escolha outro concurso abaixo: o que você já estudou nos temas em comum vem junto.</div>` : '';
+  $('selEdital').value = ''; $('btnComecar').disabled = true; $('btnComecar').innerHTML = 'Escolha um concurso<small>para montar o seu cérebro</small>';
+  seletorConcursos(box, { onEscolher: (e) => {
+    $('selEdital').value = e.id; const traz = alvoTraz[e.id];
+    $('btnComecar').disabled = false; $('btnComecar').innerHTML = `Ver meu cérebro: ${esc(e.sigla)}<small>${e.varios ? esc(e.cargo) + ' · ' : ''}${traz ? 'você já traz medidas deste edital · entra direto' : 'teste de até 20 questões · ~15 minutos'}</small>`;
+    $('homeMsg').textContent = ''; tele('alvo_escolhido', { edital: e.id });
+  } });
 }
 $('btnComecar').onclick = async () => {
   editalAtual = editais.find(e => e.id === $('selEdital').value);
@@ -1826,7 +1903,7 @@ function abrirConta() {
 const pfInicial = () => ((perfil && perfil.nome) || '').trim().charAt(0).toUpperCase() || '·';
 function pfPintarAtalhos() { // cartão da lateral: inicial, nome e concurso/prazo
   $('snAv').textContent = pfInicial(); $('snNome').textContent = (perfil && perfil.nome) || 'Meu perfil';
-  const d = perfil && perfil.dias_para_prova; $('snEdital').textContent = `${editalAtual ? editalAtual.concurso : ''}${d != null && d >= 0 ? ` · faltam ${plural(d, 'dia', 'dias')}` : ''}`;
+  const d = perfil && perfil.dias_para_prova; $('snEdital').textContent = `${editalAtual ? (editalAtual.sigla || editalAtual.concurso) : ''}${d != null && d >= 0 ? ` · faltam ${plural(d, 'dia', 'dias')}` : ''}`;
 }
 async function loadConta() { await loadPerfil(); }
 let pfDados = null;
@@ -1839,18 +1916,27 @@ async function loadPerfil() {
   $('pfEditar').onclick = async () => { const n = prompt('Como quer ser chamado?', data.nome || ''); if (n == null) return;
     const { error: e } = await sb.rpc('fn_perfil_salvar', { p_nome: n }); if (e) { toast(humanizar(e.message)); return; } tele('perfil_nome'); loadPerfil(); };
   // concurso ativo + data da prova + trocar
-  const at = (data.concursos || []).find(c => c.ativo), r = data.retrato || {}, dp = data.dias_para_prova;
+  const meus = data.meus || (data.concursos || []).filter(c => c.ativo); // 05/11: só os editais que o aluno já ativou (histórico), o ativo primeiro
+  const at = meus.find(c => c.ativo), r = data.retrato || {}, dp = data.dias_para_prova;
   $('pfConc').innerHTML = `<div class="imp-k" style="margin-bottom:0">MEU CONCURSO</div>
-    ${at ? `<div class="pf-conc"><div><h2>${esc(at.concurso)}</h2><div class="sub">${esc(at.cargo || '')}${at.banca ? ' · ' + esc(at.banca) : ''}</div></div><span class="pf-badge">ATIVO</span></div>
+    ${at ? `<div class="pf-conc"><div><h2>${esc(at.sigla || at.concurso)}</h2>${at.sigla ? `<div class="sub">${esc(at.concurso)}</div>` : ''}<div class="sub">${esc(at.cargo || '')}${at.banca ? ' · ' + esc(at.banca) : ''}${at.encerrado ? ' · encerrado' : ''}</div></div><span class="pf-badge">ATIVO</span></div>
     <div class="pf-linha"><div><b>${r.total ? Math.round(100 * r.medidos / r.total) : 0}%</b><small>dos temas medidos</small></div><div><b>${r.medidos || 0}</b><small>de ${r.total || 0} temas explorados</small></div><div><b>${home ? home.streak || 0 : '–'}</b><small>dias seguidos</small></div></div>` : '<p class="pagesub">Você ainda não tem um concurso ativo.</p>'}
     <div class="pf-prova" id="pfProva">${data.data_prova ? `<span>Minha prova: <b>${new Date(data.data_prova + 'T12:00:00').toLocaleDateString('pt-BR')}</b>${dp != null ? (dp > 0 ? ` · faltam <b>${plural(dp, 'dia', 'dias')}</b>` : dp === 0 ? ' · <b>é hoje</b>' : ' · já passou') : ''}</span><button class="ss-link" id="pfProvaEd" type="button">alterar</button>`
       : `<span style="color:var(--dim)">Sem data da prova. Com ela, a HOJE mostra a contagem.</span><button class="ss-link" id="pfProvaEd" type="button">informar</button>`}</div>
-    <button class="btn ghost" id="pfTrocar" type="button" style="margin-top:12px">Trocar de concurso</button>
-    <div class="pf-lista" id="pfLista" style="display:none">${(data.concursos || []).map(c => `<button type="button" class="pf-item${c.ativo ? ' on' : ''}" data-c="${c.id}" ${c.ativo ? 'disabled' : ''}><div><div class="n">${esc(c.concurso)}${c.cargo ? ' · ' + esc(c.cargo) : ''}</div><small>${c.ativo ? `ativo · ${c.medidos} temas explorados` : c.conhecido ? `você já traz ${plural(c.medidos, 'tema medido', 'temas medidos')} deste edital` : 'novo para você · teste de até 20 questões'}</small></div><span class="x">${c.ativo ? '✓ ativo' : c.conhecido ? 'Ativar →' : 'Começar →'}</span></button>`).join('')}
-      <button type="button" class="pf-item" id="pfPedir"><div><div class="n">Não achou o seu?</div><small>peça: os mais pedidos entram primeiro</small></div><span class="x" style="color:var(--dim)">Pedir</span></button></div>`;
+    ${meus.length > 1 ? `<div class="pf-meus"><div class="imp-k" style="margin-bottom:0">MEUS CONCURSOS</div><div class="pf-lista">${meus.map(c => `<button type="button" class="pf-item${c.ativo ? ' on' : ''}" data-c="${c.id}" ${c.ativo || c.encerrado ? 'disabled' : ''}><div><div class="n">${esc(c.sigla || c.concurso)}${c.cargo ? ' · ' + esc(c.cargo) : ''}</div><small>${c.ativo ? `ativo · ${plural(c.medidos, 'tema explorado', 'temas explorados')}` : c.encerrado ? 'encerrado · não está mais disponível' : `você já traz ${plural(c.medidos, 'tema medido', 'temas medidos')} deste edital`}</small></div><span class="x">${c.ativo ? '✓ ativo' : c.encerrado ? '' : 'Ativar →'}</span></button>`).join('')}</div></div>` : ''}
+    <button class="btn ghost" id="pfTrocar" type="button" style="margin-top:12px" aria-expanded="false">Trocar de concurso</button>
+    <div id="pfLista" style="display:none;margin-top:12px"><div id="pfSeletor"></div>
+      <button class="btn btn-alvo" id="pfConfirmar" type="button" style="margin-top:14px" disabled>Escolha um concurso<small>o que você já estudou nos temas em comum vem junto</small></button>
+      <button type="button" class="pf-item" id="pfPedir" style="margin-top:10px"><div><div class="n">Não achou o seu?</div><small>peça: os mais pedidos entram primeiro</small></div><span class="x" style="color:var(--dim)">Pedir</span></button></div>`;
   $('pfProvaEd').onclick = () => pfEditarProva(data.data_prova);
-  $('pfTrocar').onclick = () => { const l = $('pfLista'); l.style.display = l.style.display === 'none' ? 'grid' : 'none'; };
-  $('pfLista').querySelectorAll('[data-c]').forEach(b => b.onclick = () => pfTrocar(b.dataset.c));
+  $('pfTrocar').onclick = () => { // abre o mesmo seletor da entrada (busca → concurso → cargo), com confirmação antes de trocar
+    const l = $('pfLista'), abre = l.style.display === 'none'; l.style.display = abre ? 'block' : 'none'; $('pfTrocar').setAttribute('aria-expanded', abre);
+    if (!abre || l.dataset.ok) return; l.dataset.ok = '1'; let alvo = null;
+    seletorConcursos($('pfSeletor'), { travarAtivo: true, onEscolher: (e) => { alvo = e; const b = $('pfConfirmar'); b.disabled = false;
+      b.innerHTML = `Trocar para ${esc(e.sigla)}<small>${e.varios ? esc(e.cargo) + ' · ' : ''}${e.conhecido ? 'você já traz medidas deste edital · entra direto' : 'teste de até 20 questões · ~15 minutos'}</small>`; } });
+    $('pfConfirmar').onclick = () => { if (alvo) pfTrocar(alvo.id); };
+  };
+  $('pfConc').querySelectorAll('.pf-meus [data-c]').forEach(b => b.onclick = () => pfTrocar(b.dataset.c));
   $('pfPedir').onclick = () => { const q = prompt('Qual concurso e cargo?'); if (q && q.trim()) sb.rpc('fn_edital_solicitar', { p_concurso: q.trim(), p_detalhe: null }).then(({ error: e }) => toast(e ? 'Não consegui registrar o pedido agora.' : 'Pedido registrado. Obrigado!')); };
   // retrato + conquistas
   const d = { medidos: r.medidos || 0, verdes: r.dominados || 0, atencao: r.atencao || 0, total: r.total || 0, streak: home ? home.streak || 0 : 0, setorOk: !!(cbDados && cbDados.setorOk), indice: 0 };
@@ -1883,10 +1969,10 @@ async function pfEditarProva(atual) {
   tele('perfil_data_prova', { tem: !!m }); loadPerfil();
 }
 async function pfTrocar(id) {
-  const c = (pfDados.concursos || []).find(x => x.id === id); if (!c) return;
+  const c = editais.find(x => x.id === id) || (pfDados.meus || []).find(x => x.id === id); if (!c) { toast('Concurso indisponível agora.'); return; }
   const { data, error } = await sb.rpc('fn_edital_ativar', { p_edital: id });
   if (error) { toast(humanizar(error.message)); return; }
-  if (data.modo === 'ativado') { tele('concurso_trocado', { edital: id }); toast(`${c.concurso} ativado.`); setTimeout(() => location.reload(), 600); return; }
+  if (data.modo === 'ativado') { tele('concurso_trocado', { edital: id }); toast(`${c.sigla || c.concurso} ativado.`); setTimeout(() => location.reload(), 600); return; }
   // novo para o aluno: diagnóstico curto deste edital; ao concluir, ele vira o ativo
   const e = editais.find(x => x.id === id); if (!e) { toast('Concurso indisponível agora.'); return; }
   editalAtual = e; if (!(await carregarEstrutura())) return;
