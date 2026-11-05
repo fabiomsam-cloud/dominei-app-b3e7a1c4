@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#070D1B">
-<meta name="build" content="2026-11-05a">
+<meta name="build" content="2026-11-05b">
 <title>DOMINEI — o mapa do seu cérebro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1338,8 +1338,15 @@ async function mostrarFechado(erro) {
 // ---------- entrada (4.1/4.2): promessa → o que acontece → regra → conta ----------
 let acessoInfo = {}; // 02/11: resposta de fn_app_acesso (convite_por, assinatura_fim, tem_acesso)
 // 02/11: BLACK NÃO ALUNOS — Cérebro grátis até 10/11 08h (Manaus). Depois, quem veio pelo convite 'revolucao' vê o progresso CONGELADO + chamada da live (nunca erro).
+// 05/11: sem "hoje" (a tela continua aparecendo depois de 10/11) e a live sempre como "20h, horário de Brasília, do dia 10/11" (pedido do Fábio).
+const CEREBRO_LIVE_FIM = Date.parse('2026-11-11T03:00:00Z'); // meia-noite de Brasília depois da live de 10/11
 const CEREBRO_FECHADO = { titulo: 'SEU CÉREBRO ESTÁ GUARDADO',
-  texto: 'O acesso gratuito terminou hoje às 8h, mas nada se perdeu: seus tópicos, seu diagnóstico e seu material continuam aqui. Hoje às 19h (horário de Manaus, 20h em Brasília) o Professor Fábio abre o Cérebro de novo, ao vivo, na Revolução do Estudo. O link sai no grupo.',
+  get texto() {
+    const guardado = 'O acesso gratuito terminou, mas nada se perdeu: seus tópicos, seu diagnóstico e seu material continuam aqui. ';
+    return Date.now() < CEREBRO_LIVE_FIM
+      ? guardado + 'No dia 10/11, às 20h (horário de Brasília), o Professor Fábio abre o Cérebro de novo, ao vivo, na Revolução do Estudo. O link sai no grupo.'
+      : guardado + 'No dia 10/11, às 20h (horário de Brasília), o Professor Fábio abriu o Cérebro de novo, ao vivo, na Revolução do Estudo. Entre no grupo para ver como continuar de onde você parou.';
+  },
   botao: 'Entrar no grupo da Revolução', url: 'https://sndflw.com/i/D3dZyygkzj3LQgQ73IHP' };
 const cerebroFechado = () => !!acessoInfo && acessoInfo.convite_por === 'black-cerebro' && acessoInfo.tem_acesso === false;
 let modoAuth = 'cadastro', convite = null; // { codigo, nome, dias } quando a pessoa chegou por link de convite
