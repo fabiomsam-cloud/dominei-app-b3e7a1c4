@@ -14,7 +14,10 @@
   var inApp = /Instagram|FBAN|FBAV|FB_IAB|Line\//i.test(UA);
   var mobile = ios || /Android/i.test(UA);
   var navIos = q.get('nav') || (/CriOS/.test(UA) ? 'chrome' : /FxiOS/.test(UA) ? 'firefox' : /EdgiOS/.test(UA) ? 'edge' : /OPiOS|OPT\//.test(UA) ? 'opera' : 'safari');
-  var ONDE = { safari: 'na barra de baixo do Safari', chrome: 'no canto da barra de endereço do Chrome', firefox: 'no menu ≡ do Firefox', edge: 'no menu ⋯ do Edge', opera: 'no menu do Opera' };
+  // 05/11 (2): a folha diz qual navegador reconheceu (o Fábio leu os passos do Chrome como se fossem do Safari)
+  var ONDE = { safari: ', na barra de baixo do Safari', chrome: ', o ícone no canto direito da barra de endereço, aqui em cima', firefox: ', que fica no menu ≡ do Firefox', edge: ', que fica no menu ⋯ do Edge', opera: ', que fica no menu do Opera' };
+  var NOME = { safari: 'Safari', chrome: 'Chrome', firefox: 'Firefox', edge: 'Edge', opera: 'Opera' };
+  var aparelho = (/iPad/.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) ? 'iPad' : 'iPhone';
   var head = document.head;
   if ('serviceWorker' in navigator) navigator.serviceWorker.register(BASE + 'sw.js', { scope: new URL(BASE).pathname }).catch(function () {});
   if (!debug && (standalone || !mobile)) return;
@@ -30,6 +33,7 @@
     '.pwa-s{color:#9AA7BA;font-size:16px;margin:8px 0 16px;line-height:1.45}' +
     '.pwa-btn{display:block;width:100%;margin-top:4px;background:#2FE08D;color:#03170D;border:0;border-radius:14px;padding:16px 18px;font:inherit;font-weight:700;font-size:17px;cursor:pointer;box-shadow:0 8px 28px rgba(47,224,141,.24);min-height:52px}' +
     '.pwa-btn:active{transform:scale(.98)}' +
+    '.pwa-voce{text-align:left;margin:0 0 4px;color:#EAF2EC;font-size:16px;line-height:1.5}.pwa-voce b{color:#2FE08D}' +
     '.pwa-ios{text-align:left;margin:0;padding:0 0 0 24px;color:#C6D0DC;font-size:16px;line-height:1.5}.pwa-ios li{margin:8px 0}.pwa-ios b{color:#EAF2EC}' +
     '.pwa-ios svg{width:18px;height:18px;vertical-align:-3px;color:#2FE08D}' +
     '.pwa-nav{color:#C6D0DC;font-size:16px;line-height:1.5;margin:0}.pwa-nav b{color:#EAF2EC}' +
@@ -42,11 +46,12 @@
     '<div class="pwa-t" id="pwaT">Instale o Dominei no seu celular</div>' +
     '<p class="pwa-s" id="pwaS">' + TXT + '</p>' +
     '<button class="pwa-btn" id="pwaBtn" type="button" hidden>Instalar o app</button>' +
+    '<p class="pwa-voce" id="pwaVoce" hidden></p>' +
     '<ol class="pwa-ios" id="pwaIos" hidden>' +
-    '<li>Toque em <b>Compartilhar</b> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg> <span id="pwaOnde"></span></li>' +
+    '<li>Toque em <b>Compartilhar</b> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg><span id="pwaOnde"></span></li>' +
     '<li>Role a lista e toque em <b>Adicionar à Tela de Início</b></li>' +
     '<li>Toque em <b>Adicionar</b>. O ícone fica junto dos seus apps.</li></ol>' +
-    '<p class="pwa-alt" id="pwaAlt" hidden>Não achou? Abra este endereço no <b>Safari</b> e instale por lá: <button type="button" id="pwaCopiar">copiar o link</button></p>' +
+    '<p class="pwa-alt" id="pwaAlt" hidden>Se a opção não aparecer na lista, abra este endereço no Safari e instale por lá: <button type="button" id="pwaCopiar">copiar o link</button></p>' +
     '<p class="pwa-nav" id="pwaNav" hidden>Este navegador não instala apps. Toque nos três pontos (ou em <b>⋯</b>) e escolha <b>Abrir no navegador</b>. Lá, instale pelo botão.</p>' +
     '<button class="pwa-skip" id="pwaSkip" type="button">Continuar no navegador por agora</button></div>';
   var evt = null, box = null;
@@ -64,7 +69,8 @@
   function mostrar(modo) {
     var run = function () { montar();
       $('pwaBtn').hidden = modo !== 'android'; $('pwaIos').hidden = modo !== 'ios'; $('pwaNav').hidden = modo !== 'navegador';
-      $('pwaOnde').textContent = ONDE[navIos] || ONDE.safari; $('pwaAlt').hidden = !(modo === 'ios' && navIos !== 'safari');
+      $('pwaOnde').textContent = ONDE[navIos] || ONDE.safari;
+      $('pwaVoce').hidden = modo !== 'ios'; $('pwaVoce').innerHTML = 'Você está no <b>' + (NOME[navIos] || NOME.safari) + '</b> do ' + aparelho + '. Faça assim:'; $('pwaAlt').hidden = !(modo === 'ios' && navIos !== 'safari');
       $('pwaS').textContent = modo === 'navegador' ? 'Para instalar, abra esta página no navegador do celular.' : TXT;
       box.hidden = false; document.body.classList.add('pwa-on'); };
     if (document.body) run(); else document.addEventListener('DOMContentLoaded', run);
