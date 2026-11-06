@@ -203,10 +203,11 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-11-06c'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-11-06d'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
+const EDGE_ENTRAR = SB_URL + '/functions/v1/entrar-como'; // aba Alunos · "Entrar como aluno"
 const EDGE_ROTULOS = SB_URL + '/functions/v1/rotulos-curtos', EDGE_RESUMOS = SB_URL + '/functions/v1/resumir-topicos', EDGE_EXPLICAR = SB_URL + '/functions/v1/explicar-itens';
 const sb = supabase.createClient(SB_URL, SB_KEY);
 const $ = (id) => document.getElementById(id);
@@ -2025,11 +2026,34 @@ function desenharAlunos() {
       return `<tr><td><b>${esc(a.nome || '(sem nome)')}</b><br><span class="meta">${tp === 'aluno' ? `<span class="badge ouro">aluno${pl}</span> ` : tp === 'outro' && a.plano && !a.demo ? `<span class="badge grey">ex-aluno${pl}</span> ` : ''}${a.convite ? `<span class="badge edital_node">convite · ${esc(a.convite)}</span> ` : ''}desde ${dataBR(a.criado_em)} · ${a.questoes} questões${a.ultimo_login ? ' · entrou ' + dataBR(a.ultimo_login) : ''}</span></td>
         <td>${esc(a.email)}</td><td class="mono">${esc(a.telefone || '—')}</td><td>${esc(a.edital || '—')}</td><td class="mono">${dataBR(a.vencimento)}</td>
         <td><span class="badge ${cls}">${rot}</span></td>
-        <td style="white-space:nowrap">${a.demo ? '' : `<button class="b-ghost" onclick="acaoAluno('${a.id}','estender')">+30 dias</button>
+        <td style="white-space:nowrap"><button class="b-ghost" title="Abre o app na conta deste aluno, para ver o que ele vê" onclick="entrarComoAluno('${a.id}', this)">Entrar como aluno</button>
+          ${a.demo ? '' : `<button class="b-ghost" onclick="acaoAluno('${a.id}','estender')">+30 dias</button>
           ${a.status === 'bloqueado' ? `<button class="b-ok" onclick="acaoAluno('${a.id}','desbloquear')">Desbloquear</button>` : `<button class="b-split" onclick="acaoAluno('${a.id}','bloquear')">Bloquear</button>`}
           ${a.status === 'ativo' ? `<button class="b-ghost" onclick="acaoAluno('${a.id}','encerrar')">Encerrar</button>` : ''}`}</td></tr>`; }).join('') + '</tbody></table>'
     : `<div class="empty">${achou.length ? `Nada em ${rotTipo} com esse filtro — há ${achou.length} em outro grupo. <button class="b-ghost" onclick="alIr('todos')">Ver todos</button>` : 'Nenhuma conta encontrada.'}</div>`) +
     (lista.length > PAGE ? `<div class="acts" style="margin-top:10px"><button class="b-ghost" ${alPag === 0 ? 'disabled' : ''} onclick="alPag--;desenharAlunos()">← anteriores</button><span class="meta">${alPag * PAGE + 1}–${Math.min(lista.length, (alPag + 1) * PAGE)} de ${lista.length}</span><button class="b-ghost" ${(alPag + 1) * PAGE >= lista.length ? 'disabled' : ''} onclick="alPag++;desenharAlunos()">próximos →</button></div>` : '');
+}
+// ENTRAR COMO ALUNO (06/11/2026) — abre o app na conta do aluno, com entrada de uso único gerada pela função `entrar-como`
+// (só administrador; fica em admin_audit). A conta abre em revolucaodoestudo.com.br/dominei — mesmo app, mesmo banco —
+// porque em dominei.app o app e este painel dividem o login do navegador e a sua sessão seria trocada pela do aluno.
+// O 2º clique ("Abrir a conta") é de propósito: nova aba aberta por clique direto não é barrada pelo navegador.
+async function entrarComoAluno(id, btn) {
+  const a = alunosCache.find(x => x.id === id); if (!a) return;
+  if (!confirm(`Entrar no Dominei como ${a.nome || a.email}?\n\nÉ a conta de verdade do aluno: tudo que você fizer lá dentro (responder questão, trocar concurso) fica gravado como se fosse ele, e o "último acesso" dele passa a ser o seu. Use só para olhar.\n\nA entrada fica registrada no histórico da equipe com o seu e-mail.`)) return;
+  const rotulo = btn.textContent; btn.disabled = true; btn.textContent = 'gerando…';
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) throw new Error('Faça login no painel de novo.');
+    const r = await fetch(EDGE_ENTRAR, { method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + session.access_token },
+      body: JSON.stringify({ student_id: id }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.url) throw new Error(j.erro || 'Não consegui gerar a entrada.');
+    btn.disabled = false; btn.className = 'b-ok'; btn.textContent = 'Abrir a conta ↗';
+    btn.title = 'Entrada de uso único. Abre em nova aba, em revolucaodoestudo.com.br/dominei.';
+    btn.onclick = () => { window.open(j.url, '_blank', 'noopener'); btn.className = 'b-ghost'; btn.textContent = rotulo; btn.title = ''; btn.onclick = () => entrarComoAluno(id, btn); };
+    toast('Entrada pronta — clique em "Abrir a conta". Ao terminar, saia da conta do aluno.');
+  } catch (e) { btn.disabled = false; btn.textContent = rotulo; toast(e.message, false); }
 }
 async function acaoAluno(id, acao) {
   const txt = { bloquear: 'Bloquear este aluno? Ele perde o acesso ao app até ser desbloqueado.', encerrar: 'Encerrar o acesso deste aluno agora?' }[acao];
