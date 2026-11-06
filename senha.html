@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070D1B">
+<meta name="robots" content="noindex">
+<title>DOMINEI — nova senha</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="img/icon-192.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@90..115,700..900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* Página de senha PRÓPRIA do Dominei (05/11/2026): quem é só do Dominei não passa pelo hub da Tríade.
+   Mesmas cores, fontes e peças do app (index.html). Fala com a edge function `senha`. */
+:root {
+  --ink:#030710; --glass:linear-gradient(168deg, rgba(15,26,45,.88), rgba(7,13,24,.94));
+  --line:rgba(132,170,214,.13); --line-v:rgba(47,224,141,.28);
+  --text:#EAF2EC; --dim:#7E8CA0; --verde:#2FE08D; --verde2:#57F2AE; --vermelho:#ED5A5A;
+  --radius:14px;
+}
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; }
+body {
+  font-family:'Atkinson Hyperlegible', system-ui, sans-serif; font-size:16px; line-height:1.5;
+  background:
+    radial-gradient(1100px 540px at 78% -12%, rgba(47,224,141,.09), transparent 60%),
+    radial-gradient(820px 500px at -10% 110%, rgba(62,110,235,.08), transparent 55%),
+    var(--ink);
+  color:var(--text); min-height:100dvh; -webkit-font-smoothing:antialiased;
+  padding:calc(18px + env(safe-area-inset-top)) 20px calc(28px + env(safe-area-inset-bottom));
+}
+.wrap { max-width:440px; margin:0 auto; }
+.brand { display:inline-block; font-family:'Archivo', sans-serif; font-variation-settings:'wdth' 115,'wght' 900; font-weight:900; letter-spacing:.06em; font-size:18px; color:var(--text); text-decoration:none; }
+.brand i { font-style:normal; color:var(--verde); }
+h1 { font-family:'Archivo', sans-serif; font-variation-settings:'wdth' 105,'wght' 800; font-weight:800; font-size:26px; line-height:1.2; margin:9vh 0 8px; }
+.sub { color:var(--dim); margin:0 0 20px; }
+.sub b { color:var(--text); font-weight:700; overflow-wrap:anywhere; }
+.card { background:var(--glass); border:1px solid var(--line); border-radius:var(--radius); padding:20px; box-shadow:inset 0 1px 0 rgba(255,255,255,.04); }
+label { display:block; font-size:14px; color:var(--dim); margin:0 0 6px 2px; }
+input { width:100%; padding:14px; border-radius:11px; border:1px solid var(--line); background:rgba(8,14,26,.8); color:var(--text); font:inherit; margin-bottom:12px; min-height:50px; }
+input:focus { outline:none; border-color:rgba(47,224,141,.4); box-shadow:0 0 0 3px rgba(47,224,141,.08); }
+.senha-box { position:relative; }
+.senha-box input { padding-right:88px; }
+.olho { position:absolute; right:6px; top:3px; min-height:44px; padding:0 10px; background:none; border:0; color:var(--dim); font:inherit; font-size:14px; cursor:pointer; }
+.olho:hover { color:var(--text); }
+.btn { display:block; width:100%; padding:15px; min-height:52px; border:0; border-radius:11px; font:inherit; font-weight:800; color:#04130B; letter-spacing:.02em; background:var(--verde); box-shadow:0 2px 6px rgba(0,0,0,.35); cursor:pointer; text-align:center; text-decoration:none; transition:transform .12s ease; }
+.btn:hover { background:var(--verde2); }
+.btn:active { transform:scale(.98); }
+.btn[disabled] { opacity:.5; pointer-events:none; }
+.btn.ghost { background:transparent; color:var(--text); box-shadow:none; border:1px solid var(--line); margin-top:10px; }
+.msg { font-size:14px; color:var(--vermelho); margin-top:10px; } .msg:empty { display:none; }
+.alt { text-align:center; margin-top:18px; font-size:14px; color:var(--dim); }
+.alt a, .alt button { color:var(--verde); background:none; border:0; font:inherit; cursor:pointer; text-decoration:none; padding:10px 4px; display:inline-block; }
+.alt a:hover, .alt button:hover { text-decoration:underline; }
+.passos { margin:0 0 18px; padding:0 0 0 22px; color:var(--dim); }
+.passos li { margin:6px 0; } .passos b { color:var(--text); }
+[hidden] { display:none !important; }
+@media (prefers-reduced-motion:reduce) { .btn { transition:none; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <a class="brand" href="./" aria-label="Dominei — voltar para o login">DOMINE<i>I</i></a>
+
+  <section id="vCarregando"><h1>Um instante…</h1></section>
+
+  <section id="vPedir" hidden>
+    <h1>Esqueci minha senha</h1>
+    <p class="sub">Digite o e-mail da sua conta. O link para criar uma nova senha chega no seu WhatsApp.</p>
+    <form class="card" id="fPedir" novalidate>
+      <label for="email">E-mail da conta</label>
+      <input id="email" type="email" inputmode="email" autocomplete="username" placeholder="voce@email.com" required>
+      <button class="btn" id="btnPedir" type="submit">Enviar o link</button>
+      <div class="msg" id="msgPedir" role="alert"></div>
+    </form>
+    <div class="alt"><a href="./">Voltar para o login</a></div>
+  </section>
+
+  <section id="vEnviado" hidden>
+    <h1>Confira seu WhatsApp</h1>
+    <p class="sub" id="txtEnviado"></p>
+    <div class="card">
+      <ol class="passos">
+        <li>Abra a mensagem que chegou no seu <b>WhatsApp</b>.</li>
+        <li>Toque no botão da mensagem.</li>
+        <li>Crie a nova senha. Você já entra no app.</li>
+      </ol>
+      <a class="btn ghost" href="./" style="margin-top:0">Voltar para o login</a>
+    </div>
+    <div class="alt">O link vale por 1 hora. Não chegou? <button type="button" id="btnDeNovo">Pedir de novo</button> · <a href="https://wa.me/559284585786" target="_blank" rel="noopener">Falar com o suporte</a></div>
+  </section>
+
+  <section id="vCriar" hidden>
+    <h1>Crie sua nova senha</h1>
+    <p class="sub">Conta: <b id="emailCriar"></b></p>
+    <form class="card" id="fCriar" novalidate>
+      <input type="email" id="emailOculto" autocomplete="username" hidden>
+      <label for="senha">Nova senha</label>
+      <div class="senha-box"><input id="senha" type="password" autocomplete="new-password" placeholder="mínimo de 6 caracteres" minlength="6" required><button type="button" class="olho" id="btnOlho" aria-label="Mostrar senha">mostrar</button></div>
+      <button class="btn" id="btnCriar" type="submit">Salvar e entrar</button>
+      <div class="msg" id="msgCriar" role="alert"></div>
+    </form>
+  </section>
+
+  <section id="vInvalido" hidden>
+    <h1>Este link não vale mais</h1>
+    <p class="sub" id="txtInvalido"></p>
+    <div class="card">
+      <button class="btn" id="btnNovoLink" type="button">Pedir um novo link</button>
+      <a class="btn ghost" href="./">Ir para o login</a>
+    </div>
+  </section>
+</main>
+
+<script>
+const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
+const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
+const $ = (id) => document.getElementById(id);
+const VIEWS = ['vCarregando', 'vPedir', 'vEnviado', 'vCriar', 'vInvalido'];
+function show(id) { for (const v of VIEWS) $(v).hidden = v !== id; window.scrollTo(0, 0); const f = $(id).querySelector('input:not([hidden])'); if (f) f.focus(); }
+const token = (new URLSearchParams(location.search).get('t') || '').trim();
+
+async function api(body) {
+  let r;
+  try { r = await fetch(SB_URL + '/functions/v1/senha', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SB_KEY }, body: JSON.stringify(body) }); }
+  catch (e) { throw new Error('Sem conexão. Confira a internet e tente de novo.'); }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.erro || 'Algo deu errado. Tente de novo.');
+  return j;
+}
+function pedirDeNovo() { history.replaceState(null, '', location.pathname); $('msgPedir').textContent = ''; $('btnPedir').disabled = false; show('vPedir'); }
+
+async function boot() {
+  try { const e = sessionStorage.getItem('dominei-email'); if (e) $('email').value = e; } catch (e) {}
+  if (!token) { show('vPedir'); return; }
+  try {
+    const r = await api({ op: 'estado', token });
+    if (r.estado !== 'ok') {
+      $('txtInvalido').textContent = r.estado === 'usado' ? 'Este link já foi usado. Se você já criou a senha, é só entrar.'
+        : r.estado === 'expirado' ? 'O prazo de 1 hora deste link acabou. Peça um novo.' : 'Não reconhecemos este link. Peça um novo.';
+      show('vInvalido'); return;
+    }
+    $('emailCriar').textContent = r.email; $('emailOculto').value = r.email;
+    show('vCriar');
+  } catch (e) { $('txtInvalido').textContent = e.message; show('vInvalido'); }
+}
+
+$('fPedir').onsubmit = async (ev) => {
+  ev.preventDefault(); const m = $('msgPedir'); m.textContent = '';
+  const email = $('email').value.trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { m.textContent = 'Confira o e-mail digitado.'; $('email').focus(); return; }
+  $('btnPedir').disabled = true; $('btnPedir').textContent = 'Enviando…';
+  try { const r = await api({ op: 'pedir', email }); $('txtEnviado').textContent = r.mensagem; show('vEnviado'); }
+  catch (e) { m.textContent = e.message; }
+  finally { $('btnPedir').disabled = false; $('btnPedir').textContent = 'Enviar o link'; }
+};
+$('fCriar').onsubmit = async (ev) => {
+  ev.preventDefault(); const m = $('msgCriar'); m.textContent = '';
+  const senha = $('senha').value;
+  if (senha.length < 6) { m.textContent = 'A senha precisa ter pelo menos 6 caracteres.'; $('senha').focus(); return; }
+  $('btnCriar').disabled = true; $('btnCriar').textContent = 'Salvando…';
+  try {
+    const r = await api({ op: 'definir', token, senha });
+    $('btnCriar').textContent = 'Senha criada. Entrando…';
+    location.replace(r.th ? './?th=' + encodeURIComponent(r.th) : './'); // entrada de uso único: o app já abre logado
+  } catch (e) { m.textContent = e.message; $('btnCriar').disabled = false; $('btnCriar').textContent = 'Salvar e entrar'; }
+};
+$('btnOlho').onclick = () => { const i = $('senha'), v = i.type === 'password'; i.type = v ? 'text' : 'password'; $('btnOlho').textContent = v ? 'ocultar' : 'mostrar'; $('btnOlho').setAttribute('aria-label', v ? 'Ocultar senha' : 'Mostrar senha'); i.focus(); };
+$('btnDeNovo').onclick = pedirDeNovo;
+$('btnNovoLink').onclick = pedirDeNovo;
+boot();
+</script>
+</body>
+</html>
