@@ -203,7 +203,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-11-06b'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-11-06c'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -1924,13 +1924,19 @@ function loadDocs() {
 // =====================================================================
 const APP_URL = 'https://dominei.app';
 let alunosCache = [], alBusca = '', alPag = 0;
+// 06/11/2026: a lista separa ALUNOS (plano pago) de CONVIDADOS (link de convite) — antes vinham misturados
+let alTipo = 'aluno', alConvite = '';
+const AL_TIPOS = [['aluno', 'Alunos'], ['convidado', 'Convidados'], ['outro', 'Outros'], ['todos', 'Todos']];
+const AL_PLANO = { triade: 'Tríade' };
+const alTipoDe = (a) => a.tipo || (a.demo ? 'outro' : a.convite ? 'convidado' : 'aluno'); // banco sem `tipo` (antes da migration): aproxima pelo convite
+function alIr(tipo) { alTipo = tipo; alPag = 0; desenharAlunos(); }
 const dataBR = (t) => t ? new Date(/^\d{4}-\d{2}-\d{2}$/.test(t) ? t + 'T12:00:00' : t).toLocaleDateString('pt-BR') : '—'; // data sem hora = dia local, não UTC
 const AL_STATUS = { ativo: ['ATIVO', 'edge'], vencido: ['VENCIDO', 'item'], bloqueado: ['BLOQUEADO', 'grey'], exclusao: ['EM EXCLUSÃO', 'grey'], demo: ['DEMO', 'ouro'], sem_acesso: ['SEM ACESSO', 'grey'] };
 async function loadAlunos() {
   const pane = $('pane-alunos');
   pane.innerHTML = `
     <div class="pagetitle">A L U N O S</div>
-    <div class="pagesub">Quem tem conta no DOMINEI, por onde entrou e até quando tem acesso. Links de convite para a fase de teste com alunos reais.</div>
+    <div class="pagesub">Quem tem conta no DOMINEI, separado em alunos (plano pago) e convidados (link de convite), por onde entrou e até quando tem acesso.</div>
     <div class="card">
       <div class="acts" style="margin:0 0 10px;align-items:flex-end">
         <div class="nome" style="flex:1">Links de convite</div>
@@ -1947,9 +1953,14 @@ async function loadAlunos() {
     <div class="card">
       <div class="acts" style="margin:0 0 10px"><div class="nome" style="flex:1">Alunos <span class="meta" id="alN"></span></div>
         <input id="alBusca" placeholder="Buscar nome, e-mail ou WhatsApp…" style="margin:0;max-width:320px" value="${esc(alBusca)}"></div>
+      <div class="acts" style="margin:0 0 12px;align-items:center">
+        <div id="alTipos" style="display:flex;gap:8px;flex-wrap:wrap;flex:1"></div>
+        <select id="alConvite" style="margin:0;max-width:320px" aria-label="Filtrar por convite"></select>
+      </div>
       <div id="alLista"><div class="empty">carregando…</div></div>
     </div>`;
   $('cvCriar').onclick = criarConvite;
+  $('alConvite').onchange = () => { alConvite = $('alConvite').value; alPag = 0; desenharAlunos(); };
   let t = null; $('alBusca').oninput = () => { clearTimeout(t); t = setTimeout(() => { alBusca = $('alBusca').value; alPag = 0; desenharAlunos(); }, 200); };
   await Promise.all([carregarConvites(), carregarAlunos()]);
 }
@@ -1992,18 +2003,32 @@ async function carregarAlunos() {
 function desenharAlunos() {
   const box = $('alLista'); if (!box) return;
   const q = alBusca.trim().toLowerCase();
-  const lista = alunosCache.filter(a => !q || (a.nome || '').toLowerCase().includes(q) || (a.email || '').toLowerCase().includes(q) || (a.telefone || '').includes(q));
-  $('alN').textContent = `(${lista.length}${lista.length !== alunosCache.length ? ' de ' + alunosCache.length : ''})`;
+  // filtro por convite: opções = convites que têm gente, com a contagem; some se o convite escolhido deixou de existir
+  const porConvite = {}; alunosCache.forEach(a => { if (a.convite) porConvite[a.convite] = (porConvite[a.convite] || 0) + 1; });
+  if (alConvite && !porConvite[alConvite]) alConvite = '';
+  const sel = $('alConvite');
+  if (sel) { sel.innerHTML = '<option value="">Todos os convites</option>' + Object.keys(porConvite).sort((x, y) => porConvite[y] - porConvite[x]).map(n => `<option value="${esc(n)}" ${n === alConvite ? 'selected' : ''}>${esc(n)} (${porConvite[n]})</option>`).join('');
+    sel.style.display = Object.keys(porConvite).length ? '' : 'none'; }
+  // busca e convite valem para todos os grupos; os botões mostram quantos sobraram em cada um
+  const achou = alunosCache.filter(a => (!alConvite || a.convite === alConvite) && (!q || (a.nome || '').toLowerCase().includes(q) || (a.email || '').toLowerCase().includes(q) || (a.telefone || '').includes(q)));
+  const n = { aluno: 0, convidado: 0, outro: 0, todos: achou.length }; achou.forEach(a => n[alTipoDe(a)]++);
+  if (alTipo === 'outro' && !n.outro) alTipo = 'todos';
+  const tipos = $('alTipos');
+  if (tipos) tipos.innerHTML = AL_TIPOS.filter(([k]) => k !== 'outro' || n.outro).map(([k, r]) => `<button class="${alTipo === k ? 'b-ok' : 'b-ghost'}" aria-pressed="${alTipo === k}" onclick="alIr('${k}')">${r} <span class="mono">${n[k]}</span></button>`).join('');
+  const lista = alTipo === 'todos' ? achou : achou.filter(a => alTipoDe(a) === alTipo);
+  const rotTipo = AL_TIPOS.find(([k]) => k === alTipo)[1];
+  $('alN').textContent = `(${lista.length} de ${alunosCache.length})`;
   const pag = lista.slice(alPag * PAGE, (alPag + 1) * PAGE);
   box.innerHTML = (pag.length ? `<table class="tb"><thead><tr><th>NOME</th><th>E-MAIL</th><th>WHATSAPP</th><th>CONCURSO</th><th>VENCIMENTO</th><th>STATUS</th><th></th></tr></thead><tbody>` +
     pag.map(a => { const [rot, cls] = AL_STATUS[a.status] || [a.status, 'grey'];
-      return `<tr><td><b>${esc(a.nome || '(sem nome)')}</b><br><span class="meta">${a.convite ? `<span class="badge edital_node">convite · ${esc(a.convite)}</span> ` : ''}desde ${dataBR(a.criado_em)} · ${a.questoes} questões${a.ultimo_login ? ' · entrou ' + dataBR(a.ultimo_login) : ''}</span></td>
+      const tp = alTipoDe(a), pl = a.plano ? ' · ' + esc(AL_PLANO[a.plano] || a.plano) : '';
+      return `<tr><td><b>${esc(a.nome || '(sem nome)')}</b><br><span class="meta">${tp === 'aluno' ? `<span class="badge ouro">aluno${pl}</span> ` : tp === 'outro' && a.plano && !a.demo ? `<span class="badge grey">ex-aluno${pl}</span> ` : ''}${a.convite ? `<span class="badge edital_node">convite · ${esc(a.convite)}</span> ` : ''}desde ${dataBR(a.criado_em)} · ${a.questoes} questões${a.ultimo_login ? ' · entrou ' + dataBR(a.ultimo_login) : ''}</span></td>
         <td>${esc(a.email)}</td><td class="mono">${esc(a.telefone || '—')}</td><td>${esc(a.edital || '—')}</td><td class="mono">${dataBR(a.vencimento)}</td>
         <td><span class="badge ${cls}">${rot}</span></td>
         <td style="white-space:nowrap">${a.demo ? '' : `<button class="b-ghost" onclick="acaoAluno('${a.id}','estender')">+30 dias</button>
           ${a.status === 'bloqueado' ? `<button class="b-ok" onclick="acaoAluno('${a.id}','desbloquear')">Desbloquear</button>` : `<button class="b-split" onclick="acaoAluno('${a.id}','bloquear')">Bloquear</button>`}
           ${a.status === 'ativo' ? `<button class="b-ghost" onclick="acaoAluno('${a.id}','encerrar')">Encerrar</button>` : ''}`}</td></tr>`; }).join('') + '</tbody></table>'
-    : '<div class="empty">Nenhum aluno encontrado.</div>') +
+    : `<div class="empty">${achou.length ? `Nada em ${rotTipo} com esse filtro — há ${achou.length} em outro grupo. <button class="b-ghost" onclick="alIr('todos')">Ver todos</button>` : 'Nenhuma conta encontrada.'}</div>`) +
     (lista.length > PAGE ? `<div class="acts" style="margin-top:10px"><button class="b-ghost" ${alPag === 0 ? 'disabled' : ''} onclick="alPag--;desenharAlunos()">← anteriores</button><span class="meta">${alPag * PAGE + 1}–${Math.min(lista.length, (alPag + 1) * PAGE)} de ${lista.length}</span><button class="b-ghost" ${(alPag + 1) * PAGE >= lista.length ? 'disabled' : ''} onclick="alPag++;desenharAlunos()">próximos →</button></div>` : '');
 }
 async function acaoAluno(id, acao) {
