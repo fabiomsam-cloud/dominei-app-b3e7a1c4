@@ -203,7 +203,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-11-06d'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-11-06e'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -1939,19 +1939,6 @@ async function loadAlunos() {
     <div class="pagetitle">A L U N O S</div>
     <div class="pagesub">Quem tem conta no DOMINEI, separado em alunos (plano pago) e convidados (link de convite), por onde entrou e até quando tem acesso.</div>
     <div class="card">
-      <div class="acts" style="margin:0 0 10px;align-items:flex-end">
-        <div class="nome" style="flex:1">Links de convite</div>
-        <span class="meta">A pessoa abre o link, cria a conta com senha e entra direto.</span>
-      </div>
-      <div class="row2" style="grid-template-columns:2fr 1fr 1fr auto;align-items:end">
-        <div><label>Nome do convite</label><input id="cvNome" placeholder="Ex.: Testadores out/26"></div>
-        <div><label>Dias de acesso</label><input id="cvDias" type="number" min="1" max="730" value="30"></div>
-        <div><label>Limite de pessoas</label><input id="cvLim" type="number" min="1" placeholder="sem limite"></div>
-        <div><button class="b-ok" id="cvCriar" style="margin-bottom:2px">Criar link</button></div>
-      </div>
-      <div id="cvLista" style="margin-top:12px"><div class="empty">carregando…</div></div>
-    </div>
-    <div class="card">
       <div class="acts" style="margin:0 0 10px"><div class="nome" style="flex:1">Alunos <span class="meta" id="alN"></span></div>
         <input id="alBusca" placeholder="Buscar nome, e-mail ou WhatsApp…" style="margin:0;max-width:320px" value="${esc(alBusca)}"></div>
       <div class="acts" style="margin:0 0 12px;align-items:center">
@@ -1959,16 +1946,29 @@ async function loadAlunos() {
         <select id="alConvite" style="margin:0;max-width:320px" aria-label="Filtrar por convite"></select>
       </div>
       <div id="alLista"><div class="empty">carregando…</div></div>
-    </div>`;
+    </div>
+    <details class="card" id="cvDet">
+      <summary style="cursor:pointer"><span class="nome">Links de convite</span> <span class="meta" id="cvN"></span> <span class="meta">· criar, copiar, desativar ou encerrar — clique para abrir</span></summary>
+      <div class="meta" style="margin:12px 0 10px">A pessoa abre o link, cria a conta com senha e entra direto.</div>
+      <div class="row2" style="grid-template-columns:2fr 1fr 1fr auto;align-items:end">
+        <div><label>Nome do convite</label><input id="cvNome" placeholder="Ex.: Testadores out/26"></div>
+        <div><label>Dias de acesso</label><input id="cvDias" type="number" min="1" max="730" value="30"></div>
+        <div><label>Limite de pessoas</label><input id="cvLim" type="number" min="1" placeholder="sem limite"></div>
+        <div><button class="b-ok" id="cvCriar" style="margin-bottom:2px">Criar link</button></div>
+      </div>
+      <div id="cvLista" style="margin-top:12px"><div class="empty">carregando…</div></div>
+    </details>`;
   $('cvCriar').onclick = criarConvite;
   $('alConvite').onchange = () => { alConvite = $('alConvite').value; alPag = 0; desenharAlunos(); };
   let t = null; $('alBusca').oninput = () => { clearTimeout(t); t = setTimeout(() => { alBusca = $('alBusca').value; alPag = 0; desenharAlunos(); }, 200); };
+  if (window.innerWidth >= 1024) $('alBusca').focus(); // a busca é o que se usa primeiro nesta aba
   await Promise.all([carregarConvites(), carregarAlunos()]);
 }
 async function carregarConvites() {
   const { data, error } = await sb.rpc('fn_admin_convites_listar');
   const box = $('cvLista'); if (!box) return;
   if (error) { box.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
+  const cvN = $('cvN'); if (cvN) cvN.textContent = `(${data.length})`;
   if (!data.length) { box.innerHTML = '<div class="empty">Nenhum link ainda. Crie o primeiro acima.</div>'; return; }
   box.innerHTML = `<table class="tb"><thead><tr><th>CONVITE</th><th>LINK</th><th>ACESSO</th><th>PESSOAS</th><th>STATUS</th><th></th></tr></thead><tbody>` +
     data.map(c => { const url = `${APP_URL}/?c=${c.codigo}`, parado = !c.ativo || c.encerrado_em;
