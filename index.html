@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#070D1B">
-<meta name="build" content="2026-11-06e">
+<meta name="build" content="2026-11-10a">
 <title>DOMINEI — o mapa do seu cérebro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -932,6 +932,14 @@ else return;s.defer=true;d.head.appendChild(s)})();</script>
       <p class="au-regra" id="auFechadoTxt">Sua conta ainda não tem acesso. O DOMINEI está em fase fechada, só por convite.</p>
       <button class="btn ghost" id="btnFechadoSair" type="button">Sair da conta</button>
     </div>
+    <div class="card" id="auMatricula" style="display:none">
+      <div class="au-form-t">Sua matrícula inclui o DOMINEI</div>
+      <p class="au-regra">Você se matriculou na mentoria e o DOMINEI vem junto, até a data da sua prova. Escolha como quer entrar.</p>
+      <button class="btn" id="btnMatJaUsei" type="button">Já usei o Cérebro na semana gratuita</button>
+      <p class="au-regra" style="margin:8px 0 18px">Entre com o e-mail e a senha que você já usa. Tudo o que você construiu continua lá.</p>
+      <button class="btn ghost" id="btnMatPrimeira" type="button">É a minha primeira vez</button>
+      <p class="au-regra" style="margin:8px 0 0">Crie o seu cadastro com o mesmo e-mail da matrícula.</p>
+    </div>
     <div class="card" id="auForm" style="display:none">
       <div class="au-form-t" id="auTitulo">Criar minha conta</div>
       <div id="auNomeBox"><label for="nome">Seu nome</label><input id="nome" type="text" autocomplete="name" placeholder="Como quer ser chamado(a)"></div>
@@ -1354,6 +1362,9 @@ const CEREBRO_FECHADO = { titulo: 'SEU CÉREBRO ESTÁ GUARDADO',
   botao: 'Entrar no grupo da Revolução', url: 'https://sndflw.com/i/D3dZyygkzj3LQgQ73IHP' };
 const cerebroFechado = () => !!acessoInfo && acessoInfo.convite_por === 'black-cerebro' && acessoInfo.tem_acesso === false;
 let modoAuth = 'cadastro', convite = null; // { codigo, nome, dias } quando a pessoa chegou por link de convite
+// 10/11: página de entrada de quem se matriculou na mentoria + DOMINEI (dominei.app/matricula → ?matricula=1).
+// A compra só libera o e-mail; aqui a pessoa entra com a conta da semana gratuita ou cria o cadastro (o banco aceita o e-mail liberado).
+const matricula = /[?&]matricula\b/.test(location.search);
 async function mostrarEntrada() {
   show('vAuth');
   const cod = (new URLSearchParams(location.search).get('c') || '').trim().toLowerCase();
@@ -1363,6 +1374,10 @@ async function mostrarEntrada() {
       const reg = document.querySelector('#auLanding .au-regra'); if (reg) reg.innerHTML = `Você foi convidado(a) para o DOMINEI: <b style="color:var(--text)">${esc(inf.nome)}</b> · ${plural(inf.dias, 'dia', 'dias')} de acesso. Crie sua conta abaixo e comece agora.`;
       abrirForm('cadastro'); return; }
     tele('convite_invalido', { codigo: cod }); abrirForm('login'); $('authMsg').textContent = (inf && inf.motivo) || 'Este convite não vale mais.'; return;
+  }
+  if (matricula && !convite) {
+    $('auLanding').style.display = 'none'; $('lnkEntrarTopo').style.display = 'none'; $('auForm').style.display = 'none';
+    $('auMatricula').style.display = 'block'; tele('matricula_aberta'); return;
   }
   const { data } = await sb.from('editais').select('id, concurso, cargo, metadata').eq('status', 'publicado').range(0, 9);
   const e = data && data.length === 1 ? data[0] : null; // com um edital só, ele já vem escolhido
@@ -1398,19 +1413,32 @@ function abrirForm(modo) {
     $('auAlt').innerHTML = `<a href="senha.html" id="lnkSenha">Esqueci minha senha</a>`;
     $('lnkSenha').onclick = () => { try { const e = $('email').value.trim().toLowerCase(); if (e) sessionStorage.setItem('dominei-email', e); } catch (e) {} };
   }
+  if (matricula && !convite) {
+    $('auLanding').style.display = 'none'; $('lnkEntrarTopo').style.display = 'none'; $('auMatricula').style.display = 'none';
+    $('auTitulo').textContent = cad ? 'Criar meu cadastro' : 'Entrar com a minha conta';
+    $('auAlt').innerHTML = cad
+      ? `Use o mesmo e-mail da sua matrícula. Já usou o Cérebro na semana gratuita? <a href="#" id="lnkModo">Entrar com a minha conta</a>`
+      : `<a href="senha.html" id="lnkSenha">Esqueci minha senha</a> · Primeira vez aqui? <a href="#" id="lnkModo">Criar meu cadastro</a>`;
+    $('lnkModo').onclick = (ev) => { ev.preventDefault(); abrirForm(cad ? 'login' : 'cadastro'); };
+    if ($('lnkSenha')) $('lnkSenha').onclick = () => { try { const e = $('email').value.trim().toLowerCase(); if (e) sessionStorage.setItem('dominei-email', e); } catch (e) {} };
+  }
   (cad ? $('nome') : $('email')).focus();
   $('auForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 $('btnOlho').onclick = () => { const i = $('senha'), v = i.type === 'password'; i.type = v ? 'text' : 'password'; $('btnOlho').textContent = v ? 'ocultar' : 'mostrar'; $('btnOlho').setAttribute('aria-label', v ? 'Ocultar senha' : 'Mostrar senha'); i.focus(); };
 $('btnQuero').onclick = () => { tele('entrada_quero'); abrirForm('login'); }; // fase fechada (05/10): só entrar
 $('lnkEntrarTopo').onclick = () => abrirForm('login');
+$('btnMatJaUsei').onclick = () => { tele('matricula_ja_usei'); abrirForm('login'); };
+$('btnMatPrimeira').onclick = () => { tele('matricula_primeira_vez'); abrirForm('cadastro'); };
 // dicionário humano para os erros do Auth (nunca a mensagem crua do Supabase)
 function humanizarAuth(err) {
   const m = String((err && err.message) || err || '');
   const d = [
     [/invalid login credentials/i, window.__hubApp ? 'E-mail ou senha incorretos. Ainda não criou sua senha? Toque em "Primeiro acesso".' : 'E-mail ou senha incorretos. Esqueceu ou ainda não criou sua senha? Toque em "Esqueci minha senha".'],
     [/convite_invalido/i, 'Este convite não vale mais. Peça um link novo para quem te convidou.'],
-    [/cadastro_fechado|database error saving new user/i, 'O DOMINEI está em fase fechada: novas contas só por convite.'],
+    [/cadastro_fechado|database error saving new user/i, matricula && !convite
+      ? 'Não encontrei matrícula com este e-mail. Use o mesmo e-mail da compra. Se você acabou de pagar, espere um minuto e tente de novo. Se já usou o Cérebro na semana gratuita, toque em "Entrar com a minha conta".'
+      : 'O DOMINEI está em fase fechada: novas contas só por convite.'],
     [/email not confirmed/i, 'Falta confirmar seu e-mail: abra o link que enviamos (veja também o spam).'],
     [/already registered|already been registered|user already exists/i, 'Este e-mail já tem conta. Toque em "Entrar".'],
     [/password should be at least|password.*(short|length)|weak password/i, 'A senha precisa ter pelo menos 6 caracteres.'],
