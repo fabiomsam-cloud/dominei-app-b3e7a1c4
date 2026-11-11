@@ -191,6 +191,20 @@ input[type=range]::-moz-range-thumb { width:20px; height:20px; border-radius:50%
 .ct-b svg { width:20px; height:20px; }
 .ct-n { font-size:14px; color:var(--dim); font-variant-numeric:tabular-nums; margin-left:4px; }
 
+/* perguntas frequentes e chamada final */
+.faq { max-width:46rem; margin:0 auto; border-top:1px solid var(--line); }
+.faq details { border-bottom:1px solid var(--line); }
+.faq summary { list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding:18px 2px; min-height:48px; font-family:'Archivo', system-ui, sans-serif; font-weight:800; font-size:17px; line-height:1.35; }
+.faq summary::-webkit-details-marker { display:none; }
+.faq summary::after { content:'+'; flex:none; font-family:'Atkinson Hyperlegible', sans-serif; font-weight:400; font-size:26px; line-height:.9; color:var(--verde); transition:transform .2s; }
+.faq details[open] summary::after { transform:rotate(45deg); }
+.faq summary:focus-visible { outline:2px solid var(--verde); outline-offset:2px; border-radius:6px; }
+.faq p { color:#C4D0DE; font-size:16px; padding:0 2px 20px; max-width:41em; }
+.faq a { color:var(--verde2); text-underline-offset:3px; }
+.fim { max-width:42rem; margin:0 auto; text-align:center; padding:38px 22px; border-radius:22px; border:1px solid var(--line-v); background:linear-gradient(168deg, rgba(47,224,141,.10), rgba(7,13,24,.92) 70%); }
+.fim h2 { font-size:clamp(26px, 6.4vw, 38px); }
+.fim p { color:#C4D0DE; font-size:17px; margin:14px auto 24px; max-width:30em; }
+
 /* editais */
 .ed-grid { display:grid; gap:16px; }
 .ed-grupo { margin-bottom:16px; } .ed-grupo .k { margin-bottom:8px; }
@@ -348,7 +362,7 @@ footer { padding:28px 0 40px; border-top:1px solid var(--line); color:var(--fain
   <div class="wrap">
     <div class="cab">
       <div class="k"><b>Dia após dia</b></div>
-      <h2>Arraste e veja o edital acender.</h2>
+      <h2>Arraste e veja o cérebro acender.</h2>
       <p>Os temas que mais pesam na prova entram primeiro. O vermelho vira amarelo, o amarelo vira verde, conforme as questões mostram que você aprendeu.</p>
     </div>
     <div class="dias-grid">
@@ -476,6 +490,36 @@ footer { padding:28px 0 40px; border-top:1px solid var(--line); color:var(--fain
       </article>
     </div>
     <p class="pag">Pagamento pela Hubla. Depois da compra, você entra no DOMINEI com o e-mail da compra.</p>
+  </div>
+</section>
+
+<!-- 8 · PERGUNTAS FREQUENTES (texto do Fábio, 11/11) -->
+<section class="bloco" id="faq">
+  <div class="wrap">
+    <div class="cab centro"><h2>Perguntas frequentes sobre o Dominei</h2></div>
+    <div class="faq">
+      <details><summary>Já estudo por um curso ou uma mentoria. Como o Dominei entra na minha rotina?</summary><p>Você pode continuar usando as aulas e os materiais que já tem. No Dominei, você resolve questões para conferir o que aprendeu. Suas respostas atualizam o mapa do edital e ajudam a indicar quais assuntos merecem atenção na próxima sessão de estudo.</p></details>
+      <details><summary>Preciso ter estudado todo o edital para começar?</summary><p>Não. Você escolhe o concurso e o cargo, faz um diagnóstico inicial e pode marcar “Ainda não estudei isso” quando encontrar um assunto novo. A partir daí, o Dominei indica por onde começar. O <a href="#teste">teste de 3 questões desta página</a> é uma demonstração que você pode experimentar sem cadastro.</p></details>
+      <details><summary>O que significam as cores do cérebro?</summary><p>Cada região representa uma disciplina, e cada ponto representa um assunto do edital. Verde indica que você demonstrou domínio nas questões. Amarelo significa que o assunto está em desenvolvimento e vermelho, que precisa de atenção. Azul marca um tema em que você adicionou material, mas ainda não respondeu questões. Cinza indica um tema que você ainda não explorou.</p></details>
+      <details><summary>E se eu acertar uma questão no chute?</summary><p>Antes de ver a correção, você indica se chutou, se acha que sabe ou se tem certeza. O Dominei considera essa informação junto com a resposta. Um acerto isolado é só parte do histórico. Para um tema ficar verde, normalmente você precisa voltar a ele e acertar questões em dias diferentes.</p></details>
+      <details><summary>Como o Dominei indica o que estudar hoje?</summary><p>Na tela Hoje, você vê um tema prioritário, o motivo da indicação e o que fazer em seguida. O Dominei considera seu histórico e o peso dos assuntos na prova. Se você marcou que ainda não estudou um tema, por exemplo, pode começar por um resumo. Se já estudou por fora, pode ir direto às questões.</p></details>
+      <details><summary>Posso usar minhas apostilas, anotações e mapas mentais?</summary><p>Sim. Na área Meu Material, você pode guardar textos, fotos e PDFs junto ao assunto correspondente. Assim, quando for praticar um tema, seu material de revisão já está ali. Adicionar um arquivo marca o assunto em azul. As respostas às questões mostram como está seu domínio.</p></details>
+      <details><summary>Um assunto que ficou verde pode precisar de revisão?</summary><p>Sim. O verde representa o domínio que você demonstrou até aquele momento. Com o tempo sem praticar, o Dominei pode sinalizar que vale retomar o assunto. Você volta às questões para conferir o que ainda lembra.</p></details>
+      <details><summary>Como sei se meu concurso e meu cargo estão disponíveis?</summary><p>Na <a href="#editais">seção Editais desta página</a>, selecione seu concurso. Quando houver mais de um cargo, escolha o seu para ver as disciplinas, a quantidade de temas e o peso de cada disciplina na prova. Dentro da plataforma, você também pode pedir a inclusão de um concurso e votar nos pedidos.</p></details>
+      <details><summary>Se eu mudar de concurso, preciso começar do zero?</summary><p>Você pode trocar de edital. Quando os dois cargos têm temas em comum, o histórico desses assuntos acompanha você. Os temas específicos do novo edital aparecem no mapa para você explorar.</p></details>
+      <details><summary>Qual é a diferença entre os planos de 1 e 2 anos?</summary><p>Os dois dão acesso à plataforma completa. A diferença é o período de uso: 12 ou 24 meses. Depois da compra, você entra no Dominei com o mesmo e-mail usado no pagamento.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- 9 · CHAMADA FINAL: leva para as ofertas -->
+<section class="bloco" id="comecar">
+  <div class="wrap">
+    <div class="fim">
+      <h2>Comece hoje a ver o que você já domina.</h2>
+      <p>Escolha o seu plano, monte o cérebro do seu edital e saiba o que estudar a cada dia.</p>
+      <a class="btn" href="#ofertas">Quero me matricular</a>
+    </div>
   </div>
 </section>
 
