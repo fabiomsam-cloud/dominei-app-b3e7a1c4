@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#070D1B">
-<meta name="build" content="2026-11-10b">
+<meta name="build" content="2026-11-11a">
 <title>DOMINEI — o mapa do seu cérebro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1387,6 +1387,7 @@ async function mostrarEntrada() {
     }
     $('auMatricula').style.display = 'block'; tele(compra ? 'compra_aberta' : 'matricula_aberta'); return;
   }
+  if (/[?&]entrar\b/.test(location.search)) { tele('entrada_direta'); abrirForm('login'); return; } // 11/11: "Já tenho conta · Entrar" da página de apresentação cai direto no e-mail e senha
   const { data } = await sb.from('editais').select('id, concurso, cargo, metadata').eq('status', 'publicado').range(0, 9);
   const e = data && data.length === 1 ? data[0] : null; // com um edital só, ele já vem escolhido
   $('auAlvo').style.display = e ? 'block' : 'none';
