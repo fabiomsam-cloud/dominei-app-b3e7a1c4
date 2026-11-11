@@ -9,6 +9,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@90..115,700..900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script>
+/* Pixel da Meta 429553154418122 (SOU CONCURSEIRO E VOU PASSAR), igual ao das outras páginas da casa.
+   Fica desligado no computador local, para os testes não sujarem os números. */
+(function(){
+  if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) return;
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init','429553154418122');fbq('track','PageView');
+})();
+</script>
 <style>
 /* PROTÓTIPO (10/11/2026) — página de apresentação interativa do DOMINEI.
    Usa o motor do Cérebro copiado do app (motor.js) e o edital PRF de demonstração (dados.js). Nada fala com o servidor. */
@@ -277,7 +286,7 @@ footer { padding:28px 0 40px; border-top:1px solid var(--line); color:var(--fain
 <div class="wrap">
   <div class="topo">
     <div class="brand">DOMINE<i>I</i></div>
-    <a class="entrar" href="https://dominei.app/">Já tenho conta · <b>Entrar</b></a>
+    <a class="entrar" href="https://dominei.app/?entrar=1">Já tenho conta · <b>Entrar</b></a>
   </div>
 
   <!-- 1 · ABERTURA: a demonstração roda sozinha -->
@@ -472,7 +481,7 @@ footer { padding:28px 0 40px; border-top:1px solid var(--line); color:var(--fain
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Meu Material e revisões no tempo certo</span></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Você escolhe o seu edital e pode trocar depois</span></li>
         </ul>
-        <a class="btn ghost" href="https://pay.hub.la/IE4OMvvzE9gJdovK1qad">Quero 1 ano de acesso <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+        <a class="btn ghost" href="https://pay.hub.la/IE4OMvvzE9gJdovK1qad" data-plano="dominei-1-ano" data-nome="Dominei · 1 Ano de Acesso">Quero 1 ano de acesso <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
       </article>
       <article class="plano dest">
         <span class="selo">O dobro de tempo</span>
@@ -486,7 +495,7 @@ footer { padding:28px 0 40px; border-top:1px solid var(--line); color:var(--fain
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Meu Material e revisões no tempo certo</span></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Você escolhe o seu edital e pode trocar depois</span></li>
         </ul>
-        <a class="btn" href="https://pay.hub.la/HPfJMiFRpKuLJBtPHFM6">Quero 2 anos de acesso <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+        <a class="btn" href="https://pay.hub.la/HPfJMiFRpKuLJBtPHFM6" data-plano="dominei-2-anos" data-nome="Dominei · 2 Anos de Acesso">Quero 2 anos de acesso <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
       </article>
     </div>
     <p class="pag">Pagamento pela Hubla. Depois da compra, você entra no DOMINEI com o e-mail da compra.</p>
@@ -719,7 +728,7 @@ $('tsRevelar').onclick = () => {
     $('tsPm').textContent = p.r === 'nao_estudei' ? `${motivo(p.q.t)} e você ainda não estudou.` : `${motivo(p.q.t)}. Aqui você precisa de atenção.`; }
   else { const usados = new Set(tsResp.map(x => x.q.t.id)), c = tsGal.temas.filter(t => !usados.has(t.id)).reduce((a, b) => b.peso > a.peso ? b : a);
     $('tsPn').textContent = c.nome; $('tsPm').textContent = `Você acertou as 3. O próximo passo é o tema que mais pesa e ainda não medimos. ${motivo(c)} e ainda não sabemos como você está aqui.`; }
-  $('tsPonte').innerHTML = `Isso foi com <b>3 questões</b>. No DOMINEI, o teste inicial tem até 20, e o mapa cobre os <b>${ATUAL.k.temas} temas</b> do edital ${ATUAL.c.sigla}. O verde só aparece quando você acerta o mesmo tema três vezes: domínio se prova.`;
+  $('tsPonte').innerHTML = `Isso foi com <b>3 questões</b>. No DOMINEI, o teste inicial tem até 20, e o mapa cobre os <b>${ATUAL.k.temas} temas</b> do edital ${ATUAL.c.sigla}. Para um tema ficar verde, normalmente você precisa voltar a ele e acertar questões em dias diferentes.`;
   $('tsPre').hidden = true; $('tsRv').classList.add('on');
   if (window.innerWidth < 900) document.querySelector('.tz').scrollIntoView({ block: 'start', behavior: SEM_MOV ? 'auto' : 'smooth' });
 };
@@ -790,6 +799,22 @@ function edPintar() { const { c, k } = ATUAL;
   $('edPesos').innerHTML = `<div class="k">O que mais pesa neste edital</div>` + top.map(g => `<div class="peso"><span>${g.nome}</span><span>${g.pct}%</span><i><b style="width:${Math.max(4, 100 * g.pct / mx)}%;background:${g.tom}"></b></i></div>`).join('')
     + (gs.length > top.length ? `<div class="ed-mais">e mais ${plural(gs.length - top.length, 'disciplina', 'disciplinas')} no mapa</div>` : '');
 }
+
+// ==================== ofertas: a origem do visitante vai para o checkout e o clique avisa o pixel ====================
+// Mesmo padrão da página de matrícula da Black: as UTMs da visita seguem no link pay.hub.la/<oferta>?utm_...
+// (nunca usar link no formato hub.la/r/..., que descarta as UTMs). Sem UTM na visita, entram os padrões abaixo.
+(function ofertas() {
+  const qs = new URLSearchParams(location.search), limpo = (v) => (v || '').trim().slice(0, 120);
+  const PADRAO = { utm_source: 'dominei-app', utm_medium: 'pagina-apresentacao', utm_campaign: 'dominei-avulso' };
+  document.querySelectorAll('#ofertas a[data-plano]').forEach(a => {
+    const u = new URL(a.href);
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(k => {
+      const v = limpo(qs.get(k)) || PADRAO[k] || (k === 'utm_content' ? a.dataset.plano : ''); // utm_term (marca de vendedor) só passa se veio na visita
+      if (v) u.searchParams.set(k, v); });
+    a.href = u.toString();
+    a.addEventListener('click', () => { try { if (window.fbq) fbq('track', 'InitiateCheckout', { content_name: a.dataset.nome, content_ids: [a.dataset.plano], content_category: 'dominei-avulso' }); } catch (e) {} });
+  });
+})();
 
 // ==================== o concurso escolhido vale para a página inteira ====================
 function definirEdital(c, k, rolar) {
