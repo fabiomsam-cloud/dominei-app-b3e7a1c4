@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<link rel="canonical" href="https://dominei.app/conheca/">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070D1B">
+<title>DOMINEI — o mapa do seu cérebro para o edital</title>
+<meta name="description" content="Escolha seu edital, faça o diagnóstico inicial e veja, em um cérebro virtual, o que você já domina e quais assuntos merecem sua atenção.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@90..115,700..900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script>
+/* Pixel da Meta 429553154418122 (SOU CONCURSEIRO E VOU PASSAR), igual ao das outras páginas da casa.
+   Fica desligado no computador local, para os testes não sujarem os números. */
+(function(){
+  if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) return;
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init','429553154418122');fbq('track','PageView');
+})();
+</script>
+<style>
+/* PROTÓTIPO (10/11/2026) — página de apresentação interativa do DOMINEI.
+   Usa o motor do Cérebro copiado do app (motor.js) e o edital PRF de demonstração (dados.js). Nada fala com o servidor. */
+:root {
+  --ink:#030710; --card:#0A1322; --card2:#0E1A2E;
+  --glass:linear-gradient(168deg, rgba(15,26,45,.88), rgba(7,13,24,.94));
+  --line:rgba(132,170,214,.13); --line-v:rgba(47,224,141,.28);
+  --text:#EAF2EC; --dim:#93A1B5; --faint:#6E7C94;
+  --verde:#2FE08D; --verde2:#57F2AE; --verde-dim:rgba(47,224,141,.13);
+  --amarelo:#F2B33D; --vermelho:#ED5A5A; --nd:#39435C; --ouro:#F5C542; --azul:#7FB8FF;
+  --radius:14px;
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--ink); color:var(--text); font:16px/1.55 'Atkinson Hyperlegible', system-ui, sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
+  background:radial-gradient(900px 520px at 78% -8%, rgba(60,110,220,.20), transparent 62%), radial-gradient(700px 480px at -10% 38%, rgba(47,224,141,.07), transparent 60%); }
+h1, h2, h3, .disp { font-family:'Archivo', system-ui, sans-serif; font-stretch:108%; font-weight:900; line-height:1.08; letter-spacing:-.01em; margin:0; text-wrap:balance; }
+p { margin:0; }
+button { font:inherit; color:inherit; cursor:pointer; }
+.wrap { width:100%; max-width:1120px; margin:0 auto; padding:0 16px; }
+.k { font-size:12px; letter-spacing:.09em; text-transform:uppercase; color:var(--dim); font-weight:700; }
+.k b { color:var(--verde); }
+
+/* topo */
+.topo { display:flex; align-items:center; justify-content:space-between; padding:14px 0; }
+.brand { font-family:'Archivo', sans-serif; font-weight:900; font-stretch:112%; font-size:20px; letter-spacing:.04em; }
+.brand i { font-style:normal; color:var(--verde); }
+.entrar { font-size:14px; color:var(--dim); text-decoration:none; padding:11px 0 11px 12px; }
+.entrar b { color:var(--text); }
+
+/* botões */
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:52px; padding:14px 22px; border-radius:13px; border:none;
+  background:var(--verde); color:#04130B; font-family:'Archivo', sans-serif; font-weight:800; font-size:16px; letter-spacing:.01em; text-decoration:none; transition:transform .15s, box-shadow .2s; box-shadow:0 8px 28px rgba(47,224,141,.22); }
+.btn:hover { transform:translateY(-1px); box-shadow:0 12px 34px rgba(47,224,141,.3); }
+.btn:disabled { background:var(--card2); color:var(--faint); box-shadow:none; cursor:default; transform:none; }
+.btn.ghost { background:transparent; color:var(--text); border:1px solid var(--line); box-shadow:none; }
+.btn.full { width:100%; }
+.lnk { background:none; border:none; color:var(--dim); font-size:14px; text-decoration:underline; text-underline-offset:3px; padding:12px 4px; min-height:44px; }
+
+/* hero */
+.hero { display:grid; gap:16px; padding:6px 0 34px; grid-template-columns:minmax(0, 1fr); grid-template-areas:'tit' 'palco' 'acoes'; }
+.h-tit { grid-area:tit; } .hero .palco { grid-area:palco; } .h-acoes { grid-area:acoes; }
+.hero h1 { font-size:clamp(32px, 8.6vw, 48px); }
+.hero h1 em { font-style:normal; color:var(--verde); }
+.hero .lead { font-size:17px; color:#C4D0DE; max-width:34em; margin-top:12px; }
+.estados { list-style:none; margin:14px 0 0; padding:0; display:flex; flex-wrap:wrap; gap:8px 16px; font-size:14.5px; color:var(--text); }
+.estados li { display:inline-flex; align-items:center; gap:7px; white-space:nowrap; }
+.estados i { width:11px; height:11px; border-radius:50%; flex:none; }
+.hero .acoes { display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; }
+.hero .acoes .btn { flex:1 1 240px; }
+.palco { position:relative; border:1px solid var(--line); border-radius:20px; background:var(--glass); overflow:hidden; }
+.palco .cz { position:relative; height:min(88vw, 420px); }
+.palco canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
+.palco canvas.pulso { pointer-events:none; }
+.passos { display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; padding:0 12px; }
+.passos span { height:3px; border-radius:2px; background:rgba(132,170,214,.16); overflow:hidden; }
+.passos span i { display:block; height:100%; width:0; background:var(--verde); }
+.legenda-demo { min-height:108px; padding:12px 14px 14px; }
+.legenda-demo .t { font-family:'Archivo', sans-serif; font-weight:800; font-size:17px; margin:4px 0 4px; }
+.legenda-demo .s { font-size:14.5px; color:var(--dim); min-height:44px; }
+.legenda-demo .s b { color:var(--text); }
+.legenda-demo .s .er { color:var(--vermelho); } .legenda-demo .s .ok { color:var(--amarelo); }
+.faixa { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:52px; padding:8px 10px 0 12px; }
+.replay { background:rgba(3,7,16,.7); border:1px solid var(--line); color:var(--text); border-radius:999px; font-size:13px; padding:9px 14px; min-height:40px; backdrop-filter:blur(6px); }
+.selo-sim { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--dim); background:rgba(3,7,16,.6); border:1px solid var(--line); border-radius:999px; padding:5px 10px; }
+
+.sel-ed { display:flex; align-items:center; gap:10px; margin-top:16px; padding:6px 6px 6px 14px; border-radius:14px; border:1px solid var(--line-v); background:rgba(10,19,34,.7); }
+.sel-ed span { font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--verde); font-weight:700; white-space:nowrap; }
+.sel-ed select { flex:1 1 0; width:0; min-width:0; max-width:100%; min-height:46px; -webkit-appearance:none; appearance:none; color:var(--text); font:700 15.5px 'Atkinson Hyperlegible', system-ui, sans-serif; border:1px solid var(--line); border-radius:10px; padding:8px 36px 8px 12px; text-overflow:ellipsis; cursor:pointer;
+  background:var(--card2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232FE08D' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center / 18px; }
+.sel-ed select option, .sel-ed select optgroup { background:#0E1A2E; color:#EAF2EC; }
+.seu-ed { font-size:15px !important; color:var(--dim) !important; } .seu-ed b { color:var(--text); } .seu-ed a { color:var(--verde2); text-underline-offset:3px; }
+
+/* seções */
+section.bloco { padding:44px 0; border-top:1px solid var(--line); }
+.cab { max-width:40em; margin-bottom:22px; }
+.cab h2 { font-size:clamp(26px, 6.4vw, 40px); margin-top:8px; }
+.cab p { color:#C4D0DE; margin-top:12px; font-size:17px; }
+
+/* teste */
+.teste { display:grid; gap:14px; }
+.tz { position:relative; border:1px solid var(--line); border-radius:18px; background:var(--glass); overflow:hidden; }
+.tz .cz { position:relative; height:210px; }
+.tz canvas { position:absolute; inset:0; width:100%; height:100%; }
+.tz .leg { display:flex; justify-content:space-between; gap:10px; font-size:13px; color:var(--dim); padding:0 14px 12px; }
+.tz .leg b { color:var(--text); }
+.prog .lbl { font-size:12px; letter-spacing:.07em; color:var(--dim); margin-bottom:8px; font-weight:700; }
+.prog .lbl b { color:var(--verde); }
+.dots { display:flex; gap:5px; }
+.dot { flex:1; height:6px; border-radius:3px; background:var(--card2); transition:background .4s, box-shadow .4s; }
+.dot.fill { background:#7F9BD8; box-shadow:0 0 8px rgba(127,155,216,.5); }
+.qcard { background:var(--glass); border:1px solid var(--line); border-radius:18px; padding:22px 18px; margin-top:14px; box-shadow:inset 0 1px 0 rgba(255,255,255,.04); animation:entra .35s both; }
+.qcard .tipo { font-size:12px; letter-spacing:.07em; color:var(--dim); margin-bottom:12px; font-weight:700; }
+.qcard .enun { font-size:18px; line-height:1.55; }
+@keyframes entra { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+.answers { display:flex; gap:10px; margin-top:14px; }
+.abtn { flex:1; min-height:56px; border-radius:13px; background:var(--card2); border:1px solid var(--line); font-family:'Archivo', sans-serif; font-weight:800; font-size:16px; letter-spacing:.04em; transition:border-color .15s, background .15s; }
+.abtn.on { border-color:var(--verde); background:var(--verde-dim); color:var(--verde2); }
+.nuncavi { display:block; width:100%; background:none; border:none; color:var(--dim); font-size:14.5px; padding:14px 0 6px; min-height:44px; }
+.nuncavi u { text-underline-offset:3px; } .nuncavi small { display:block; font-size:12.5px; color:var(--faint); }
+.nuncavi.on { color:var(--azul); }
+.confbox { margin-top:10px; padding:16px; border-radius:16px; border:1px solid var(--line); background:rgba(10,19,34,.6); display:none; animation:entra .3s both; }
+.confbox.on { display:block; }
+.confs { display:flex; gap:8px; margin:10px 0 12px; }
+.confs button { flex:1; min-height:48px; border-radius:11px; background:var(--card2); border:1px solid var(--line); font-size:14.5px; font-weight:700; }
+.confs button.on { border-color:var(--verde); background:var(--verde-dim); color:var(--verde2); }
+.conf-p { font-size:13.5px; color:var(--dim); margin-bottom:14px; }
+.conf-p b { color:var(--text); }
+.reg { position:fixed; left:50%; bottom:26px; transform:translate(-50%, 20px); opacity:0; pointer-events:none; z-index:20; background:#0E1A2E; border:1px solid var(--line-v); color:var(--verde2); padding:10px 18px; border-radius:999px; font-weight:700; font-size:14px; transition:opacity .25s, transform .25s; }
+.reg.on { opacity:1; transform:translate(-50%, 0); }
+.pre { text-align:center; padding:30px 18px; border:1px solid var(--line-v); border-radius:18px; background:var(--glass); margin-top:14px; animation:entra .4s both; }
+.pre h3 { font-size:26px; margin-bottom:8px; }
+.pre p { color:var(--dim); margin-bottom:18px; }
+.pulse { width:64px; height:64px; margin:0 auto 12px; display:grid; place-items:center; border-radius:50%; background:var(--verde-dim); animation:pulsa 1.8s infinite; }
+@keyframes pulsa { 0% { box-shadow:0 0 0 0 rgba(47,224,141,.35); } 100% { box-shadow:0 0 0 22px rgba(47,224,141,0); } }
+
+/* resultado */
+.rv { display:none; margin-top:14px; animation:entra .4s both; }
+.rv.on { display:block; }
+.rv-item { display:grid; grid-template-columns:10px 1fr; gap:12px; padding:14px 0; border-bottom:1px solid var(--line); }
+.rv-item i { width:10px; height:10px; border-radius:50%; margin-top:7px; }
+.rv-item .n { font-weight:700; }
+.rv-item .e { font-size:14px; color:var(--dim); margin-top:3px; }
+.rv-item .e b { color:var(--text); }
+.chip { display:inline-block; font-size:12px; font-weight:700; letter-spacing:.03em; padding:2px 9px; border-radius:999px; margin-left:6px; vertical-align:2px; }
+.chip.a { background:rgba(242,179,61,.14); color:var(--amarelo); } .chip.r { background:rgba(237,90,90,.14); color:#FF8A8A; } .chip.n { background:rgba(132,170,214,.12); color:var(--dim); }
+.insight { margin-top:14px; padding:14px 16px; border-radius:14px; border:1px solid rgba(237,90,90,.3); background:rgba(237,90,90,.07); font-size:15px; }
+.insight b { display:block; font-size:12px; letter-spacing:.08em; color:#FF8A8A; margin-bottom:4px; }
+.prior { margin-top:14px; padding:18px 16px; border-radius:16px; border:1px solid var(--line-v); background:linear-gradient(168deg, rgba(47,224,141,.10), rgba(7,13,24,.9)); }
+.prior .pn { font-family:'Archivo', sans-serif; font-weight:800; font-size:20px; margin:6px 0 4px; }
+.prior .pm { color:#C4D0DE; font-size:15px; }
+.ponte { margin:20px 0 14px; font-size:17px; color:#C4D0DE; }
+.ponte b { color:var(--text); }
+
+/* dia a dia */
+.dias .palco .cz { height:min(92vw, 430px); }
+.regua { padding:14px 14px 16px; }
+.regua .dia { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+.regua .dia { gap:12px; }
+.regua .dia b { font-family:'Archivo', sans-serif; font-weight:900; font-size:24px; white-space:nowrap; }
+.regua .dia span { font-size:13px; color:var(--dim); text-align:right; line-height:1.3; }
+input[type=range] { -webkit-appearance:none; appearance:none; width:100%; height:44px; background:transparent; margin:0; }
+input[type=range]::-webkit-slider-runnable-track { height:6px; border-radius:3px; background:linear-gradient(90deg, var(--verde) var(--p, 0%), rgba(132,170,214,.2) var(--p, 0%)); }
+input[type=range]::-moz-range-track { height:6px; border-radius:3px; background:rgba(132,170,214,.2); }
+input[type=range]::-moz-range-progress { height:6px; border-radius:3px; background:var(--verde); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:28px; height:28px; border-radius:50%; background:#fff; border:5px solid var(--verde); margin-top:-11px; box-shadow:0 2px 12px rgba(0,0,0,.5); }
+input[type=range]::-moz-range-thumb { width:20px; height:20px; border-radius:50%; background:#fff; border:5px solid var(--verde); }
+.conta { display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; margin-top:12px; }
+.conta > div { padding:12px; border-radius:13px; background:rgba(10,19,34,.7); border:1px solid var(--line); }
+.conta .v { font-family:'Archivo', sans-serif; font-weight:900; font-size:26px; line-height:1; font-variant-numeric:tabular-nums; }
+.conta .l { font-size:12.5px; color:var(--dim); margin-top:5px; display:flex; align-items:center; gap:6px; }
+.conta .l i { width:8px; height:8px; border-radius:50%; flex:none; }
+.nota { font-size:13px; color:var(--faint); margin-top:12px; }
+
+/* como é no app */
+.tres { display:grid; gap:12px; }
+.tres article { padding:20px 18px; border-radius:18px; border:1px solid var(--line); background:var(--glass); }
+.tres h3 { font-size:20px; margin:8px 0 8px; }
+.tres p { color:#C4D0DE; font-size:15.5px; }
+.cores { display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:18px; font-size:14px; color:var(--dim); }
+.cores span { display:inline-flex; align-items:center; gap:7px; }
+.cores i { width:10px; height:10px; border-radius:50%; }
+
+/* depoimentos: um por vez — pilha de três prints (o do meio em foco) e a frase do aluno em destaque.
+   Adaptado do componente "Circular Testimonials" (21st.dev, maxim.bort.devel), reescrito sem biblioteca. */
+#depoimentos { overflow-x:clip; }
+.ct { display:grid; gap:34px; max-width:56rem; margin:0 auto; outline:none; }
+.ct-imgs { position:relative; width:100%; max-width:22rem; height:23rem; margin:46px auto 0; perspective:1000px; touch-action:pan-y; }
+.ct-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 100%; border-radius:1.5rem; background:#0A1322; box-shadow:0 10px 30px rgba(0,0,0,.45); transition:transform .8s cubic-bezier(.4,2,.3,1), opacity .8s ease; }
+.ct-img.ct-cont { object-fit:contain; object-position:50% 50%; }
+.ct-txt { display:flex; flex-direction:column; justify-content:space-between; gap:22px; }
+.ct-q { font-family:'Archivo', system-ui, sans-serif; font-weight:800; font-stretch:104%; font-size:21px; line-height:1.4; min-height:9.9em; text-wrap:pretty; }
+.ct-q span { display:inline-block; opacity:0; filter:blur(10px); transform:translateY(5px); animation:ctPalavra .22s ease-in-out forwards; }
+@keyframes ctPalavra { to { opacity:1; filter:none; transform:none; } }
+.ct-de { font-size:14.5px; color:var(--dim); margin-top:14px; }
+.ct-nav { display:flex; align-items:center; gap:14px; }
+.ct-b { width:48px; height:48px; border-radius:50%; border:1px solid var(--line); background:var(--card2); color:var(--text); display:grid; place-items:center; transition:background-color .3s, color .3s, border-color .3s; }
+.ct-b:hover, .ct-b:focus-visible { background:var(--verde); color:#04130B; border-color:var(--verde); }
+.ct-b svg { width:20px; height:20px; }
+.ct-n { font-size:14px; color:var(--dim); font-variant-numeric:tabular-nums; margin-left:4px; }
+
+/* perguntas frequentes e chamada final */
+.faq { max-width:46rem; margin:0 auto; border-top:1px solid var(--line); }
+.faq details { border-bottom:1px solid var(--line); }
+.faq summary { list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding:18px 2px; min-height:48px; font-family:'Archivo', system-ui, sans-serif; font-weight:800; font-size:17px; line-height:1.35; }
+.faq summary::-webkit-details-marker { display:none; }
+.faq summary::after { content:'+'; flex:none; font-family:'Atkinson Hyperlegible', sans-serif; font-weight:400; font-size:26px; line-height:.9; color:var(--verde); transition:transform .2s; }
+.faq details[open] summary::after { transform:rotate(45deg); }
+.faq summary:focus-visible { outline:2px solid var(--verde); outline-offset:2px; border-radius:6px; }
+.faq p { color:#C4D0DE; font-size:16px; padding:0 2px 20px; max-width:41em; }
+.faq a { color:var(--verde2); text-underline-offset:3px; }
+.fim { max-width:42rem; margin:0 auto; text-align:center; padding:38px 22px; border-radius:22px; border:1px solid var(--line-v); background:linear-gradient(168deg, rgba(47,224,141,.10), rgba(7,13,24,.92) 70%); }
+.fim h2 { font-size:clamp(26px, 6.4vw, 38px); }
+.fim p { color:#C4D0DE; font-size:17px; margin:14px auto 24px; max-width:30em; }
+
+/* editais */
+.ed-grid { display:grid; gap:16px; }
+.ed-grupo { margin-bottom:16px; } .ed-grupo .k { margin-bottom:8px; }
+.ed-pills { display:flex; flex-wrap:wrap; gap:8px; }
+.pill { min-height:46px; padding:8px 15px; border-radius:12px; background:var(--card2); border:1px solid var(--line); font-family:'Archivo', sans-serif; font-weight:800; font-size:15px; letter-spacing:.02em; transition:border-color .15s, background .15s; }
+.pill.on { border-color:var(--verde); background:var(--verde-dim); color:var(--verde2); }
+.ed-tit { padding:2px 14px 0; }
+.ed-sig { font-family:'Archivo', sans-serif; font-weight:900; font-size:26px; line-height:1.1; }
+.ed-nome { font-size:14.5px; color:var(--dim); margin-top:2px; }
+.ed-cargos { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.ed-cargos button { min-height:42px; padding:6px 13px; border-radius:999px; font-size:14px; border:1px solid var(--line); background:transparent; color:var(--dim); text-align:left; }
+.ed-cargos button.on { color:var(--text); border-color:var(--verde); background:var(--verde-dim); }
+.ed-meta { font-size:14px; color:#C4D0DE; margin-top:10px; min-height:22px; }
+.ed-meta b { color:var(--text); }
+.ed-palco .cz { height:min(108vw, 440px); }
+.ed-pesos { padding:4px 14px 18px; }
+.peso { display:grid; grid-template-columns:minmax(0, 1fr) auto; gap:5px 10px; align-items:baseline; margin-top:11px; font-size:14.5px; }
+.peso span:nth-child(2) { color:var(--dim); font-variant-numeric:tabular-nums; }
+.peso i { grid-column:1 / -1; height:5px; border-radius:3px; background:rgba(132,170,214,.14); overflow:hidden; }
+.peso i b { display:block; height:100%; border-radius:3px; }
+.ed-mais { font-size:13px; color:var(--faint); margin-top:12px; }
+.tb { font-size:14px; color:var(--dim); margin-top:10px; }
+.tb a { color:var(--text); text-underline-offset:3px; }
+
+/* ofertas: dois planos lado a lado, um recomendado; preço sempre na parcela.
+   Adaptado do componente "Two-Plan Pricing Cards" (21st.dev, ln-dev7), reescrito sem biblioteca. */
+.cab.centro { margin-inline:auto; text-align:center; max-width:34rem; }
+.planos { display:grid; gap:22px; max-width:56rem; margin:0 auto; }
+.plano { position:relative; display:flex; flex-direction:column; gap:26px; padding:28px 24px; border-radius:18px; border:1px solid var(--line); background:var(--card); }
+.plano.dest { border-color:rgba(234,242,236,.34); box-shadow:0 0 0 1px rgba(234,242,236,.10); background:var(--card2); }
+.plano .selo { position:absolute; top:-12px; left:24px; background:var(--text); color:var(--ink); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; padding:4px 11px; border-radius:999px; }
+.plano h3 { font-size:22px; letter-spacing:-.01em; }
+.plano .desc { font-size:15px; color:var(--dim); margin-top:6px; }
+.preco { display:flex; align-items:baseline; flex-wrap:wrap; gap:6px 10px; padding:20px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.preco .x { font-family:'Archivo', sans-serif; font-weight:800; font-size:20px; color:var(--dim); }
+.preco .v { font-family:'Archivo', sans-serif; font-weight:900; font-size:44px; line-height:1; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+.preco .c { font-size:14.5px; color:var(--dim); }
+.plano ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:11px; }
+.plano li { display:flex; align-items:flex-start; gap:10px; font-size:15px; }
+.plano li svg { flex:none; width:15px; height:15px; margin-top:4px; color:var(--verde); }
+.plano li b { font-weight:700; }
+.plano .btn { margin-top:auto; width:100%; border-radius:12px; box-shadow:none; }
+.plano .btn svg { width:18px; height:18px; }
+.plano .btn.ghost:hover { border-color:rgba(234,242,236,.4); box-shadow:none; }
+.pag { font-size:13.5px; color:var(--faint); margin-top:22px; text-align:center; }
+footer { padding:28px 0 40px; border-top:1px solid var(--line); color:var(--faint); font-size:13px; }
+
+@media (min-width:900px) {
+  .hero { grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); grid-template-areas:'tit palco' 'acoes palco'; grid-template-rows:auto 1fr; align-items:end; column-gap:40px; row-gap:22px; padding:26px 0 56px; }
+  .h-acoes { align-self:start; } .hero .acoes .btn { flex:0 1 auto; } .hero .lead { font-size:18px; }
+  .palco .cz, .dias .palco .cz { height:480px; }
+  section.bloco { padding:72px 0; }
+  .teste { grid-template-columns:minmax(0, 5fr) minmax(0, 6fr); gap:28px; align-items:start; }
+  .tz { position:sticky; top:20px; } .tz .cz { height:380px; }
+  .dias-grid { display:grid; grid-template-columns:minmax(0, 7fr) minmax(0, 4fr); gap:28px; align-items:center; }
+  .conta { grid-template-columns:1fr; }
+  .tres { grid-template-columns:repeat(3, 1fr); }
+  .planos { grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; } .plano { padding:30px 28px; }
+  .ct { grid-template-columns:1fr 1fr; gap:5rem; align-items:stretch; } .ct-imgs { max-width:none; height:24rem; margin-top:54px; }
+  .ct-txt { padding:54px 0 0; } .ct-q { font-size:24px; min-height:0; }
+  .ed-grid { grid-template-columns:minmax(0, 4fr) minmax(0, 7fr); gap:32px; align-items:start; }
+  .ed-palco { position:sticky; top:20px; } .ed-palco .cz { height:420px; }
+  .ed-pesos { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); column-gap:22px; } .ed-pesos .k, .ed-pesos .ed-mais { grid-column:1 / -1; }
+}
+@media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } .ct-q span { animation:none; opacity:1; filter:none; transform:none; } .ct-img { transition:none; } .qcard, .confbox, .pre, .rv { animation:none; } .pulse { animation:none; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topo">
+    <div class="brand">DOMINE<i>I</i></div>
+    <a class="entrar" href="https://dominei.app/?entrar=1">Já tenho conta · <b>Entrar</b></a>
+  </div>
+
+  <!-- 1 · ABERTURA: a demonstração roda sozinha -->
+  <header class="hero">
+    <div class="h-tit">
+      <h1>Saiba o que você <em>já domina</em> do seu concurso</h1>
+      <p class="lead">Escolha seu edital, faça o diagnóstico inicial e adicione seus materiais de estudo. A cada dia, o Dominei analisa suas respostas e mostra, em um cérebro virtual, o que você já domina e quais assuntos merecem sua atenção.</p>
+      <ul class="estados" aria-label="O que cada cor do cérebro significa">
+        <li><i style="background:var(--verde)"></i>Dominado</li>
+        <li><i style="background:var(--amarelo)"></i>Em desenvolvimento</li>
+        <li><i style="background:var(--vermelho)"></i>Precisa de atenção</li>
+        <li><i style="background:var(--azul)"></i>Material adicionado</li>
+        <li><i style="background:#8A97AD"></i>Ainda não explorado</li>
+      </ul>
+      <label class="sel-ed"><span>Seu concurso</span><select id="heroSel" aria-label="Escolha o seu concurso: a página inteira passa a usar o edital dele"></select></label>
+    </div>
+    <div class="h-acoes"><div class="acoes">
+      <a class="btn" href="#teste">Testar agora com 3 questões</a>
+      <a class="lnk" href="#dias">Ver o mapa acendendo</a>
+    </div></div>
+    <div class="palco" id="palcoHero">
+      <div class="faixa"><span class="selo-sim">Demonstração</span><button class="replay" id="heroReplay" type="button" hidden>↻ Ver de novo</button></div>
+      <div class="cz"><canvas id="heroCanvas" aria-label="Demonstração: o cérebro acende conforme as respostas"></canvas><canvas class="pulso" id="heroPulso"></canvas></div>
+      <div class="passos" aria-hidden="true"><span><i id="hp1"></i></span><span><i id="hp2"></i></span><span><i id="hp3"></i></span></div>
+      <div class="legenda-demo" aria-live="polite">
+        <div class="k" id="heroK">Passo 1 de 3</div>
+        <div class="t" id="heroT">Você responde o teste inicial</div>
+        <div class="s" id="heroS">Cada resposta acende um ponto. As cores vêm no fim.</div>
+      </div>
+    </div>
+  </header>
+</div>
+
+<!-- 2 · SUA VEZ: mini-teste de 3 questões -->
+<section class="bloco" id="teste">
+  <div class="wrap">
+    <div class="cab">
+      <div class="k"><b>Sua vez</b> · leva menos de um minuto</div>
+      <h2>Responda 3 questões e veja o seu cérebro reagir.</h2>
+      <p>É o mesmo formato do teste inicial do DOMINEI: você julga o item e diz o quanto tem certeza. As questões são de disciplinas do seu edital. Sem cadastro.</p>
+    </div>
+    <div class="teste">
+      <div class="tz">
+        <div class="cz"><canvas id="tsCanvas" aria-label="Seu cérebro: os pontos acendem a cada resposta"></canvas><canvas class="pulso" id="tsPulso"></canvas></div>
+        <div class="leg"><span><b id="tsN">0</b> de 3 pontos acesos</span><span id="tsLegD">as cores vêm no fim</span></div>
+      </div>
+      <div>
+        <div id="tsQuiz">
+          <div class="prog"><div class="lbl" id="tsLbl">QUESTÃO <b>1</b> · DE 3</div><div class="dots" id="tsDots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>
+          <div class="qcard" id="tsCard"><div class="tipo" id="tsTipo"></div><div class="enun" id="tsEnun"></div></div>
+          <div class="answers"><button class="abtn" data-r="certo" type="button">CERTO</button><button class="abtn" data-r="errado" type="button">ERRADO</button></div>
+          <button class="nuncavi" id="tsNunca" type="button"><u>Ainda não estudei isso</u><small>não conta contra você</small></button>
+          <div class="confbox" id="tsConf">
+            <div class="k">Quão confiante você está?</div>
+            <div class="confs"><button data-c="chutei" type="button">Chutei</button><button data-c="acho" type="button">Acho que sei</button><button data-c="certeza" type="button">Certeza</button></div>
+            <p class="conf-p">Isso calibra o seu mapa: <b>errar com certeza pesa mais que errar chutando</b>.</p>
+            <button class="btn full" id="tsResp" type="button" disabled>Responder</button>
+          </div>
+        </div>
+        <div class="pre" id="tsPre" hidden>
+          <div class="pulse"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#2FE08D" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="2.6"/><circle cx="12" cy="4" r="1.7"/><circle cx="19.5" cy="9" r="1.7"/><circle cx="17" cy="18.6" r="1.7"/><circle cx="7" cy="18.6" r="1.7"/><circle cx="4.5" cy="9" r="1.7"/><path d="M12 9.4V5.7M14.1 13.6l2 3.5M9.9 13.6l-2 3.5M14.5 11.1l3.3-1.3M9.5 11.1 6.2 9.8"/></svg></div>
+          <h3>Seu mapa está pronto.</h3>
+          <p id="tsPreEd">3 respostas em 3 temas, cruzadas com o seu edital.</p>
+          <button class="btn full" id="tsRevelar" type="button">REVELAR MEU MAPA</button>
+        </div>
+        <div class="rv" id="tsRv">
+          <div class="k">O que as suas 3 respostas mostraram</div>
+          <div id="tsItens"></div>
+          <div id="tsInsight"></div>
+          <div class="prior"><div class="k"><b>Sua prioridade de hoje</b></div><div class="pn" id="tsPn"></div><div class="pm" id="tsPm"></div></div>
+          <p class="ponte" id="tsPonte"></p>
+          <a class="btn full" href="#ofertas">Quero o meu mapa completo</a>
+          <button class="lnk" id="tsDeNovo" type="button" style="display:block;margin:6px auto 0">Responder de novo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · DIA APÓS DIA: o visitante arrasta os dias -->
+<section class="bloco dias" id="dias">
+  <div class="wrap">
+    <div class="cab">
+      <div class="k"><b>Dia após dia</b></div>
+      <h2>Arraste e veja o cérebro acender.</h2>
+      <p>Os temas que mais pesam na prova entram primeiro. O vermelho vira amarelo, o amarelo vira verde, conforme as questões mostram que você aprendeu.</p>
+    </div>
+    <div class="dias-grid">
+      <div class="palco">
+        <div class="faixa"><span class="selo-sim">Simulação · aluno fictício</span></div>
+        <div class="cz"><canvas id="dsCanvas" aria-label="Simulação: o cérebro de um aluno fictício ao longo de 30 dias"></canvas></div>
+        <div class="regua">
+          <div class="dia"><b id="dsDia">Dia 0</b><span id="dsFrase">antes do teste inicial</span></div>
+          <input type="range" id="dsRange" min="0" max="30" step="1" value="0" aria-label="Dia de estudo, de 0 a 30">
+        </div>
+      </div>
+      <div>
+        <div class="conta">
+          <div><div class="v" id="dsV" style="color:var(--verde)">0</div><div class="l"><i style="background:var(--verde)"></i>Dominados</div></div>
+          <div><div class="v" id="dsA" style="color:var(--amarelo)">0</div><div class="l"><i style="background:var(--amarelo)"></i>Em desenvolvimento</div></div>
+          <div><div class="v" id="dsR" style="color:var(--vermelho)">0</div><div class="l"><i style="background:var(--vermelho)"></i>Precisam de atenção</div></div>
+          <div><div class="v" id="dsC" style="color:var(--dim)">0</div><div class="l"><i style="background:#56627A"></i>Ainda não explorados</div></div>
+        </div>
+        <p class="nota">Simulação para mostrar como o mapa funciona. O ritmo de cada aluno é o dele.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · COMO É NO APP -->
+<section class="bloco" id="app">
+  <div class="wrap">
+    <div class="cab">
+      <div class="k"><b>No seu dia</b></div>
+      <h2>Você abre e já sabe o que fazer.</h2>
+    </div>
+    <div class="tres">
+      <article><div class="k">Hoje</div><h3>Sua prioridade, com o motivo</h3><p>O DOMINEI escolhe o tema do dia pelo peso na prova e mostra por quê. Você não gasta energia decidindo por onde começar.</p></article>
+      <article><div class="k">Sessão</div><h3>Um tema por vez</h3><p>Você responde, diz a sua confiança em um toque e lê a explicação com a fonte. No fim, vê cada tema mudar de cor no seu cérebro.</p></article>
+      <article><div class="k">Meu Material</div><h3>O que você estuda por fora também conta</h3><p>Guarde texto, foto ou PDF em cada tema: acende a luz azul. O verde só vem das questões.</p></article>
+    </div>
+    <div class="cores">
+      <span><i style="background:var(--verde)"></i>Dominado</span><span><i style="background:var(--amarelo)"></i>Em desenvolvimento</span><span><i style="background:var(--vermelho)"></i>Precisa de atenção</span><span><i style="background:var(--azul)"></i>Estudado, ainda sem questões</span><span><i style="background:#56627A"></i>Ainda não explorado</span>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · DEPOIMENTOS: prints reais do grupo de alunos, recortados só no balão (sem nome, telefone e foto de perfil) -->
+<section class="bloco" id="depoimentos">
+  <div class="wrap">
+    <div class="cab">
+      <div class="k"><b>Quem já está usando</b></div>
+      <h2>O que os alunos mandam no grupo.</h2>
+      <p>Prints do grupo de alunos, do jeito que chegaram. Nomes e fotos ficaram de fora para preservar cada um.</p>
+    </div>
+    <div class="ct" id="ct" tabindex="0" role="group" aria-roledescription="carrossel" aria-label="Depoimentos de alunos, um por vez">
+      <div class="ct-imgs" id="ctImgs"></div>
+      <div class="ct-txt">
+        <div><p class="ct-q" id="ctQ"></p><p class="ct-de">Mensagem no grupo de alunos. O print é a tela do DOMINEI que veio junto com ela.</p></div>
+        <div class="ct-nav">
+          <button class="ct-b" id="ctPrev" type="button" aria-label="Depoimento anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg></button>
+          <button class="ct-b" id="ctNext" type="button" aria-label="Próximo depoimento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+          <span class="ct-n" id="ctN"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · EDITAIS: o visitante escolhe o concurso e o cérebro se redesenha (dados do arquivo editais.js, sem consulta ao banco) -->
+<section class="bloco" id="editais">
+  <div class="wrap">
+    <div class="cab">
+      <div class="k"><b>Tem o seu concurso?</b></div>
+      <h2>Escolha o seu edital e veja o cérebro dele.</h2>
+      <p>Cada edital vira um mapa próprio. As regiões são as disciplinas, e o tamanho de cada uma acompanha o peso dela na prova.</p>
+    </div>
+    <div class="ed-grid">
+      <div class="ed-lista">
+        <div id="edGrupos"></div>
+        <p class="nota" id="edNota"></p>
+      </div>
+      <div class="palco ed-palco" id="edPalco">
+        <div class="faixa"><span class="selo-sim">Simulação · aluno fictício</span></div>
+        <div class="ed-tit">
+          <div class="ed-sig" id="edSig">&nbsp;</div><div class="ed-nome" id="edNome"></div>
+          <div class="ed-cargos" id="edCargos"></div>
+          <div class="ed-meta" id="edMeta" aria-live="polite"></div>
+        </div>
+        <div class="cz"><canvas id="edCanvas" aria-label="O cérebro do edital escolhido: cada região é uma disciplina"></canvas></div>
+        <div class="ed-pesos" id="edPesos"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · OFERTAS (a definir com as ofertas da Hubla) -->
+<section class="bloco" id="ofertas">
+  <div class="wrap">
+    <div class="cab centro"><h2>Dois planos. O mesmo DOMINEI.</h2>
+      <p>Muda só por quanto tempo ele fica com você.</p>
+      <p class="seu-ed" id="ofEd"></p></div>
+    <div class="planos">
+      <article class="plano">
+        <div><h3>1 Ano de Acesso</h3><p class="desc">O DOMINEI completo por 12 meses.</p></div>
+        <div class="preco"><span class="x">12x</span><span class="v">R$ 59,73</span><span class="c">no cartão de crédito</span></div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span><b>12 meses</b> de acesso</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Teste inicial e o mapa do seu cérebro para o edital</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Sua prioridade de hoje, com o motivo</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Sessões de questões com explicação e fonte</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Meu Material e revisões no tempo certo</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Você escolhe o seu edital e pode trocar depois</span></li>
+        </ul>
+        <a class="btn ghost" href="https://pay.hub.la/IE4OMvvzE9gJdovK1qad" data-plano="dominei-1-ano" data-nome="Dominei · 1 Ano de Acesso">Quero 1 ano de acesso <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+      </article>
+      <article class="plano dest">
+        <span class="selo">O dobro de tempo</span>
+        <div><h3>2 Anos de Acesso</h3><p class="desc">O DOMINEI completo por 24 meses.</p></div>
+        <div class="preco"><span class="x">12x</span><span class="v">R$ 99,75</span><span class="c">no cartão de crédito</span></div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span><b>24 meses</b> de acesso</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Teste inicial e o mapa do seu cérebro para o edital</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Sua prioridade de hoje, com o motivo</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Sessões de questões com explicação e fonte</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Meu Material e revisões no tempo certo</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Você escolhe o seu edital e pode trocar depois</span></li>
+        </ul>
+        <a class="btn" href="https://pay.hub.la/HPfJMiFRpKuLJBtPHFM6" data-plano="dominei-2-anos" data-nome="Dominei · 2 Anos de Acesso">Quero 2 anos de acesso <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+      </article>
+    </div>
+    <p class="pag">Pagamento pela Hubla. Depois da compra, você entra no DOMINEI com o e-mail da compra.</p>
+  </div>
+</section>
+
+<!-- 8 · PERGUNTAS FREQUENTES (texto do Fábio, 11/11) -->
+<section class="bloco" id="faq">
+  <div class="wrap">
+    <div class="cab centro"><h2>Perguntas frequentes sobre o Dominei</h2></div>
+    <div class="faq">
+      <details><summary>Já estudo por um curso ou uma mentoria. Como o Dominei entra na minha rotina?</summary><p>Você pode continuar usando as aulas e os materiais que já tem. No Dominei, você resolve questões para conferir o que aprendeu. Suas respostas atualizam o mapa do edital e ajudam a indicar quais assuntos merecem atenção na próxima sessão de estudo.</p></details>
+      <details><summary>Preciso ter estudado todo o edital para começar?</summary><p>Não. Você escolhe o concurso e o cargo, faz um diagnóstico inicial e pode marcar “Ainda não estudei isso” quando encontrar um assunto novo. A partir daí, o Dominei indica por onde começar. O <a href="#teste">teste de 3 questões desta página</a> é uma demonstração que você pode experimentar sem cadastro.</p></details>
+      <details><summary>O que significam as cores do cérebro?</summary><p>Cada região representa uma disciplina, e cada ponto representa um assunto do edital. Verde indica que você demonstrou domínio nas questões. Amarelo significa que o assunto está em desenvolvimento e vermelho, que precisa de atenção. Azul marca um tema em que você adicionou material, mas ainda não respondeu questões. Cinza indica um tema que você ainda não explorou.</p></details>
+      <details><summary>E se eu acertar uma questão no chute?</summary><p>Antes de ver a correção, você indica se chutou, se acha que sabe ou se tem certeza. O Dominei considera essa informação junto com a resposta. Um acerto isolado é só parte do histórico. Para um tema ficar verde, normalmente você precisa voltar a ele e acertar questões em dias diferentes.</p></details>
+      <details><summary>Como o Dominei indica o que estudar hoje?</summary><p>Na tela Hoje, você vê um tema prioritário, o motivo da indicação e o que fazer em seguida. O Dominei considera seu histórico e o peso dos assuntos na prova. Se você marcou que ainda não estudou um tema, por exemplo, pode começar por um resumo. Se já estudou por fora, pode ir direto às questões.</p></details>
+      <details><summary>Posso usar minhas apostilas, anotações e mapas mentais?</summary><p>Sim. Na área Meu Material, você pode guardar textos, fotos e PDFs junto ao assunto correspondente. Assim, quando for praticar um tema, seu material de revisão já está ali. Adicionar um arquivo marca o assunto em azul. As respostas às questões mostram como está seu domínio.</p></details>
+      <details><summary>Um assunto que ficou verde pode precisar de revisão?</summary><p>Sim. O verde representa o domínio que você demonstrou até aquele momento. Com o tempo sem praticar, o Dominei pode sinalizar que vale retomar o assunto. Você volta às questões para conferir o que ainda lembra.</p></details>
+      <details><summary>Como sei se meu concurso e meu cargo estão disponíveis?</summary><p>Na <a href="#editais">seção Editais desta página</a>, selecione seu concurso. Quando houver mais de um cargo, escolha o seu para ver as disciplinas, a quantidade de temas e o peso de cada disciplina na prova. Dentro da plataforma, você também pode pedir a inclusão de um concurso e votar nos pedidos.</p></details>
+      <details><summary>Se eu mudar de concurso, preciso começar do zero?</summary><p>Você pode trocar de edital. Quando os dois cargos têm temas em comum, o histórico desses assuntos acompanha você. Os temas específicos do novo edital aparecem no mapa para você explorar.</p></details>
+      <details><summary>Qual é a diferença entre os planos de 1 e 2 anos?</summary><p>Os dois dão acesso à plataforma completa. A diferença é o período de uso: 12 ou 24 meses. Depois da compra, você entra no Dominei com o mesmo e-mail usado no pagamento.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- 9 · CHAMADA FINAL: leva para as ofertas -->
+<section class="bloco" id="comecar">
+  <div class="wrap">
+    <div class="fim">
+      <h2>Comece hoje a ver o que você já domina.</h2>
+      <p>Escolha o seu plano, monte o cérebro do seu edital e saiba o que estudar a cada dia.</p>
+      <a class="btn" href="#ofertas">Quero me matricular</a>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">DOMINEI · as questões desta página são de demonstração.</div></footer>
+<div class="reg" id="reg">registrado ✓</div>
+
+<script>
+// o motor foi copiado do app sem mudança; estes dois nomes existem lá para telemetria e aqui não fazem nada
+window.registrarErro = function () {}; window.tele = function () {};
+</script>
+<script src="editais.js"></script>
+<script src="motor.js"></script>
+<script>
+// nesta página o arranjo do cérebro fica só na memória (não mexe no que o app guarda no aparelho)
+cerLayoutLer = (k) => CER_LAYOUTS[k] || null; cerLayoutGravar = (k, o) => { CER_LAYOUTS[k] = o; };
+
+const $ = (id) => document.getElementById(id);
+const SEM_MOV = galSemMov();
+const espera = (ms) => new Promise(r => setTimeout(r, ms));
+const plural = (n, s, p) => `${n} ${n === 1 ? s : p}`;
+
+// ---------- editais: tudo vem do arquivo editais.js (gerado por gerar_editais.py); a página não consulta o banco ----------
+const ED = window.DOMINEI_EDITAIS;
+const ED_AREAS = ['Policial', 'Tribunais', 'Educação', 'Previdência', 'Saúde'];
+const ED_CURTO = { 'Direito Penal e de Direito Processual Penal': 'Penal e Proc. Penal', 'Direito Penal, Processual Penal e Legislação Extravagante': 'Penal e Proc. Penal',
+  'Direito Previdenciário e Legislação Municipal': 'Previdenciário', 'Informática e Processo Digital': 'Informática', 'Legislação Institucional e do Poder Judiciário': 'Leg. do Judiciário',
+  'Legislação Penal e Processual Extravagante': 'Leg. Extravagante', 'Estatuto dos Servidores do Amazonas': 'Estatuto do Servidor', 'Promoção da Igualdade Racial e de Gênero': 'Igualdade Racial',
+  'Política Nacional de Humanização': 'Humanização', 'Princípios e Organização do SUS': 'SUS', 'Regime Jurídico Único (Lei 8.112/90)': 'Lei 8.112', 'Raciocínio Lógico Matemático': 'Raciocínio Lógico',
+  'Legislação Relativa à PRF': 'Legislação da PRF', 'Ética no Serviço Público': 'Ética', 'Ética e Conduta Pública': 'Ética', 'Administração Pública': 'Adm. Pública',
+  'Direito Processual Penal': 'Processo Penal', 'Direito Processual Civil': 'Processo Civil', 'Conhecimentos Pedagógicos': 'Pedagógicos' };
+function edCurto(nome) { // nome curto para caber no cérebro (mesmo espírito dos nomes curtos do app)
+  if (COSMO_CURTO[nome]) return COSMO_CURTO[nome];
+  const s = nome.replace(/^Noções de /, ''); if (COSMO_CURTO[s]) return COSMO_CURTO[s]; if (ED_CURTO[s]) return ED_CURTO[s];
+  if (/^Conhecimentos Específicos/.test(s)) return 'Específicos';
+  return s.replace(/^Direito /, '');
+}
+const edHoje = (() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();
+const edData = (iso) => iso.split('-').reverse().join('/');
+ED.concursos.forEach(c => c.cargos = c.cargos.filter(k => !k.data_prova || k.data_prova >= edHoje)); // prova passada sai da lista, como na vitrine do app
+const CONCS = ED.concursos.filter(c => c.cargos.length);
+const ESTR = {};
+function estruturaDe(id) { if (ESTR[id]) return ESTR[id]; let n = 0; const p = id.slice(0, 6);
+  return (ESTR[id] = ED.estruturas[id].map((d, i) => { COSMO_CURTO[d[0]] = edCurto(d[0]);
+    return { disciplina_id: p + 'd' + i, disciplina: d[0], assuntos: d[1].map((ts, j) => ({ assunto_id: p + 'd' + i + 'a' + j, assunto: 'a' + j,
+      topicos: ts.map(t => ({ node_id: p + 'n' + (n++), nome: t[0], rotulo: t[0], peso: t[1], provas_freq: t[2] })) })) }; }));
+}
+let ATUAL = null; // { c: concurso, k: cargo } — o concurso escolhido vale para a página inteira
+
+// ---------- peças comuns ----------
+function aplicar(gal, estados) { // estados = { id: estado }; o resto fica "ainda não explorado"
+  gal.temas.forEach(t => { t.estado = estados[t.id] || 'nao_avaliado'; t.forca_obs = t.estado === 'desenvolvimento' ? 58 : null; });
+  gal.gals.forEach(g => { g.expl = g.temas.filter(t => cosmoExpl(t.estado)).length; g.frac = g.expl / g.temas.length; });
+  gal.desenharBase();
+}
+// liga o motor só quando o cérebro está na tela (economiza bateria no celular); aoEntrar roda toda vez que ele volta à tela
+function vigiar(el, gal, aoEntrar) { gal.naTela = false;
+  new IntersectionObserver((es) => es.forEach(e => { gal.naTela = e.isIntersecting; if (e.isIntersecting) { gal.redimensionar(); gal.iniciar(); aoEntrar && aoEntrar(); } else gal.parar(); }), { threshold: .15 }).observe(el); }
+// pontos brancos do teste: o tema respondido acende com uma onda; o da vez pulsa em azul (igual ao app)
+function pulsos(gal, ov, estado) {
+  const quadro = () => { requestAnimationFrame(quadro); if (!gal.raf || !gal.W) return;
+    if (ov.width !== gal.W || ov.height !== gal.H) { ov.width = gal.W; ov.height = gal.H; }
+    const x = ov.getContext('2d'); x.clearRect(0, 0, ov.width, ov.height); const agora = performance.now();
+    estado.acesos.forEach(a => { const o = gal.byId[a.id]; if (!o) return; const [px, py] = gal.tela(...gal.posTema(o)), k = SEM_MOV ? 0 : Math.max(0, 1 - (agora - a.t0) / 900);
+      const rg = 14 + 24 * k, g = x.createRadialGradient(px, py, 1, px, py, rg); g.addColorStop(0, 'rgba(234,242,236,.5)'); g.addColorStop(1, 'rgba(234,242,236,0)');
+      x.fillStyle = g; x.beginPath(); x.arc(px, py, rg, 0, 6.3); x.fill(); x.fillStyle = 'rgba(234,242,236,.95)'; x.beginPath(); x.arc(px, py, 3.2, 0, 6.3); x.fill();
+      if (k > 0) { x.strokeStyle = `rgba(234,242,236,${k})`; x.lineWidth = 2; x.beginPath(); x.arc(px, py, 6 + 30 * (1 - k), 0, 6.3); x.stroke(); } });
+    (estado.marcas || []).forEach(m => { const o = gal.byId[m.id]; if (!o) return; const [px, py] = gal.tela(...gal.posTema(o)), k = SEM_MOV ? .5 : .5 + .5 * Math.sin(agora / 1000 * 2.2 + px);
+      x.globalAlpha = Math.min(1, (agora - m.t0) / 600); x.strokeStyle = m.cor; x.lineWidth = 2; x.beginPath(); x.arc(px, py, 9 + 4 * k, 0, 6.3); x.stroke();
+      x.globalAlpha *= .35 * (1 - k); x.beginPath(); x.arc(px, py, 15 + 8 * k, 0, 6.3); x.stroke(); x.globalAlpha = 1; });
+    if (estado.atual && !estado.acesos.some(a => a.id === estado.atual)) { const o = gal.byId[estado.atual]; if (!o) return; const [px, py] = gal.tela(...gal.posTema(o)), k = SEM_MOV ? .5 : .5 + .5 * Math.sin(agora / 1000 * 2.5);
+      x.strokeStyle = `rgba(79,139,255,${.95 - .6 * k})`; x.lineWidth = 2.5; x.beginPath(); x.arc(px, py, 7 + 11 * k, 0, 6.3); x.stroke(); } };
+  quadro();
+}
+// aluno fictício: como o mapa evolui dia a dia (os temas mais pesados entram primeiro)
+function prepararTemas(gal) { const ord = [...gal.temas].sort((a, b) => b.peso - a.peso); ord.forEach((t, i) => { t.tema = t.g.nome + '|' + t.nome; t.rank = i / ord.length; }); }
+function estadoNoDia(t, dia) {
+  if (dia <= 0) return 'nao_avaliado';
+  const h = cosmoHash(t.tema), q = cosmoHash(t.tema + '#'), ini = 1 + 72 * Math.pow(t.rank, .85) + (h - .5) * 4;
+  if (dia < ini) return 'nao_avaliado';
+  const idade = dia - ini, sobe = 3 + 7 * q, domina = sobe + 6 + 12 * cosmoHash(t.tema + '!');
+  if (q < .5 && idade < sobe) return 'atencao';
+  return idade < domina ? 'desenvolvimento' : 'dominado';
+}
+const mapaDoDia = (gal, dia) => { const m = {}; gal.temas.forEach(t => m[t.id] = estadoNoDia(t, dia)); return m; };
+// motivo da prioridade: frequência nas provas quando o edital tem esse dado (hoje só a PRF); senão, o peso da disciplina na prova
+const motivo = (t) => t.freq > 0 ? `Caiu ${plural(t.freq, 'vez', 'vezes')} nas provas analisadas` : `É de ${t.g.nome}, que pesa ${t.g.pct}% da prova`;
+
+// ==================== 1 · ABERTURA ====================
+const heroGal = new CerebroMapa($('heroCanvas'), {}), heroP = { acesos: [], atual: null }; let heroVez = 0, heroPend = true, heroResp = [];
+pulsos(heroGal, $('heroPulso'), heroP);
+function heroRespostas() { // respostas simuladas do teste inicial: os temas mais pesados do edital, no máximo 3 por disciplina
+  const n = {}, r = [];
+  for (const t of [...heroGal.temas].sort((a, b) => b.peso - a.peso)) { if ((n[t.disc] = (n[t.disc] || 0) + 1) > 3) continue;
+    const h = cosmoHash(t.tema + 'r'), c = cosmoHash(t.tema + 'c');
+    r.push({ t, r: h < .4 ? 'errou' : 'acertou', c: c < .34 ? 'chutando' : c < .67 ? 'achando que sabia' : 'com certeza' }); if (r.length === 10) break; }
+  const p = [...r].sort((a, b) => b.t.g.pct - a.t.g.pct || b.t.peso - a.t.peso)[0]; p.r = 'errou'; p.c = 'com certeza'; // a prioridade da demonstração: um erro na disciplina que mais pesa
+  return { lista: [...r].sort((a, b) => cosmoHash(a.t.tema + 'o') - cosmoHash(b.t.tema + 'o')), prioridade: p.t };
+}
+function heroTexto(k, t, s) { $('heroK').textContent = k; $('heroT').textContent = t; $('heroS').innerHTML = s; }
+function heroBarra(n, ms) { ['hp1', 'hp2', 'hp3'].forEach((id, i) => { const el = $(id); el.style.transition = 'none'; el.style.width = i < n - 1 ? '100%' : '0'; });
+  const el = $('hp' + n); void el.offsetWidth; el.style.transition = `width ${ms}ms linear`; el.style.width = '100%'; }
+async function heroRodar() {
+  const vez = ++heroVez, vivo = () => vez === heroVez, R = heroResp.lista; $('heroReplay').hidden = true;
+  heroP.acesos = []; heroP.atual = null; aplicar(heroGal, {}); heroGal.entrada(SEM_MOV ? 0 : 1600);
+  const estados = {}; R.forEach(x => estados[x.t.id] = x.r === 'errou' ? 'atencao' : 'desenvolvimento');
+  if (SEM_MOV) { aplicar(heroGal, mapaDoDia(heroGal, 30)); heroTexto('Demonstração', 'O edital acende conforme você prova que sabe', 'Cada região é uma disciplina. Cada ponto é um tema do edital.'); ['hp1', 'hp2', 'hp3'].forEach(id => $(id).style.width = '100%'); return; }
+  // passo 1: as respostas acendem pontos brancos
+  heroTexto('Passo 1 de 3', 'Você responde o teste inicial', 'Cada resposta acende um ponto. As cores vêm no fim.'); heroBarra(1, 1700 + R.length * 720);
+  await espera(1700); if (!vivo()) return;
+  for (let i = 0; i < R.length; i++) { const x = R[i]; heroP.atual = x.t.id;
+    heroTexto('Passo 1 de 3', 'Você responde o teste inicial', `Questão ${i + 1} · <b>${x.t.rot}</b> · <span class="${x.r === 'errou' ? 'er' : 'ok'}">${x.r} ${x.c}</span>`);
+    await espera(430); if (!vivo()) return; heroP.acesos.push({ id: x.t.id, t0: performance.now() }); await espera(290); if (!vivo()) return; }
+  heroP.atual = null; await espera(500); if (!vivo()) return;
+  // passo 2: a Revelação
+  heroTexto('Passo 2 de 3', 'O mapa revela onde você está', 'Amarelo: em desenvolvimento. <span class="er">Vermelho: precisa de atenção.</span> E a sua prioridade aparece com o motivo.'); heroBarra(2, 4300);
+  heroP.acesos = []; aplicar(heroGal, estados); heroGal.entrada(2200); await espera(2600); if (!vivo()) return;
+  const p = heroResp.prioridade;
+  heroTexto('Sua prioridade de hoje', p.nome, `${motivo(p)}. Aqui você precisa de atenção.`); await espera(3000); if (!vivo()) return;
+  // passo 3: os dias passam
+  heroBarra(3, 5200);
+  for (let d = 1; d <= 30; d++) { const m = mapaDoDia(heroGal, d); Object.keys(estados).forEach(id => { if (m[id] === 'nao_avaliado') m[id] = estados[id]; }); aplicar(heroGal, m);
+    heroTexto('Passo 3 de 3', 'Você estuda a prioridade. O edital acende.', `<b>Dia ${d}</b> · o verde aparece quando as questões mostram que você dominou o tema.`); await espera(170); if (!vivo()) return; }
+  $('heroReplay').hidden = false;
+}
+$('heroReplay').onclick = heroRodar;
+vigiar($('palcoHero'), heroGal, () => { if (heroPend) { heroPend = false; heroRodar(); } });
+
+// ==================== 2 · MINI-TESTE ====================
+// Questões de demonstração (o gabarito fica nesta página só porque é uma amostra). São de disciplinas comuns a quase todo edital;
+// a página usa as 3 primeiras que existem no edital escolhido e acende um tema dessa disciplina no cérebro dele.
+const POOL = [
+  { nome: 'Língua Portuguesa', disc: /Portugu/i, forte: /concord[^|]*verb|^concordância$/i, fraco: /concord/i, gab: 'errado',
+    enun: 'A frase “Fazem dois anos que estudo para concursos” está de acordo com a norma-padrão.',
+    expl: 'O verbo fazer, quando indica tempo decorrido, é impessoal e fica no singular: “Faz dois anos”.', fonte: 'concordância verbal' },
+  { nome: 'Direito Administrativo', disc: /Administrativo/i, forte: /requisit|elementos do ato/i, fraco: /\batos?\b/i, gab: 'errado',
+    enun: 'O motivo e o objeto são requisitos sempre vinculados do ato administrativo.',
+    expl: 'Sempre vinculados são a competência, a finalidade e a forma. O motivo e o objeto podem ser discricionários.', fonte: 'doutrina de Direito Administrativo' },
+  { nome: 'Direito Constitucional', disc: /Constitucional/i, forte: /direitos[^|]*(fundament|individ)|art\. ?5/i, gab: 'certo',
+    enun: 'É livre a manifestação do pensamento, sendo vedado o anonimato.',
+    expl: 'É o texto da Constituição.', fonte: 'CF, art. 5º, IV' },
+  { nome: 'Raciocínio Lógico', disc: /Racioc/i, forte: /nega|proposi|equival/i, fraco: /lógica/i, gab: 'errado',
+    enun: 'A negação de “Todo servidor é pontual” é “Nenhum servidor é pontual”.',
+    expl: 'A negação de “todo A é B” é “algum A não é B”: “Algum servidor não é pontual”.', fonte: 'negação de proposições' },
+  { nome: 'Informática', disc: /Inform/i, forte: /seguran/i, gab: 'certo',
+    enun: 'Phishing é a tentativa de obter dados pessoais ou senhas por meio de mensagens ou páginas falsas que imitam uma fonte confiável.',
+    expl: 'É a definição usual de phishing.', fonte: 'segurança da informação' },
+  { nome: 'Conhecimentos Pedagógicos', disc: /Pedag/i, forte: /LDB|9\.394|Diretrizes e Bases/i, gab: 'certo',
+    enun: 'Segundo a LDB, a educação básica é formada pela educação infantil, pelo ensino fundamental e pelo ensino médio.',
+    expl: 'É o que diz a Lei de Diretrizes e Bases.', fonte: 'Lei nº 9.394/1996, art. 21, I' },
+];
+const tsGal = new CerebroMapa($('tsCanvas'), { mini: true, topo: () => 6, base: () => 6 }), tsP = { acesos: [], atual: null, marcas: [] };
+pulsos(tsGal, $('tsPulso'), tsP); let tsPend = true;
+vigiar($('tsCanvas'), tsGal, () => { if (tsPend) { tsPend = false; tsGal.entrada(1200); } });
+let QS = [], tsI = 0, tsSel = null, tsConf = null, tsResp = [], tsTrava = false;
+function questoesDoEdital() { const qs = [];
+  for (const q of POOL) { const g = tsGal.gals.find(x => q.disc.test(x.nome)); if (!g) continue;
+    const exato = g.temas.find(t => q.forte.test(t.nome)), t = exato || (q.fraco && g.temas.find(x => q.fraco.test(x.nome))) || g.temas.reduce((a, b) => b.peso > a.peso ? b : a);
+    qs.push({ ...q, t, exato: !!exato, disciplina: g.nome }); if (qs.length === 3) break; }
+  return qs; }
+function tsMostrar() {
+  const q = QS[tsI]; tsSel = null; tsConf = null; tsTrava = false; tsP.atual = q.t.id;
+  $('tsLbl').innerHTML = `QUESTÃO <b>${tsI + 1}</b> · DE 3`; $('tsTipo').textContent = `JULGUE O ITEM · ${q.nome.toUpperCase()}`; $('tsEnun').textContent = q.enun;
+  const c = $('tsCard'); c.style.animation = 'none'; void c.offsetWidth; c.style.animation = '';
+  document.querySelectorAll('#tsQuiz .abtn, #tsQuiz .confs button').forEach(b => b.classList.remove('on')); $('tsNunca').classList.remove('on');
+  $('tsConf').classList.remove('on'); $('tsResp').disabled = true;
+}
+function tsReiniciar() { tsI = 0; tsResp = []; tsP.acesos = []; tsP.marcas = []; aplicar(tsGal, {}); QS = questoesDoEdital();
+  $('tsN').textContent = '0'; $('tsLegD').textContent = 'as cores vêm no fim'; [...$('tsDots').children].forEach(d => d.classList.remove('fill'));
+  $('tsRv').classList.remove('on'); $('tsPre').hidden = true; $('tsQuiz').hidden = false; tsMostrar(); }
+document.querySelectorAll('#tsQuiz .abtn').forEach(b => b.onclick = () => { tsSel = b.dataset.r; document.querySelectorAll('#tsQuiz .abtn').forEach(x => x.classList.toggle('on', x === b)); $('tsNunca').classList.remove('on'); $('tsConf').classList.add('on'); $('tsResp').disabled = !tsConf; });
+document.querySelectorAll('#tsQuiz .confs button').forEach(b => b.onclick = () => { tsConf = b.dataset.c; document.querySelectorAll('#tsQuiz .confs button').forEach(x => x.classList.toggle('on', x === b)); $('tsResp').disabled = !tsSel; });
+$('tsNunca').onclick = () => tsRegistrar('nao_estudei', null);
+$('tsResp').onclick = () => tsRegistrar(tsSel, tsConf);
+function tsRegistrar(r, conf) {
+  if (tsTrava || !r) return; tsTrava = true; $('tsResp').disabled = true; // um toque por questão: o segundo toque não vale para a questão seguinte
+  const q = QS[tsI]; tsResp.push({ q, r, conf, acerto: r === q.gab });
+  tsP.acesos.push({ id: q.t.id, t0: performance.now() }); tsP.atual = null; $('tsN').textContent = tsP.acesos.length;
+  $('tsDots').children[tsI].classList.add('fill');
+  const reg = $('reg'); reg.classList.add('on'); setTimeout(() => reg.classList.remove('on'), 900);
+  tsI++;
+  setTimeout(() => { if (tsI < QS.length) tsMostrar(); else { $('tsQuiz').hidden = true; $('tsPre').hidden = false; $('tsPre').scrollIntoView({ block: 'nearest', behavior: SEM_MOV ? 'auto' : 'smooth' }); } }, 650);
+}
+const CONF_TXT = { chutei: 'chutando', acho: 'achando que sabia', certeza: 'com certeza' };
+$('tsRevelar').onclick = () => {
+  const estados = {}; tsResp.forEach(x => estados[x.q.t.id] = x.r === 'nao_estudei' ? 'nao_estudei' : x.acerto ? 'desenvolvimento' : 'atencao');
+  tsP.acesos = []; aplicar(tsGal, estados); tsGal.entrada(2200); $('tsLegD').textContent = 'agora com as cores';
+  const COR = { desenvolvimento: '#F2B33D', atencao: '#ED5A5A', nao_estudei: '#8A97AD' };
+  setTimeout(() => { tsP.marcas = tsResp.map(x => ({ id: x.q.t.id, cor: COR[estados[x.q.t.id]], t0: performance.now() })); }, SEM_MOV ? 0 : 1900);
+  $('tsItens').innerHTML = tsResp.map(x => { const e = estados[x.q.t.id], cor = e === 'desenvolvimento' ? 'var(--amarelo)' : e === 'atencao' ? 'var(--vermelho)' : '#56627A';
+    const chip = e === 'desenvolvimento' ? '<span class="chip a">Em desenvolvimento</span>' : e === 'atencao' ? '<span class="chip r">Precisa de atenção</span>' : '<span class="chip n">Ainda não estudei</span>';
+    const oque = x.r === 'nao_estudei' ? 'Você marcou que ainda não estudou.' : `Você ${x.acerto ? 'acertou' : 'errou'} ${CONF_TXT[x.conf]}.`;
+    return `<div class="rv-item"><i style="background:${cor}"></i><div><div class="n">${x.q.nome}${chip}</div><div class="e">${oque} O item está <b>${x.q.gab}</b>. ${x.q.expl} <span style="color:var(--faint)">(${x.q.fonte})</span></div></div></div>`; }).join('');
+  const ce = tsResp.filter(x => !x.acerto && x.conf === 'certeza').length;
+  $('tsInsight').innerHTML = ce ? `<div class="insight"><b>CERTEZA COM ERRO</b>Você errou ${plural(ce, 'item', 'itens')} em que marcou certeza. É o erro que mais custa na prova, porque você não revisaria esse ponto por conta própria.</div>` : '';
+  const fracos = tsResp.filter(x => !x.acerto).sort((a, b) => b.q.t.peso - a.q.t.peso), p = fracos[0];
+  if (p) { $('tsPn').textContent = p.q.exato ? p.q.t.nome : p.q.disciplina;
+    $('tsPm').textContent = p.r === 'nao_estudei' ? `${motivo(p.q.t)} e você ainda não estudou.` : `${motivo(p.q.t)}. Aqui você precisa de atenção.`; }
+  else { const usados = new Set(tsResp.map(x => x.q.t.id)), c = tsGal.temas.filter(t => !usados.has(t.id)).reduce((a, b) => b.peso > a.peso ? b : a);
+    $('tsPn').textContent = c.nome; $('tsPm').textContent = `Você acertou as 3. O próximo passo é o tema que mais pesa e ainda não medimos. ${motivo(c)} e ainda não sabemos como você está aqui.`; }
+  $('tsPonte').innerHTML = `Isso foi com <b>3 questões</b>. No DOMINEI, o teste inicial tem até 20, e o mapa cobre os <b>${ATUAL.k.temas} temas</b> do edital ${ATUAL.c.sigla}. Para um tema ficar verde, normalmente você precisa voltar a ele e acertar questões em dias diferentes.`;
+  $('tsPre').hidden = true; $('tsRv').classList.add('on');
+  if (window.innerWidth < 900) document.querySelector('.tz').scrollIntoView({ block: 'start', behavior: SEM_MOV ? 'auto' : 'smooth' });
+};
+$('tsDeNovo').onclick = tsReiniciar;
+
+// ==================== 3 · DIA APÓS DIA ====================
+const dsGal = new CerebroMapa($('dsCanvas'), {}); let dsFila = null, dsPend = true;
+function dsAplicar(dia) {
+  const m = mapaDoDia(dsGal, dia), n = { dominado: 0, desenvolvimento: 0, atencao: 0, nao_avaliado: 0 }; Object.values(m).forEach(e => n[e]++);
+  aplicar(dsGal, m); $('dsV').textContent = n.dominado; $('dsA').textContent = n.desenvolvimento; $('dsR').textContent = n.atencao; $('dsC').textContent = n.nao_avaliado;
+  $('dsDia').textContent = 'Dia ' + dia; $('dsRange').style.setProperty('--p', (dia / 30 * 100) + '%');
+  $('dsFrase').textContent = dia === 0 ? 'antes do teste inicial' : dia <= 2 ? 'teste inicial feito: o mapa aparece' : dia < 12 ? 'os temas mais pesados entram primeiro' : dia < 22 ? 'o vermelho vai virando amarelo' : 'o verde toma as regiões que mais pesam';
+}
+$('dsRange').oninput = (e) => { const d = +e.target.value; if (dsFila == null) requestAnimationFrame(() => { dsAplicar(dsFila); dsFila = null; }); dsFila = d; };
+vigiar($('dsCanvas'), dsGal, async () => { if (!dsPend) return; dsPend = false; // na primeira vez, a régua anda sozinha até o dia 12 para mostrar que é de arrastar
+  dsGal.entrada(SEM_MOV ? 0 : 1400); if (SEM_MOV) { $('dsRange').value = 12; dsAplicar(12); return; }
+  await espera(1500); for (let d = 1; d <= 12; d++) { if (+$('dsRange').value !== d - 1) return; $('dsRange').value = d; dsAplicar(d); await espera(140); } });
+
+// ==================== 5 · DEPOIMENTOS (um por vez) ====================
+// As frases são as mensagens dos prints, do jeito que os alunos escreveram.
+const DEPS = [
+  { src: 'd1', cont: true, q: 'Essa plataforma é surreal, nunca vi nada igual.' },
+  { src: 'd3', q: 'Amei, muito bom essa plataforma, as questões são muito boas e a explicação no final quando erra perfeito. Obrigada 🙏🏻' },
+  { src: 'd4', q: 'Estou amando essa metodologia 🤩👏🏻👏🏻 Estudar com estratégia, acompanhar minha evolução e buscar minha melhor versão todos os dias 🚀 O segredo é não parar pessoal 👏🏻📚💪' },
+  { src: 'd2', q: 'Boraa diamantes .. minha nova diversão.. viciadissima kkk' },
+  { src: 'd5', q: 'Isso Viciaaaaa....é maravilhoso...e prático.....amei.' },
+  { src: 'd6', q: 'Trem gostoso e viciante' },
+  { src: 'd7', q: 'Agora dá p brincar legal a máquina tá alimentada, acho que nem perito tirou tanta foto igual eu desse final de semana pra cá 😁😁😁😁' },
+];
+(function depoimentos() {
+  const box = $('ctImgs'), N = DEPS.length; let at = 0, timer = null, naTela = false, naMao = false;
+  box.innerHTML = DEPS.map((d, i) => `<img class="ct-img${d.cont ? ' ct-cont' : ''}" src="depoimentos/${d.src}.jpg" alt="" data-i="${i}" decoding="async">`).join('');
+  const imgs = [...box.children];
+  function pintar() {
+    const gap = Math.min(60, box.offsetWidth * .1), sobe = gap * .8; // três prints visíveis: o do meio em foco, um de cada lado atrás
+    imgs.forEach((im, i) => { const meio = i === at, esq = (at - 1 + N) % N === i, dir = (at + 1) % N === i;
+      im.style.zIndex = meio ? 3 : esq || dir ? 2 : 1; im.style.opacity = meio || esq || dir ? 1 : 0; im.style.pointerEvents = meio ? 'auto' : 'none';
+      im.style.transform = meio ? 'none' : esq ? `translateX(-${gap}px) translateY(-${sobe}px) scale(.85) rotateY(15deg)` : dir ? `translateX(${gap}px) translateY(-${sobe}px) scale(.85) rotateY(-15deg)` : 'scale(.85)';
+      im.alt = meio ? 'Print da mensagem de um aluno, com a tela do DOMINEI: “' + DEPS[i].q + '”' : ''; });
+    $('ctQ').innerHTML = DEPS[at].q.split(' ').map((w, i) => `<span style="animation-delay:${i * 25}ms">${w}&nbsp;</span>`).join('');
+    $('ctN').textContent = (at + 1) + ' de ' + N;
+  }
+  function ir(d, mao) { at = (at + d + N) % N; if (mao) { naMao = true; parar(); $('ctQ').setAttribute('aria-live', 'polite'); } pintar(); }
+  function parar() { clearInterval(timer); timer = null; }
+  function tocar() { if (!timer && naTela && !naMao && !SEM_MOV) timer = setInterval(() => ir(1), 6000); } // passa sozinho só enquanto está na tela e ninguém mexeu
+  $('ctPrev').onclick = () => ir(-1, true); $('ctNext').onclick = () => ir(1, true);
+  $('ct').addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft') ir(-1, true); if (e.key === 'ArrowRight') ir(1, true); });
+  let x0 = null; box.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+  box.addEventListener('touchend', (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 40) ir(dx < 0 ? 1 : -1, true); }, { passive: true });
+  new IntersectionObserver((es) => es.forEach(e => { naTela = e.isIntersecting; if (naTela) tocar(); else parar(); }), { threshold: .3 }).observe($('ct'));
+  window.addEventListener('resize', pintar); pintar();
+})();
+
+// ==================== 6 · EDITAIS ====================
+const edGal = new CerebroMapa($('edCanvas'), {}); let edVez = 0, edPend = true;
+async function edAnimar() { const vez = ++edVez, vivo = () => vez === edVez;
+  if (SEM_MOV) { aplicar(edGal, mapaDoDia(edGal, 30)); return; }
+  aplicar(edGal, {}); edGal.entrada(1300); await espera(1500);
+  for (let d = 2; d <= 30; d += 2) { if (!vivo()) return; aplicar(edGal, mapaDoDia(edGal, d)); await espera(75); } }
+vigiar($('edPalco'), edGal, () => { if (edPend) { edPend = false; edAnimar(); } });
+function edPintar() { const { c, k } = ATUAL;
+  document.querySelectorAll('#edGrupos .pill').forEach(b => b.classList.toggle('on', b.dataset.s === c.sigla));
+  $('edSig').textContent = c.sigla; $('edNome').textContent = c.nome + (c.uf === 'BR' ? ' · federal' : ' · ' + c.uf);
+  $('edCargos').innerHTML = c.cargos.length > 1 ? c.cargos.map(x => `<button type="button" data-id="${x.id}" class="${x.id === k.id ? 'on' : ''}">${x.cargo}</button>`).join('') : '';
+  document.querySelectorAll('#edCargos button').forEach(b => b.onclick = () => definirEdital(c, c.cargos.find(x => x.id === b.dataset.id)));
+  $('edMeta').innerHTML = `${c.cargos.length > 1 ? '' : k.cargo + ' · '}<b>${k.temas} temas</b> em ${k.disciplinas} disciplinas${k.banca ? ' · banca ' + k.banca : ''}${k.data_prova ? ' · prova em ' + edData(k.data_prova) : ''}`;
+  const gs = edGal.gals, mx = gs[0].pct || 1, top = gs.slice(0, 6);
+  $('edPesos').innerHTML = `<div class="k">O que mais pesa neste edital</div>` + top.map(g => `<div class="peso"><span>${g.nome}</span><span>${g.pct}%</span><i><b style="width:${Math.max(4, 100 * g.pct / mx)}%;background:${g.tom}"></b></i></div>`).join('')
+    + (gs.length > top.length ? `<div class="ed-mais">e mais ${plural(gs.length - top.length, 'disciplina', 'disciplinas')} no mapa</div>` : '');
+}
+
+// ==================== ofertas: a origem do visitante vai para o checkout e o clique avisa o pixel ====================
+// Mesmo padrão da página de matrícula da Black: as UTMs da visita seguem no link pay.hub.la/<oferta>?utm_...
+// (nunca usar link no formato hub.la/r/..., que descarta as UTMs). Sem UTM na visita, entram os padrões abaixo.
+(function ofertas() {
+  const qs = new URLSearchParams(location.search), limpo = (v) => (v || '').trim().slice(0, 120);
+  const PADRAO = { utm_source: 'dominei-app', utm_medium: 'pagina-apresentacao', utm_campaign: 'dominei-avulso' };
+  document.querySelectorAll('#ofertas a[data-plano]').forEach(a => {
+    const u = new URL(a.href);
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(k => {
+      const v = limpo(qs.get(k)) || PADRAO[k] || (k === 'utm_content' ? a.dataset.plano : ''); // utm_term (marca de vendedor) só passa se veio na visita
+      if (v) u.searchParams.set(k, v); });
+    a.href = u.toString();
+    a.addEventListener('click', () => { try { if (window.fbq) fbq('track', 'InitiateCheckout', { content_name: a.dataset.nome, content_ids: [a.dataset.plano], content_category: 'dominei-avulso' }); } catch (e) {} });
+  });
+})();
+
+// ==================== o concurso escolhido vale para a página inteira ====================
+function definirEdital(c, k, rolar) {
+  ATUAL = { c, k }; const estrutura = estruturaDe(k.id);
+  [heroGal, tsGal, dsGal, edGal].forEach(g => { g.montar({ estrutura, porNode: {}, ligacoes: {} }); prepararTemas(g); });
+  $('heroSel').value = k.id;
+  heroResp = heroRespostas(); if (heroGal.naTela) heroRodar(); else { heroVez++; heroPend = true; }   // abertura: a demonstração recomeça com o edital novo
+  tsReiniciar();                                                                                        // teste: questões das disciplinas que este edital tem
+  $('tsPreEd').textContent = `3 respostas em 3 temas, cruzadas com o edital ${c.sigla}.`;
+  dsAplicar(+$('dsRange').value);                                                                       // régua: mesmo dia, edital novo
+  edPintar(); if (edGal.naTela) edAnimar(); else { edVez++; edPend = true; }                            // seção de editais
+  $('ofEd').innerHTML = `Seu edital: <b>${c.sigla} · ${k.cargo}</b>, com ${k.temas} temas no mapa. <a href="#editais">Trocar</a>`;
+  if (rolar && window.innerWidth < 900) $('edPalco').scrollIntoView({ block: 'start', behavior: SEM_MOV ? 'auto' : 'smooth' });
+}
+(function iniciar() {
+  const areas = [...ED_AREAS, ...new Set(CONCS.map(c => c.area).filter(a => !ED_AREAS.includes(a)))].filter(a => CONCS.some(c => c.area === a));
+  $('heroSel').innerHTML = areas.map(a => `<optgroup label="${a}">${CONCS.filter(c => c.area === a).map(c => c.cargos.map(k => `<option value="${k.id}">${c.sigla} · ${k.cargo}</option>`).join('')).join('')}</optgroup>`).join('');
+  $('heroSel').onchange = (e) => { const c = CONCS.find(x => x.cargos.some(k => k.id === e.target.value)); definirEdital(c, c.cargos.find(k => k.id === e.target.value)); };
+  $('edGrupos').innerHTML = areas.map(a => `<div class="ed-grupo"><div class="k">${a}</div><div class="ed-pills">${
+    CONCS.filter(c => c.area === a).map(c => `<button class="pill" type="button" data-s="${c.sigla}" title="${c.nome}">${c.sigla}</button>`).join('')}</div></div>`).join('');
+  document.querySelectorAll('#edGrupos .pill').forEach(b => b.onclick = () => { const c = CONCS.find(x => x.sigla === b.dataset.s); definirEdital(c, c.cargos[0], true); });
+  $('edNota').innerHTML = `${CONCS.length} concursos e ${CONCS.reduce((s, c) => s + c.cargos.length, 0)} editais em ${edData(ED.gerado_em)}.<br>Não achou o seu? Dentro do DOMINEI você pede o seu concurso e vota nos pedidos. Os mais pedidos entram primeiro.`;
+  const prf = CONCS.find(c => c.sigla === 'PRF') || CONCS[0]; definirEdital(prf, prf.cargos[0]);
+})();
+</script>
+</body>
+</html>
