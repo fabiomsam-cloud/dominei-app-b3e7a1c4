@@ -203,7 +203,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-11-16c'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-11-16d'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -410,6 +410,10 @@ async function loadVisao() {
   const { data: d, error } = await sb.rpc('fn_admin_dashboard');
   if (error) { pane.innerHTML = `<div class="card empty">${esc(error.message)}</div>`; return; }
   const eds = d.editais || [];
+  // 16/11: alunos por edital (pelo concurso ativo de cada um), mesma regra da aba Alunos: plano pago × convite
+  const nf = (n) => (n ?? 0).toLocaleString('pt-BR');
+  const alEd = eds.reduce((t, e) => t + (e.alunos || 0), 0), cvEd = eds.reduce((t, e) => t + (e.convidados || 0), 0);
+  const alSem = d.alunos_sem_edital || 0, cvSem = d.convidados_sem_edital || 0;
   pane.innerHTML = `
     <div class="pagetitle">V I S Ã O &nbsp; G E R A L</div>
     <div class="pagesub">O estado da operação num relance.</div>
@@ -419,13 +423,15 @@ async function loadVisao() {
       <div class="kpi ${d.propostas_pendentes ? 'warn' : 'good'}" onclick="irPara('propostas')"><div class="v">${d.propostas_pendentes}</div><div class="k">PROPOSTAS PENDENTES</div></div>
       <div class="kpi" onclick="irPara('solicitacoes')"><div class="v">${d.solicitacoes_abertas}</div><div class="k">SOLICITAÇÕES</div></div>
       <div class="kpi" onclick="irPara('bancas')"><div class="v">${d.bancas}</div><div class="k">BANCAS</div></div>
+      <div class="kpi" onclick="irPara('alunos')"><div class="v">${nf(alEd + alSem)}</div><div class="k">ALUNOS (PLANO PAGO)</div></div>
     </div>
     <div class="card">
-      <table class="tb"><thead><tr><th>EDITAL</th><th>STATUS</th><th>TÓPICOS</th><th>COBERTURA DE SONDAS</th><th>OFICIAIS</th><th>IA</th><th>PEND. TEXTO</th></tr></thead>
+      <table class="tb"><thead><tr><th>EDITAL</th><th>STATUS</th><th>ALUNOS</th><th>TÓPICOS</th><th>COBERTURA DE SONDAS</th><th>OFICIAIS</th><th>IA</th><th>PEND. TEXTO</th></tr></thead>
       <tbody>${eds.map(e => `
         <tr style="cursor:pointer" onclick="irPara('editais',{edital:'${e.id}'})">
           <td><b>${esc(e.concurso)}</b><br><span class="meta">${esc(e.cargo || '')}</span></td>
           <td><span class="badge ${e.status === 'publicado' ? 'edge' : 'grey'}">${esc(e.status)}</span></td>
+          <td style="white-space:nowrap"><b class="mono" style="font-size:15px;color:${e.alunos ? 'var(--verde)' : 'var(--faint)'}">${nf(e.alunos)}</b><br><span class="meta mono">+ ${nf(e.convidados)} convid.</span></td>
           <td class="mono">${e.topicos}</td>
           <td><div class="bar"><i style="width:${e.topicos ? Math.round(e.cobertos_1 / e.topicos * 100) : 0}%"></i></div>
             <span class="meta mono">${e.cobertos_1}/${e.topicos} (≥3: ${e.cobertos_3})</span></td>
@@ -433,6 +439,8 @@ async function loadVisao() {
           <td class="mono" style="color:${e.pendentes_texto ? 'var(--amarelo)' : 'var(--faint)'}">${e.pendentes_texto}</td>
         </tr>`).join('')}</tbody></table>
     </div>
+    <div class="card meta"><b style="color:var(--text)">Alunos por edital:</b> o número verde é quem tem plano pago e está com aquele concurso ativo; "convid." é quem entrou por link de convite. Cada pessoa conta uma vez, no concurso que está ativo para ela hoje.
+      <br>Plano pago: <b style="color:var(--text)">${nf(alEd + alSem)}</b> (${nf(alEd)} com concurso escolhido, ${nf(alSem)} ainda sem escolher) · Convidados: <b style="color:var(--text)">${nf(cvEd + cvSem)}</b> (${nf(cvEd)} com concurso, ${nf(cvSem)} sem escolher). A lista de nomes fica na aba Alunos.</div>
     <div class="card meta">Última execução da saúde: ${d.ultima_saude
       ? `${new Date(d.ultima_saude.created_at).toLocaleString('pt-BR')} (${esc(d.ultima_saude.origem)}, ${d.ultima_saude.suspensos} suspensos de ${d.ultima_saude.avaliados} avaliados)`
       : 'nunca'} · cron diário às 03:00 (Manaus)</div>`;
