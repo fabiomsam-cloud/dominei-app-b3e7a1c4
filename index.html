@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#070D1B">
-<meta name="build" content="2026-11-16a">
+<meta name="build" content="2026-11-16b">
 <script>
 /* 11/11: visitante novo que abre dominei.app vai para a página de apresentação (/conheca/).
    Continua no app: quem chega por link de entrada (matrícula, compra, convite, senha, ?entrar=1), quem usa o app
@@ -990,6 +990,7 @@ else return;s.defer=true;d.head.appendChild(s)})();</script>
         <input id="reqConcurso" placeholder="ex.: SEDUC-AM · Professor" style="margin:0">
         <button class="btn" id="btnSolicitar" style="width:auto;padding:12px 18px;font-size:14px;margin:0">Pedir</button>
       </div>
+      <div id="reqSugestoes" style="margin-top:10px"></div>
     </div>
   </section>
 
@@ -2077,14 +2078,30 @@ async function loadContaAntiga() {
 // (15/10) $('btnSair3').onclick = async () => { await sb.auth.signOut(); location.reload(); };
 
 // ---------- FILA DE EDITAIS (F7 · D9) ----------
+// 16/11: a fila traz também o que já está em preparação (antes sumia e o aluno pedia de novo) e, enquanto o aluno
+// digita, mostra os pedidos parecidos que já existem para ele votar em vez de criar um repetido.
+let reqTodos = [];
+const reqChave = (s) => (s ?? '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+const reqItem = (r) => `
+    <div class="al-item"><div>${esc(r.concurso)}<small>${plural(r.votos, 'pedido', 'pedidos')}${r.status === 'em_preparacao' ? ' · em preparação' : ''}</small></div>
+      <button type="button" class="${r.votei ? 'on' : ''}" ${r.votei ? 'disabled' : `onclick="votarEdital('${r.id}')"`}>${r.votei ? '✓ você pediu' : '+1'}</button></div>`;
 async function loadSolicitados() {
   const { data, error } = await sb.rpc('fn_editais_solicitados');
   if (error || !data) return;
-  $('reqLista').innerHTML = data.slice(0, 3).map(r => `
-    <div class="al-item"><div>${esc(r.concurso)}<small>${plural(r.votos, 'pedido', 'pedidos')}${r.status === 'em_curadoria' ? ' · em curadoria' : ''}</small></div>
-      <button type="button" class="${r.votei ? 'on' : ''}" ${r.votei ? 'disabled' : `onclick="votarEdital('${r.id}')"`}>${r.votei ? '✓ você pediu' : '+1'}</button></div>`).join('');
-  $('reqForm').classList.toggle('on', !data.length); // sem pedidos ainda: o campo já aparece
+  reqTodos = data;
+  $('reqLista').innerHTML = data.slice(0, 3).map(reqItem).join('');
+  if (!data.length) $('reqForm').classList.add('on'); // sem pedidos ainda: o campo já aparece
+  reqSugerir();
 }
+function reqSugerir() {
+  const q = reqChave($('reqConcurso').value);
+  const palavras = q.split(' ').filter(p => p.length >= 2);
+  const achados = q.length < 3 ? [] : reqTodos.filter(r => { const c = reqChave(r.concurso); return palavras.every(p => c.includes(p)); }).slice(0, 4);
+  $('reqSugestoes').innerHTML = achados.length
+    ? `<p style="font-size:var(--fs-rotulo);color:var(--dim);margin:0 0 6px">Já pediram algo parecido. Se for o seu, toque em +1 em vez de pedir de novo:</p>` + achados.map(reqItem).join('')
+    : '';
+}
+$('reqConcurso').addEventListener('input', reqSugerir);
 async function votarEdital(id) {
   const { error } = await sb.rpc('fn_edital_votar', { p_request: id });
   if (error) { toast(humanizar(error.message)); return; }
@@ -2098,7 +2115,7 @@ $('btnSolicitar').onclick = async () => {
   if (error) { toast(humanizar(error.message)); return; }
   $('reqConcurso').value = '';
   toast('Pedido registrado — avisaremos quando entrar.');
-  loadSolicitados();
+  await loadSolicitados();
 };
 // Revelação → a prioridade nº 1 que a tela mostrou (3.2): começa a sessão, abre o resumo ou confere o estudo
 async function revelacaoAgir(modo) {
