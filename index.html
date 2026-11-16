@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#070D1B">
-<meta name="build" content="2026-11-16b">
+<meta name="build" content="2026-11-16c">
 <script>
 /* 11/11: visitante novo que abre dominei.app vai para a página de apresentação (/conheca/).
    Continua no app: quem chega por link de entrada (matrícula, compra, convite, senha, ?entrar=1), quem usa o app
@@ -2009,7 +2009,9 @@ async function loadPerfil() {
     $('pfConfirmar').onclick = () => { if (alvo) pfTrocar(alvo.id); };
   };
   $('pfConc').querySelectorAll('.pf-meus [data-c]').forEach(b => b.onclick = () => pfTrocar(b.dataset.c));
-  $('pfPedir').onclick = () => { const q = prompt('Qual concurso e cargo?'); if (q && q.trim()) sb.rpc('fn_edital_solicitar', { p_concurso: q.trim(), p_detalhe: null }).then(({ error: e }) => toast(e ? 'Não consegui registrar o pedido agora.' : 'Pedido registrado. Obrigado!')); };
+  $('pfPedir').onclick = () => { const q = prompt('Qual concurso e cargo?'); const ja = q ? reqDisponiveis(q) : [];
+    if (ja.length && !confirm(`${ja.map(c => c.sigla).join(', ')} já está disponível no DOMINEI: procure em "Trocar de concurso".\n\nÉ outro concurso ou outro cargo? Toque em OK para pedir mesmo assim.`)) return;
+    if (q && q.trim()) sb.rpc('fn_edital_solicitar', { p_concurso: q.trim(), p_detalhe: null }).then(({ error: e }) => toast(e ? 'Não consegui registrar o pedido agora.' : 'Pedido registrado. Obrigado!')); };
   // retrato + conquistas
   const d = { medidos: r.medidos || 0, verdes: r.dominados || 0, atencao: r.atencao || 0, total: r.total || 0, streak: home ? home.streak || 0 : 0, setorOk: !!(cbDados && cbDados.setorOk), indice: 0 };
   $('pfRet').innerHTML = `<div class="imp-k" style="margin-bottom:0">SEU RETRATO</div>
@@ -2093,13 +2095,30 @@ async function loadSolicitados() {
   if (!data.length) $('reqForm').classList.add('on'); // sem pedidos ainda: o campo já aparece
   reqSugerir();
 }
+// 16/11: concurso que já está no catálogo não vira pedido novo sem o aluno ver o aviso (pode ser outro cargo: "pedir mesmo assim").
+const REQ_SOLTAS = ['de', 'do', 'da', 'dos', 'das', 'em', 'no', 'na', 'concurso', 'edital'];
+function reqDisponiveis(texto) {
+  const palavras = reqChave(texto).split(' ').filter(p => p.length >= 2 && !REQ_SOLTAS.includes(p));
+  if (!palavras.length || palavras.join('').length < 3) return [];
+  return catalogo.filter(c => { const t = c._t + c.cargos.map(g => g._t).join(''); return palavras.every(p => t.includes(p)); }).slice(0, 3);
+}
+function reqVerDisponivel(sigla) {
+  const box = $('alvoCards'), inp = box.querySelector('input[type=search]');
+  if (inp) { inp.value = sigla; inp.dispatchEvent(new Event('input')); }
+  box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 function reqSugerir() {
   const q = reqChave($('reqConcurso').value);
   const palavras = q.split(' ').filter(p => p.length >= 2);
   const achados = q.length < 3 ? [] : reqTodos.filter(r => { const c = reqChave(r.concurso); return palavras.every(p => c.includes(p)); }).slice(0, 4);
-  $('reqSugestoes').innerHTML = achados.length
-    ? `<p style="font-size:var(--fs-rotulo);color:var(--dim);margin:0 0 6px">Já pediram algo parecido. Se for o seu, toque em +1 em vez de pedir de novo:</p>` + achados.map(reqItem).join('')
-    : '';
+  const prontos = reqDisponiveis($('reqConcurso').value);
+  const rot = (t) => `<p style="font-size:var(--fs-rotulo);color:var(--dim);margin:0 0 6px">${t}</p>`;
+  $('reqSugestoes').innerHTML =
+    (prontos.length ? rot('Já está disponível no DOMINEI. Não precisa pedir:') + prontos.map(c => `
+    <div class="al-item"><div>${esc(c.sigla)}<small>${esc(c.nome)} · ${c.cargos.length === 1 ? esc(c.cargos[0].cargo) : plural(c.cargos.length, 'cargo', 'cargos')}</small></div>
+      <button type="button" class="on" data-s="${esc(c.sigla)}" onclick="reqVerDisponivel(this.dataset.s)">Ver</button></div>`).join('')
+      + `<button class="ss-link" type="button" style="margin:2px 0 10px" onclick="reqEnviar(true)">É outro concurso ou outro cargo? Pedir mesmo assim</button>` : '')
+    + (achados.length ? rot('Já pediram algo parecido. Se for o seu, toque em +1 em vez de pedir de novo:') + achados.map(reqItem).join('') : '');
 }
 $('reqConcurso').addEventListener('input', reqSugerir);
 async function votarEdital(id) {
@@ -2108,15 +2127,17 @@ async function votarEdital(id) {
   loadSolicitados();
 }
 $('reqOutro').onclick = () => { $('reqForm').classList.toggle('on'); if ($('reqForm').classList.contains('on')) $('reqConcurso').focus(); };
-$('btnSolicitar').onclick = async () => {
+$('btnSolicitar').onclick = () => reqEnviar(false);
+async function reqEnviar(mesmoAssim) {
   const v = $('reqConcurso').value.trim();
   if (v.length < 3) { toast('Escreva o nome do concurso.'); return; }
+  if (!mesmoAssim && reqDisponiveis(v).length) { reqSugerir(); toast('Esse concurso já está disponível. Toque em Ver, logo abaixo.'); return; }
   const { error } = await sb.rpc('fn_edital_solicitar', { p_concurso: v, p_detalhe: null });
   if (error) { toast(humanizar(error.message)); return; }
   $('reqConcurso').value = '';
   toast('Pedido registrado — avisaremos quando entrar.');
   await loadSolicitados();
-};
+}
 // Revelação → a prioridade nº 1 que a tela mostrou (3.2): começa a sessão, abre o resumo ou confere o estudo
 async function revelacaoAgir(modo) {
   const p1 = (reveal.prioridades || [])[0];
