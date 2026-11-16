@@ -203,7 +203,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-11-11c'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-11-16a'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -1899,7 +1899,7 @@ CONCURSO: PF</pre>
 <li><b>Bancas / Provas / Itens</b>: cadastro de bancas, provas reais e questões (busca, pendências de texto-base).</li>
 <li><b>Qualidade</b>: reports dos alunos sobre questões e itens suspensos pela saúde diária (cron 07:00).</li>
 <li><b>Propostas</b>: fila do que a IA propôs (nós, pesos, questões), da menor confiança para a maior; toda decisão fica auditada.</li>
-<li><b>Solicitações</b>: pedidos vindos do app.</li>
+<li><b>Solicitações</b>: pedidos vindos do app, em abas por situação (Abertas, Em preparação, Atendidas, Recusadas). Mudar a situação tira o pedido da lista e leva para a aba dele (o aviso traz "Desfazer"). A busca procura em todas as situações. <b>Juntar com…</b> soma os votos de um pedido repetido em outro e tira o repetido da fila (sem desfazer; o retrato fica na auditoria).</li>
 <li><b>Auditoria</b>: sondas da trilha e resumos para leitura, Ligações do Cérebro (hoje sem efeito no app), Nomes curtos.</li>
 <li><b>Alunos</b>: todos com conta (status, vencimento, concurso, questões), +30 dias / bloquear / encerrar; <b>links de convite</b> (criar, copiar, desativar, encerrar acesso).</li>
 <li><b>Beta</b>: convite por e-mail, lista de espera, funil dos alunos nos últimos 30 dias e erros do app.</li>
@@ -2125,29 +2125,126 @@ async function convidarBeta(email) {
   loadBeta();
 }
 
+// 16/11: fila por situação (abre em Abertas; mudar a situação tira o cartão da lista), busca por nome
+// em todas as situações e "juntar com…" para pedidos repetidos (fn_admin_solicitacao_juntar).
+const SOL_ABAS = [['aberta', 'Abertas'], ['em_preparacao', 'Em preparação'], ['atendida', 'Atendidas'], ['recusada', 'Recusadas']];
+const SOL_NOME = { aberta: 'Aberta', em_preparacao: 'Em preparação', atendida: 'Atendida', recusada: 'Recusada' };
+const SOL_BOTAO = { aberta: 'Reabrir', em_preparacao: 'Em preparação', atendida: 'Atendida', recusada: 'Recusar' };
+let solCache = [], solAba = 'aberta', solBusca = '', solJuntando = null;
+const solNorm = (s) => (s ?? '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+const solVotos = (n) => `${n} ${n === 1 ? 'voto' : 'votos'}`;
+
 async function loadSolicitacoes() {
   const pane = $('pane-solicitacoes');
+  solJuntando = null;
   pane.innerHTML = `
     <div class="pagetitle">S O L I C I T A Ç Õ E S</div>
-    <div class="pagesub">Editais pedidos pelos alunos — os mais votados primeiro.</div>
+    <div class="pagesub">Editais pedidos pelos alunos — os mais votados primeiro. Ao mudar a situação, o pedido sai desta lista e vai para a aba dele.</div>
+    <div class="d-nav" id="solAbas"></div>
+    <div class="filters"><input id="solBusca" type="search" placeholder="Buscar concurso em todas as situações…" style="flex:1 1 280px"
+      value="${esc(solBusca)}" oninput="solBusca = this.value; solJuntando = null; solRender()"></div>
+    <div class="count" id="solCount"></div>
     <div id="solLista"><div class="empty">carregando…</div></div>`;
   const { data, error } = await sb.rpc('fn_admin_solicitacoes_listar');
   if (error) { $('solLista').innerHTML = `<div class="card empty">${esc(error.message)}</div>`; return; }
-  $('solLista').innerHTML = (data || []).map(r => `
-    <div class="card" id="sol-${r.id}">
-      <div class="nome">${esc(r.concurso)} <span class="conf mono">${r.votos} voto(s)</span></div>
-      <div class="meta">${esc(r.detalhe || '')} · ${new Date(r.created_at).toLocaleDateString('pt-BR')}
-        · <span class="badge ${r.status === 'aberta' ? 'grey' : r.status === 'atendida' ? 'edge' : ''}">${esc(r.status)}</span></div>
-      <div class="acts">
-        ${['aberta','em_preparacao','atendida','recusada'].map(s =>
-          `<button class="${s === r.status ? 'b-ok' : 'b-ghost'}" onclick="mudarSolicitacao('${r.id}','${s}')">${s.replace('_',' ')}</button>`).join('')}
-      </div>
-    </div>`).join('') || '<div class="card empty">Nenhuma solicitação.</div>';
+  solCache = data || [];
+  solRender();
 }
-async function mudarSolicitacao(id, s) {
+function solRender() {
+  if (!$('solLista')) return;
+  const q = solNorm(solBusca);
+  const ordem = (a, b) => b.votos - a.votos || new Date(a.created_at) - new Date(b.created_at);
+  const conta = (s) => solCache.filter(r => r.status === s).length;
+  $('solAbas').innerHTML = SOL_ABAS.map(([s, rot]) =>
+    `<button class="${!q && s === solAba ? 'on' : ''}" onclick="solIrAba('${s}')">${rot} <span class="mono" style="opacity:.75">${conta(s)}</span></button>`).join('');
+  const lista = solCache.filter(r => q ? solNorm(r.concurso + ' ' + (r.detalhe || '')).includes(q) : r.status === solAba).sort(ordem);
+  $('solCount').textContent = q
+    ? `${lista.length} resultado(s) para “${solBusca.trim()}” em todas as situações`
+    : `${lista.length} pedido(s) · ${lista.reduce((t, r) => t + r.votos, 0)} voto(s)`;
+  $('solLista').innerHTML = lista.map(r => `
+    <div class="card" id="sol-${r.id}">
+      <div class="nome">${esc(r.concurso)} <span class="conf mono">${solVotos(r.votos)}</span></div>
+      <div class="meta">${r.detalhe ? esc(r.detalhe) + ' · ' : ''}pedido em ${new Date(r.created_at).toLocaleDateString('pt-BR')}
+        ${q ? `· <span class="badge ${r.status === 'aberta' ? 'grey' : r.status === 'atendida' ? 'edge' : r.status === 'recusada' ? 'red' : ''}">${SOL_NOME[r.status]}</span>` : ''}</div>
+      <div class="acts">
+        ${SOL_ABAS.filter(([s]) => s !== r.status).map(([s]) =>
+          `<button class="${s === 'recusada' ? 'b-no' : s === 'aberta' ? 'b-ghost' : 'b-ok'}" onclick="mudarSolicitacao('${r.id}','${s}')">${SOL_BOTAO[s]}</button>`).join('')}
+        <button class="b-merge" onclick="solAbrirJuntar('${r.id}')">Juntar com…</button>
+      </div>
+      ${solJuntando === r.id ? solJuntarHtml(r) : ''}
+    </div>`).join('') || `<div class="card empty">${q ? 'Nenhum pedido com esse nome.' : 'Nenhum pedido nesta situação.'}</div>`;
+}
+function solIrAba(s) {
+  solAba = s; solBusca = ''; solJuntando = null;
+  if ($('solBusca')) $('solBusca').value = '';
+  solRender();
+}
+async function mudarSolicitacao(id, s, desfazendo = false) {
+  const r = solCache.find(x => x.id === id);
+  if (!r || r.status === s) return;
+  const antes = r.status;
+  r.status = s; solJuntando = null; solRender();          // sai da lista na hora; se o banco recusar, volta
   const { error } = await sb.rpc('fn_admin_solicitacao_status', { p_id: id, p_status: s });
+  if (error) { r.status = antes; solRender(); toast(error.message, false); return; }
+  atualizarBadges();
+  if (desfazendo) toast(`“${r.concurso}” voltou para ${SOL_NOME[s]} ✓`);
+  else solAvisoDesfazer(`“${r.concurso}” → ${SOL_NOME[s]}`, () => mudarSolicitacao(id, antes, true));
+}
+let solAvisoTimer = null;
+function solAvisoDesfazer(texto, desfazer) {
+  let el = $('solAviso');
+  if (!el) { el = document.createElement('div'); el.id = 'solAviso'; el.className = 'toast'; document.body.appendChild(el); }
+  $('toast').style.display = 'none';
+  el.style.background = 'var(--verde)'; el.style.maxWidth = '92vw';
+  el.innerHTML = `<span></span> <button style="margin-left:12px;padding:4px 12px;font-size:12px;font-weight:800;background:#04130B;color:var(--verde);border:0;border-radius:7px;cursor:pointer">Desfazer</button>`;
+  el.querySelector('span').textContent = texto + ' ✓';
+  el.querySelector('button').onclick = () => { el.style.display = 'none'; desfazer(); };
+  el.style.display = 'block';
+  clearTimeout(solAvisoTimer);
+  solAvisoTimer = setTimeout(() => el.style.display = 'none', 7000);
+}
+
+// ----- juntar pedidos repetidos: os votos deste pedido vão para o escolhido e este sai da fila -----
+function solAbrirJuntar(id) {
+  solJuntando = solJuntando === id ? null : id;
+  solRender();
+  if (solJuntando) { const i = $('solJuntarBusca'); if (i) i.focus(); }
+}
+function solJuntarHtml(r) {
+  return `<div class="subform">
+    <label>Juntar “${esc(r.concurso)}” com qual pedido?</label>
+    <div class="hint" style="margin-top:0">Os ${solVotos(r.votos)} deste pedido vão para o que você escolher (quem votou nos dois conta uma vez só) e este sai da lista.</div>
+    <input id="solJuntarBusca" type="search" placeholder="Digite o nome do pedido que fica…" autocomplete="off" oninput="solJuntarLista('${r.id}')">
+    <div id="solJuntarOpcoes">${solJuntarOpcoes(r, '')}</div>
+    <div class="acts"><button class="b-ghost" onclick="solAbrirJuntar('${r.id}')">Cancelar</button></div>
+  </div>`;
+}
+function solJuntarOpcoes(r, texto) {
+  const q = solNorm(texto);
+  const palavras = solNorm(r.concurso).split(/[^a-z0-9]+/).filter(p => p.length >= 3);
+  const parecido = (x) => { const n = solNorm(x.concurso); return palavras.filter(p => n.includes(p)).length; };
+  const outros = solCache.filter(x => x.id !== r.id && (!q || solNorm(x.concurso).includes(q)))
+    .sort((a, b) => (q ? 0 : parecido(b) - parecido(a)) || b.votos - a.votos).slice(0, 8);
+  if (!outros.length) return '<div class="hint" style="margin:8px 0 0">Nenhum pedido com esse nome.</div>';
+  return outros.map(x => `<button class="b-ghost" style="display:block;width:100%;text-align:left;margin-top:6px"
+      onclick="solJuntar('${r.id}','${x.id}')">${esc(x.concurso)} <span class="conf mono">${solVotos(x.votos)} · ${SOL_NOME[x.status]}</span></button>`).join('');
+}
+function solJuntarLista(id) {
+  const r = solCache.find(x => x.id === id);
+  if (r && $('solJuntarOpcoes')) $('solJuntarOpcoes').innerHTML = solJuntarOpcoes(r, $('solJuntarBusca').value);
+}
+async function solJuntar(origemId, destinoId) {
+  const o = solCache.find(x => x.id === origemId), d = solCache.find(x => x.id === destinoId);
+  if (!o || !d) return;
+  if (!confirm(`Juntar “${o.concurso}” (${solVotos(o.votos)}) com “${d.concurso}” (${solVotos(d.votos)})?\n\n` +
+    `Fica só “${d.concurso}”, com os votos somados. “${o.concurso}” sai da lista.\n\nIsso não tem botão de desfazer.`)) return;
+  const { data, error } = await sb.rpc('fn_admin_solicitacao_juntar', { p_origem: origemId, p_destino: destinoId });
   if (error) { toast(error.message, false); return; }
-  toast('Solicitação: ' + s.replace('_', ' ') + ' ✓'); loadSolicitacoes(); atualizarBadges();
+  solCache = solCache.filter(x => x.id !== origemId);
+  d.votos = data?.votos ?? d.votos;
+  if (!d.detalhe && o.detalhe) d.detalhe = o.detalhe;
+  solJuntando = null; solRender(); atualizarBadges();
+  toast(`Juntado: “${d.concurso}” agora tem ${solVotos(d.votos)} ✓`);
 }
 
 boot();
