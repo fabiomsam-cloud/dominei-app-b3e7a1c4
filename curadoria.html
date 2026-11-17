@@ -208,10 +208,6 @@
           Primeira vez? <a href="#" id="lnkModo">Criar conta</a> (o acesso é liberado apenas para e-mails da equipe.)
         </p>
       </div>
-      <!-- SEM ACESSO -->
-      <div class="card" id="viewNoAccess" style="display:none">
-        <div class="empty">Sua conta foi criada, mas este e-mail não está na lista da equipe.<br>Fale com o Fábio para liberar o acesso.</div>
-      </div>
       <!-- APP: panes gerados pelo registry -->
       <div id="viewApp" style="display:none"></div>
     </div>
@@ -220,13 +216,15 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-11-17b'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-11-17c'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
 const EDGE_ENTRAR = SB_URL + '/functions/v1/entrar-como'; // aba Alunos · "Entrar como aluno"
 const EDGE_ROTULOS = SB_URL + '/functions/v1/rotulos-curtos', EDGE_RESUMOS = SB_URL + '/functions/v1/resumir-topicos', EDGE_EXPLICAR = SB_URL + '/functions/v1/explicar-itens';
-const sb = supabase.createClient(SB_URL, SB_KEY);
+// 17/11: o painel guarda o login dele em chave própria. Antes dividia o login com o app do aluno (mesmo endereço, mesmo
+// projeto): quem estava no app com conta de aluno abria o painel "logado" como aluno e ficava preso na tela de sem acesso.
+const sb = supabase.createClient(SB_URL, SB_KEY, { auth: { storageKey: 'dominei-painel-auth' } });
 const $ = (id) => document.getElementById(id);
 const PAGE = 50;                       // regra da casa: toda lista paginada
 let modoCadastro = false, editais = {}, propCache = {}, bancasCache = [], provasCache = [];
@@ -327,8 +325,15 @@ window.addEventListener('hashchange', () => { if ($('viewApp').style.display !==
 async function boot() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { show('viewLogin'); return; }
-  const { data: staff } = await sb.rpc('fn_is_staff');
-  if (!staff) { show('viewNoAccess'); return; }
+  const { data: staff, error: eStaff } = await sb.rpc('fn_is_staff');
+  if (eStaff) { show('viewLogin'); $('loginMsg').textContent = 'Não consegui confirmar seu acesso agora. Confira a internet e atualize a página.'; return; }
+  if (!staff) { // 17/11: sem tela de bloqueio — sai só deste painel e volta para a entrada, dizendo qual e-mail não é da equipe
+    const quem = session.user.email;
+    await sb.auth.signOut({ scope: 'local' });
+    show('viewLogin'); $('senha').value = '';
+    $('loginMsg').textContent = `O e-mail ${quem} não está na lista da equipe do painel. Entre com o e-mail da equipe ou peça ao Fábio para incluir este.`;
+    return;
+  }
   $('who2').textContent = session.user.email;
   montarNav();
   $('buildStamp').textContent = 'build ' + BUILD;
@@ -340,7 +345,7 @@ async function boot() {
   atualizarBadges();
 }
 function show(id) {
-  ['viewLogin', 'viewNoAccess', 'viewApp'].forEach(v => $(v).style.display = v === id ? 'block' : 'none');
+  ['viewLogin', 'viewApp'].forEach(v => $(v).style.display = v === id ? 'block' : 'none');
 }
 $('lnkModo').onclick = (e) => { e.preventDefault(); modoCadastro = !modoCadastro;
   $('loginTitle').textContent = modoCadastro ? 'Criar conta' : 'Entrar';
@@ -356,7 +361,7 @@ $('btnEntrar').onclick = async () => {
   if (modoCadastro) { $('loginMsg').textContent = 'Conta criada. Confirme pelo e-mail e entre.'; modoCadastro = false; return; }
   boot();
 };
-$('btnSair2').onclick = async () => { await sb.auth.signOut(); location.hash = ''; location.reload(); };
+$('btnSair2').onclick = async () => { await sb.auth.signOut({ scope: 'local' }); location.hash = ''; location.reload(); }; // só este painel: não derruba o app do aluno
 
 async function carregarEditais() {
   const { data, error } = await sb.rpc('fn_admin_editais_listar');
