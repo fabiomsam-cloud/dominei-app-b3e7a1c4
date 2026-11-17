@@ -97,6 +97,20 @@
   .b-no { background:transparent; color:var(--vermelho); border:1px solid rgba(237,90,90,.45); }
   .b-no:hover { background:rgba(237,90,90,.1); }
   .subform { background:rgba(8,14,26,.6); border:1px solid var(--line); border-radius:11px; padding:14px; margin-top:10px; }
+  /* 17/11: janela "Trocar e-mail" da aba Alunos */
+  .te-ov { position:fixed; inset:0; background:rgba(3,7,16,.72); backdrop-filter:blur(3px); z-index:80; display:flex; align-items:flex-start; justify-content:center; padding:6vh 16px; overflow:auto; }
+  .te-box { width:100%; max-width:560px; background:var(--card2); border:1px solid var(--line); border-radius:var(--radius); padding:22px; box-shadow:0 24px 60px rgba(0,0,0,.45); }
+  .te-box h3 { margin:0 0 4px; font-size:18px; color:var(--text); }
+  .te-de { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:14px 0 4px; font-size:13px; }
+  .te-de .mono { background:rgba(8,14,26,.6); border:1px solid var(--line); border-radius:8px; padding:6px 9px; color:var(--text); word-break:break-all; }
+  .te-lista { margin:12px 0 0; padding-left:18px; color:var(--dim); font-size:13px; line-height:1.55; }
+  .te-lista b { color:var(--text); font-weight:600; }
+  .te-aviso { margin-top:12px; font-size:13px; padding:10px 12px; border-radius:10px; border:1px solid rgba(242,179,61,.35); background:rgba(242,179,61,.08); color:var(--amarelo); }
+  .te-erro { margin-top:12px; font-size:13px; padding:10px 12px; border-radius:10px; border:1px solid rgba(237,90,90,.4); background:rgba(237,90,90,.08); color:#F59A9A; }
+  .te-ok { margin-top:4px; font-size:13px; padding:10px 12px; border-radius:10px; border:1px solid rgba(47,224,141,.35); background:rgba(47,224,141,.08); color:var(--verde2); }
+  .te-msg { width:100%; min-height:190px; font-size:13px; line-height:1.5; margin-top:8px; }
+  .te-acts { display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; margin-top:18px; }
+  .te-st { margin-top:10px; font-size:12px; color:var(--dim); }
   .d-nav { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
   .d-nav button { background:transparent; border:1px solid var(--line); color:var(--dim); padding:7px 12px; border-radius:999px; font-size:12px; cursor:pointer; }
   .d-nav button.on { color:var(--verde); border-color:var(--line-v); background:rgba(47,224,141,.1); }
@@ -203,7 +217,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-11-16d'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-11-17a'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -1848,6 +1862,7 @@ CONCURSO: PF</pre>
   <li><b>Convidar por link</b> (o jeito normal) — aba <i>Alunos</i> → <i>Links de convite</i> → nome, dias de acesso e limite de pessoas (opcional) → <i>Criar link</i> → <i>Copiar link</i> e mandar. Quem abre <code>dominei.app/?c=CODIGO</code> cria a conta sozinho (nome, e-mail, WhatsApp opcional, senha) e entra direto, com acesso pelos dias do link. <i>Desativar link</i> só para novas entradas; <i>Encerrar acesso</i> tira o acesso de todo mundo que entrou por ele.</li>
   <li><b>Convidar por e-mail</b> (um a um) — aba <i>Beta</i> → e-mail → <i>Convidar</i>: libera o e-mail para criar conta e dá 90 dias. Sem convite, a pessoa vê "Acesso fechado por enquanto".</li>
   <li><b>Acompanhar</b> — aba <i>Alunos</i>: nome, por onde entrou, concurso, vencimento, status; <i>+30 dias</i>, <i>Bloquear/Desbloquear</i> (bloqueado não entra no app), <i>Encerrar</i>.</li>
+  <li><b>Trocar e-mail</b> — aba <i>Alunos</i> → busque o aluno pelo e-mail que veio da compra → <i>Trocar e-mail</i> → digite o e-mail que ele quer usar → <i>Trocar e-mail</i>. A conta continua a mesma (senha, progresso e plano); o e-mail antigo deixa de entrar; compras e reembolsos que a Hubla mandar no e-mail antigo passam a valer para o novo (não precisa mexer na Hubla). No fim aparece a mensagem pronta para copiar e mandar ao aluno (com link de criar senha, se ele nunca entrou). Não funciona se o e-mail novo já tiver outra conta, nem para aluno da Tríade (esse vai pela Administração da Tríade).</li>
   <li><b>Primeiro acesso</b> em <b>dominei.app</b> — a pessoa cria a conta com o e-mail convidado, escolhe o concurso (só editais <i>publicados</i> aparecem) e responde o <b>"Antes do teste"</b>: autoavaliação rápida por disciplina (nunca vi / já estudei / domino), que só ajusta o ponto de partida.</li>
   <li><b>Diagnóstico</b> — de 8 a 20 questões, sem correção durante o teste, focadas nos 15 temas mais pesados do edital; para quando já mediu o suficiente.</li>
   <li><b>Revelação</b> — o cérebro acende pela primeira vez com as cores do que foi medido e mostra as 3 prioridades, cada uma com o motivo. Daí em diante é o uso diário.</li>
@@ -1909,7 +1924,7 @@ CONCURSO: PF</pre>
 <li><b>Propostas</b>: fila do que a IA propôs (nós, pesos, questões), da menor confiança para a maior; toda decisão fica auditada.</li>
 <li><b>Solicitações</b>: pedidos vindos do app, em abas por situação (Abertas, Em preparação, Atendidas, Recusadas). Mudar a situação tira o pedido da lista e leva para a aba dele (o aviso traz "Desfazer"). A busca procura em todas as situações. <b>Juntar com…</b> soma os votos de um pedido repetido em outro e tira o repetido da fila (sem desfazer; o retrato fica na auditoria).</li>
 <li><b>Auditoria</b>: sondas da trilha e resumos para leitura, Ligações do Cérebro (hoje sem efeito no app), Nomes curtos.</li>
-<li><b>Alunos</b>: todos com conta (status, vencimento, concurso, questões), +30 dias / bloquear / encerrar; <b>links de convite</b> (criar, copiar, desativar, encerrar acesso).</li>
+<li><b>Alunos</b>: todos com conta (status, vencimento, concurso, questões), trocar e-mail / +30 dias / bloquear / encerrar;<b>links de convite</b> (criar, copiar, desativar, encerrar acesso).</li>
 <li><b>Beta</b>: convite por e-mail, lista de espera, funil dos alunos nos últimos 30 dias e erros do app.</li>
 </ul>
 <p><b>Automático, sem ninguém apertar nada:</b> fábrica de sondas (a cada 10 min, editais publicados, 1 questão por tema até cobrir tudo); saúde diária dos itens (07:00, suspende item com problema); estado do aluno recalculado a cada abertura; e-mail de pedido de convite.</p>
@@ -2035,7 +2050,8 @@ function desenharAlunos() {
         <td>${esc(a.email)}</td><td class="mono">${esc(a.telefone || '—')}</td><td>${esc(a.edital || '—')}</td><td class="mono">${dataBR(a.vencimento)}</td>
         <td><span class="badge ${cls}">${rot}</span></td>
         <td style="white-space:nowrap"><button class="b-ghost" title="Abre o app na conta deste aluno, para ver o que ele vê" onclick="entrarComoAluno('${a.id}', this)">Entrar como aluno</button>
-          ${a.demo ? '' : `<button class="b-ghost" onclick="acaoAluno('${a.id}','estender')">+30 dias</button>
+          ${a.demo ? '' : `<button class="b-edit" title="A compra veio com o e-mail errado? Troque aqui: a conta, a senha e o plano continuam os mesmos" onclick="abrirTrocaEmail('${a.id}')">Trocar e-mail</button>
+          <button class="b-ghost" onclick="acaoAluno('${a.id}','estender')">+30 dias</button>
           ${a.status === 'bloqueado' ? `<button class="b-ok" onclick="acaoAluno('${a.id}','desbloquear')">Desbloquear</button>` : `<button class="b-split" onclick="acaoAluno('${a.id}','bloquear')">Bloquear</button>`}
           ${a.status === 'ativo' ? `<button class="b-ghost" onclick="acaoAluno('${a.id}','encerrar')">Encerrar</button>` : ''}`}</td></tr>`; }).join('') + '</tbody></table>'
     : `<div class="empty">${achou.length ? `Nada em ${rotTipo} com esse filtro — há ${achou.length} em outro grupo. <button class="b-ghost" onclick="alIr('todos')">Ver todos</button>` : 'Nenhuma conta encontrada.'}</div>`) +
@@ -2063,8 +2079,94 @@ async function entrarComoAluno(id, btn) {
     toast('Entrada pronta — clique em "Abrir a conta". Ao terminar, saia da conta do aluno.');
   } catch (e) { btn.disabled = false; btn.textContent = rotulo; toast(e.message, false); }
 }
+// TROCAR E-MAIL (17/11/2026) — a Hubla não deixa corrigir o e-mail da compra; a equipe troca aqui.
+// fn_admin_trocar_email muda o e-mail da MESMA conta (senha, progresso e plano ficam) e manda o par antigo → novo
+// para o Data Core (edge email-substituto): toda fatura futura do e-mail antigo (compra, reembolso) passa a valer para o novo.
+const TE_ERROS = {
+  email_em_uso: 'Esse e-mail já tem outra conta no Dominei. As duas contas não podem ser juntadas por aqui — passe o caso para o Fábio.',
+  tem_triade: 'Este aluno tem a Tríade (a senha é a mesma nas 3 plataformas). Troque o e-mail pela Administração da Tríade: revolucaodoestudo.com.br/app/admin.',
+  email_invalido: 'Confira o e-mail novo: ele parece incompleto ou com algum caractere errado.',
+  email_igual: 'O e-mail novo é igual ao atual.',
+  conta_demo: 'A conta demo não muda por aqui.',
+  aluno_nao_encontrado: 'Não achei esta conta. Atualize a página e tente de novo.',
+  staff_only: 'Só a equipe do Dominei pode trocar e-mail. Entre no painel de novo.',
+};
+const teErro = (m) => { const k = Object.keys(TE_ERROS).find(k => String(m || '').includes(k)); return k ? TE_ERROS[k] : 'Não consegui trocar agora. Tente de novo em instantes.'; };
+const tePrimeiroNome = (n) => { const p = String(n || '').trim().split(/\s+/)[0] || ''; return p ? p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() : ''; };
+function teFechar() { const o = $('teOv'); if (o) o.remove(); document.removeEventListener('keydown', teEsc); }
+function teEsc(e) { if (e.key === 'Escape') teFechar(); }
+function abrirTrocaEmail(id) {
+  const a = alunosCache.find(x => x.id === id); if (!a) return;
+  teFechar();
+  const triade = a.plano === 'triade';
+  const ov = document.createElement('div'); ov.className = 'te-ov'; ov.id = 'teOv';
+  ov.onclick = (e) => { if (e.target === ov) teFechar(); };
+  ov.innerHTML = `<div class="te-box" role="dialog" aria-modal="true" aria-labelledby="teTit">
+    <h3 id="teTit">Trocar e-mail</h3>
+    <div class="meta">${esc(a.nome || '(sem nome)')}${a.ultimo_login ? ' · já entrou no app' : ' · ainda não entrou no app'}</div>
+    <div class="te-de"><span class="meta">E-mail atual</span><span class="mono">${esc(a.email)}</span></div>
+    <label for="teNovo" style="margin-top:12px">E-mail novo (o que o aluno quer usar)</label>
+    <input id="teNovo" type="email" autocomplete="off" spellcheck="false" placeholder="nome@gmail.com" ${triade ? 'disabled' : ''}>
+    <ul class="te-lista">
+      <li>A conta continua <b>a mesma</b>: senha, progresso e plano não mudam.</li>
+      <li>O e-mail atual <b>deixa de entrar</b>. O aluno passa a entrar só com o novo.</li>
+      <li>Compras, reembolsos e renovações que a Hubla mandar no e-mail atual passam a valer para o novo. <b>Não precisa mexer na Hubla.</b></li>
+      <li>${a.ultimo_login ? 'Como ele já entrou, a senha continua a mesma.' : 'Como ele ainda não entrou, você recebe um <b>link de criar senha</b> para mandar.'} Nenhuma mensagem sai sozinha.</li>
+    </ul>
+    ${triade ? `<div class="te-aviso">${esc(TE_ERROS.tem_triade)}</div>` : ''}
+    <div id="teErro"></div>
+    <div class="te-acts"><button class="b-ghost" onclick="teFechar()">Cancelar</button>
+      <button class="b-ok" id="teConf" ${triade ? 'disabled' : ''}>Trocar e-mail</button></div>
+  </div>`;
+  document.body.appendChild(ov); document.addEventListener('keydown', teEsc);
+  if (!triade) { $('teNovo').focus(); $('teNovo').onkeydown = (e) => { if (e.key === 'Enter') trocarEmail(a); }; $('teConf').onclick = () => trocarEmail(a); }
+}
+async function trocarEmail(a) {
+  const novo = $('teNovo').value.trim().toLowerCase(), box = $('teErro'), bt = $('teConf');
+  box.innerHTML = '';
+  if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/.test(novo)) { box.innerHTML = `<div class="te-erro">${esc(TE_ERROS.email_invalido)}</div>`; return; }
+  if (novo === String(a.email).toLowerCase()) { box.innerHTML = `<div class="te-erro">${esc(TE_ERROS.email_igual)}</div>`; return; }
+  if (!confirm(`Trocar o e-mail de ${a.nome || 'este aluno'}?\n\nDe: ${a.email}\nPara: ${novo}\n\nO e-mail atual deixa de entrar no Dominei.`)) return;
+  bt.disabled = true; bt.textContent = 'trocando…';
+  const { data, error } = await sb.rpc('fn_admin_trocar_email', { p_id: a.id, p_novo: novo });
+  if (error) { bt.disabled = false; bt.textContent = 'Trocar e-mail'; box.innerHTML = `<div class="te-erro">${esc(teErro(error.message))}</div>`; return; }
+  teMostrarPronto(a, data);
+  carregarAlunos();
+}
+function teMensagem(a, d) {
+  const nome = tePrimeiroNome(d.nome || a.nome);
+  const oi = `Oi${nome ? ', ' + nome : ''}! Tudo bem? 😊`;
+  return d.link
+    ? `${oi}\n\nJá ajustamos o seu acesso ao *Dominei* para o e-mail *${d.novo}*.\n\nToque neste link, crie sua senha e você já entra direto:\n${d.link}\n\nDepois, é só entrar em https://dominei.app com esse e-mail e a senha que você criou.\n\nQualquer dúvida, é só chamar aqui!`
+    : `${oi}\n\nJá ajustamos o seu acesso ao *Dominei*. A partir de agora, você entra com o e-mail *${d.novo}* e a *mesma senha* que já usava.\n\nÉ só acessar https://dominei.app, tocar em *Entrar* e usar esses dados.\n\nQualquer dúvida, é só chamar aqui!`;
+}
+function teMostrarPronto(a, d) {
+  const box = document.querySelector('#teOv .te-box'); if (!box) return;
+  box.innerHTML = `<h3 id="teTit">E-mail trocado ✓</h3>
+    <div class="te-ok">${esc(d.nome || a.nome || 'O aluno')} agora entra com <b>${esc(d.novo)}</b>. O e-mail ${esc(d.antigo)} não entra mais.</div>
+    <label style="margin-top:16px">Mensagem para mandar ao aluno pelo WhatsApp</label>
+    <textarea class="te-msg" id="teMsg" readonly>${esc(teMensagem(a, d))}</textarea>
+    ${d.link ? `<div class="meta" style="margin-top:6px">O link de criar senha vale 7 dias e funciona uma vez. Abrir o link não gasta; só salvar a senha.</div>` : ''}
+    <div class="te-st" id="teSt">Compras da Hubla: registrando o e-mail novo…</div>
+    <div class="te-acts"><button class="b-ghost" onclick="teFechar()">Fechar</button>
+      <button class="b-ok" id="teCopiar">📋 Copiar mensagem</button></div>`;
+  $('teCopiar').onclick = () => copiarTexto($('teMsg').value, $('teCopiar'));
+  teAcompanhar(d.troca, 0);
+}
+async function teAcompanhar(troca, tentativa) {
+  const st = $('teSt'); if (!st) return;
+  const { data, error } = await sb.rpc('fn_admin_troca_email_status', { p_troca: troca });
+  if (!error && data && data.estado === 'ok') { st.innerHTML = '✓ Compras da Hubla: o e-mail antigo agora vale para o novo (compra, reembolso e renovação).'; st.style.color = 'var(--verde2)'; return; }
+  if (!error && data && data.estado === 'enviado' && tentativa < 10) { setTimeout(() => teAcompanhar(troca, tentativa + 1), 1500); return; }
+  st.style.color = 'var(--amarelo)';
+  st.innerHTML = `⚠ A troca no Dominei está feita, mas o registro das compras da Hubla não confirmou. <button class="b-ghost" id="teRe" style="margin-left:6px">Tentar de novo</button>`;
+  $('teRe').onclick = async () => { st.style.color = ''; st.textContent = 'Compras da Hubla: tentando de novo…';
+    const { error: e } = await sb.rpc('fn_admin_troca_email_reenviar', { p_troca: troca });
+    if (e) { st.textContent = 'Não consegui agora. Avise o Fábio com o nome do aluno.'; return; }
+    setTimeout(() => teAcompanhar(troca, 0), 1500); };
+}
 async function acaoAluno(id, acao) {
-  const txt = { bloquear: 'Bloquear este aluno? Ele perde o acesso ao app até ser desbloqueado.', encerrar: 'Encerrar o acesso deste aluno agora?' }[acao];
+  const txt ={ bloquear: 'Bloquear este aluno? Ele perde o acesso ao app até ser desbloqueado.', encerrar: 'Encerrar o acesso deste aluno agora?' }[acao];
   if (txt && !confirm(txt)) return;
   const { error } = await sb.rpc('fn_admin_aluno_acao', { p_id: id, p_acao: acao, p_dias: 30 });
   if (error) { toast(error.message, false); return; }
