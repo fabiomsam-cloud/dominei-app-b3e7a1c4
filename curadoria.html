@@ -97,6 +97,9 @@
   .b-no { background:transparent; color:var(--vermelho); border:1px solid rgba(237,90,90,.45); }
   .b-no:hover { background:rgba(237,90,90,.1); }
   .subform { background:rgba(8,14,26,.6); border:1px solid var(--line); border-radius:11px; padding:14px; margin-top:10px; }
+  /* 17/11: ações da aba Alunos quebram em linhas (com o "Trocar e-mail" a coluna transbordava) */
+  .al-acts { display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; min-width:230px; max-width:330px; margin-left:auto; }
+  .al-acts button { white-space:nowrap; }
   /* 17/11: janela "Trocar e-mail" da aba Alunos */
   .te-ov { position:fixed; inset:0; background:rgba(3,7,16,.72); backdrop-filter:blur(3px); z-index:80; display:flex; align-items:flex-start; justify-content:center; padding:6vh 16px; overflow:auto; }
   .te-box { width:100%; max-width:560px; background:var(--card2); border:1px solid var(--line); border-radius:var(--radius); padding:22px; box-shadow:0 24px 60px rgba(0,0,0,.45); }
@@ -217,7 +220,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-11-17a'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-11-17b'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -2049,11 +2052,11 @@ function desenharAlunos() {
       return `<tr><td><b>${esc(a.nome || '(sem nome)')}</b><br><span class="meta">${tp === 'aluno' ? `<span class="badge ouro">aluno${pl}</span> ` : tp === 'outro' && a.plano && !a.demo ? `<span class="badge grey">ex-aluno${pl}</span> ` : ''}${a.convite ? `<span class="badge edital_node">convite · ${esc(a.convite)}</span> ` : ''}desde ${dataBR(a.criado_em)} · ${a.questoes} questões${a.ultimo_login ? ' · entrou ' + dataBR(a.ultimo_login) : ''}</span></td>
         <td>${esc(a.email)}</td><td class="mono">${esc(a.telefone || '—')}</td><td>${esc(a.edital || '—')}</td><td class="mono">${dataBR(a.vencimento)}</td>
         <td><span class="badge ${cls}">${rot}</span></td>
-        <td style="white-space:nowrap"><button class="b-ghost" title="Abre o app na conta deste aluno, para ver o que ele vê" onclick="entrarComoAluno('${a.id}', this)">Entrar como aluno</button>
+        <td><div class="al-acts"><button class="b-ghost" title="Abre o app na conta deste aluno, para ver o que ele vê" onclick="entrarComoAluno('${a.id}', this)">Entrar como aluno</button>
           ${a.demo ? '' : `<button class="b-edit" title="A compra veio com o e-mail errado? Troque aqui: a conta, a senha e o plano continuam os mesmos" onclick="abrirTrocaEmail('${a.id}')">Trocar e-mail</button>
           <button class="b-ghost" onclick="acaoAluno('${a.id}','estender')">+30 dias</button>
           ${a.status === 'bloqueado' ? `<button class="b-ok" onclick="acaoAluno('${a.id}','desbloquear')">Desbloquear</button>` : `<button class="b-split" onclick="acaoAluno('${a.id}','bloquear')">Bloquear</button>`}
-          ${a.status === 'ativo' ? `<button class="b-ghost" onclick="acaoAluno('${a.id}','encerrar')">Encerrar</button>` : ''}`}</td></tr>`; }).join('') + '</tbody></table>'
+          ${a.status === 'ativo' ? `<button class="b-ghost" onclick="acaoAluno('${a.id}','encerrar')">Encerrar</button>` : ''}`}</div></td></tr>`; }).join('') + '</tbody></table>'
     : `<div class="empty">${achou.length ? `Nada em ${rotTipo} com esse filtro — há ${achou.length} em outro grupo. <button class="b-ghost" onclick="alIr('todos')">Ver todos</button>` : 'Nenhuma conta encontrada.'}</div>`) +
     (lista.length > PAGE ? `<div class="acts" style="margin-top:10px"><button class="b-ghost" ${alPag === 0 ? 'disabled' : ''} onclick="alPag--;desenharAlunos()">← anteriores</button><span class="meta">${alPag * PAGE + 1}–${Math.min(lista.length, (alPag + 1) * PAGE)} de ${lista.length}</span><button class="b-ghost" ${(alPag + 1) * PAGE >= lista.length ? 'disabled' : ''} onclick="alPag++;desenharAlunos()">próximos →</button></div>` : '');
 }
