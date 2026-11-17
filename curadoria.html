@@ -216,7 +216,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-11-17c'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-11-17d'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -354,11 +354,21 @@ $('lnkModo').onclick = (e) => { e.preventDefault(); modoCadastro = !modoCadastro
 $('btnEntrar').onclick = async () => {
   $('loginMsg').textContent = '';
   const email = $('email').value.trim(), password = $('senha').value;
-  const { error } = modoCadastro
+  const { data, error } = modoCadastro
     ? await sb.auth.signUp({ email, password })
     : await sb.auth.signInWithPassword({ email, password });
-  if (error) { $('loginMsg').textContent = error.message; return; }
-  if (modoCadastro) { $('loginMsg').textContent = 'Conta criada. Confirme pelo e-mail e entre.'; modoCadastro = false; return; }
+  if (error) { // 17/11: erros em português (antes saía a mensagem crua do servidor)
+    const m = String(error.message || '');
+    $('loginMsg').textContent = /invalid login credentials/i.test(m) ? 'E-mail ou senha incorretos. Se você ainda não tem conta no Dominei, toque em "Criar conta".'
+      : /already registered|already been registered|user already exists/i.test(m) ? 'Este e-mail já tem conta no Dominei (a mesma do app). Toque em "Já tenho conta" e entre com a senha de lá.'
+      : /cadastro_fechado|database error saving new user/i.test(m) ? 'Este e-mail não está na lista da equipe do painel. Peça ao Fábio para incluir.'
+      : /password should be at least|weak password/i.test(m) ? 'A senha precisa ter pelo menos 6 caracteres.'
+      : /failed to fetch|network|load failed/i.test(m) ? 'Sem conexão. Confira a internet e tente de novo.'
+      : m;
+    return;
+  }
+  if (modoCadastro) { modoCadastro = false; $('loginTitle').textContent = 'Entrar'; $('btnEntrar').textContent = 'Entrar'; $('lnkModo').textContent = 'Criar conta';
+    if (!data || !data.session) { $('loginMsg').textContent = 'Conta criada. Agora entre com o e-mail e a senha.'; return; } }
   boot();
 };
 $('btnSair2').onclick = async () => { await sb.auth.signOut({ scope: 'local' }); location.hash = ''; location.reload(); }; // só este painel: não derruba o app do aluno
