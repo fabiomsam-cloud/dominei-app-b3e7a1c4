@@ -4,19 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#070D1B">
-<meta name="build" content="2026-11-25a">
+<meta name="build" content="2026-11-25b">
 <script>
-/* 11/11: visitante novo que abre dominei.app vai para a página de apresentação (/conheca/).
-   Continua no app: quem chega por link de entrada (matrícula, compra, convite, senha, ?entrar=1), quem usa o app
-   instalado e quem já entrou neste aparelho. Só vale em dominei.app: a cópia do hub não tem a página.
-   Qualquer falha aqui deixa a pessoa no app, que é o comportamento de antes. */
+/* 11/11: quem abre dominei.app sem estar logado vai para a página de apresentação (/conheca/).
+   25/11 (pedido do Fábio): a marca "já entrou neste aparelho" NÃO segura mais ninguém no Entrar — ela prendia quem
+   já tinha logado uma vez (inclusive quem fez o teste e não comprou) numa tela só de e-mail e senha.
+   Continua no app: quem está logado, quem chega por link de entrada (matrícula, compra, convite, senha, ?entrar=1)
+   e quem usa o app instalado. Só vale em dominei.app: a cópia do hub não tem a página.
+   Qualquer falha aqui deixa a pessoa no app. */
+window.__temTokenApp = function () { try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (/^sb-.+-auth-token$/.test(k) && localStorage.getItem(k)) return true; } } catch (e) {} return false; };
 (function () { try {
   if (location.hostname !== 'dominei.app' && !sessionStorage.getItem('dominei-teste-raiz')) return; // a marca de teste só existe em conferência local
   if (!/^\/(index\.html)?$/.test(location.pathname)) return;
   if (location.search || location.hash) return;
   if ((window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone) return;
-  if (localStorage.getItem('dominei-ja-entrou')) return;
-  for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (/^sb-.+-auth-token$/.test(k) && localStorage.getItem(k)) return; }
+  window.__raizSemLink = true; // boot() usa: login guardado que já não vale também vai para a apresentação
+  if (window.__temTokenApp()) return;
   location.replace('/conheca/');
 } catch (e) {} })();
 </script>
@@ -1321,7 +1324,12 @@ async function boot() {
     if (eTh) { mostrarEntrada(); const m = $('authMsg'); if (m) m.textContent = 'O link de entrada venceu. Entre com seu e-mail e senha.'; return; }
   }
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) { mostrarEntrada(); return; }
+  if (!session) {
+    // 25/11: abriu dominei.app puro com um login guardado que não vale mais (o Supabase já o apagou) → apresentação.
+    // Se o login continua guardado (falha de internet na renovação), fica no Entrar, como antes.
+    if (window.__raizSemLink && !window.__temTokenApp()) { location.replace('/conheca/'); return; }
+    mostrarEntrada(); return;
+  }
   try { localStorage.setItem('dominei-ja-entrou', '1'); } catch (e) { /* sem armazenamento: só não marca */ }
   const { data: acesso, error: eAc } = await sb.rpc('fn_app_acesso');
   acessoInfo = acesso || {};
