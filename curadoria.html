@@ -220,7 +220,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const BUILD = '2026-11-25b'; // carimbo de versão — atualizado a cada deploy
+const BUILD = '2026-11-26a'; // carimbo de versão — atualizado a cada deploy
 const SB_URL = 'https://syzegzobxnhpjnbebvst.supabase.co';
 const SB_KEY = 'sb_publishable_IBfOjZVIlht14DH7D6cUqQ_8woHSJ8b';
 const EDGE_SONDAS = SB_URL + '/functions/v1/gerar-sondas';
@@ -2070,7 +2070,7 @@ function desenharAlunos() {
   box.innerHTML = (pag.length ? `<table class="tb"><thead><tr><th>NOME</th><th>E-MAIL</th><th>WHATSAPP</th><th>CONCURSO</th><th>VENCIMENTO</th><th>STATUS</th><th></th></tr></thead><tbody>` +
     pag.map(a => { const [rot, cls] = AL_STATUS[a.status] || [a.status, 'grey'];
       const tp = alTipoDe(a), pl = a.plano ? ' · ' + esc(AL_PLANO[a.plano] || a.plano) : '';
-      return `<tr><td><b>${esc(a.nome || '(sem nome)')}</b><br><span class="meta">${tp === 'aluno' ? `<span class="badge ouro">aluno${pl}</span> ` : tp === 'outro' && a.plano && !a.demo ? `<span class="badge grey">ex-aluno${pl}</span> ` : ''}${a.convite ? `<span class="badge edital_node">convite · ${esc(a.convite)}</span> ` : ''}desde ${dataBR(a.criado_em)} · ${a.questoes} questões${a.ultimo_login ? ' · entrou ' + dataBR(a.ultimo_login) : ''}</span></td>
+      return `<tr><td><b>${esc(a.nome || '(sem nome)')}</b><br><span class="meta">${tp === 'aluno' ? `<span class="badge ouro"${a.convite ? ` title="Conta criada pelo convite: ${esc(a.convite)}"` : ''}>aluno${pl}</span> ` : tp === 'outro' && a.plano && !a.demo ? `<span class="badge grey">ex-aluno${pl}</span> ` : ''}${a.convite && tp !== 'aluno' ? `<span class="badge edital_node">convite · ${esc(a.convite)}</span> ` : ''}desde ${dataBR(a.criado_em)} · ${a.questoes} questões${a.ultimo_login ? ' · entrou ' + dataBR(a.ultimo_login) : ''}</span></td>
         <td>${esc(a.email)}</td><td class="mono">${a.telefone ? esc(a.telefone) : '<span class="al-semtel">sem WhatsApp</span>'}${a.demo ? '' : `<br><button class="al-lapis" title="Corrigir o WhatsApp deste aluno (é para este número que o Esqueci minha senha manda o link)" onclick="abrirWhatsApp('${a.id}')">${a.telefone ? 'corrigir' : 'cadastrar'}</button>`}</td><td>${esc(a.edital || '—')}</td><td class="mono">${dataBR(a.vencimento)}</td>
         <td><span class="badge ${cls}">${rot}</span></td>
         <td><div class="al-acts"><button class="b-ghost" title="Abre o app na conta deste aluno, para ver o que ele vê" onclick="entrarComoAluno('${a.id}', this)">Entrar como aluno</button>
